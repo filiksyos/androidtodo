@@ -26,6 +26,7 @@ tasks.register('clean', Delete) {
 File: app/.gitignore
 ----------------------------------------
 /build
+
 ========================================
 
 File: app/proguard-rules.pro
