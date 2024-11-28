@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 from notion_client import Client
 
 # Notion API Setup
-NOTION_TOKEN = "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"
+NOTION_TOKEN = "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"
 DATABASE_ID = "14c926a218098027b001d44694f762a4"
 
 notion = Client(auth=NOTION_TOKEN)
@@ -85,16 +85,16 @@ def add_links_to_page(page_id, links):
 if __name__ == "__main__":
     # Define resource categories and their search queries
     resources = {
-        "Courses": "RxJava android studio free course",
+        "Courses": "RxJava android studio free course"
         #"YouTube Videos": "Python YouTube.com",
-        "google books": "RxJava android studio googlebooks.com",
-        "PDFs": "RxJava android studio PDF",
-        "geeks for geeks": "RxJava geeksforgeeks.com",
+        #"google books": "RxJava android studio googlebooks.com",
+        #"PDFs": "RxJava android studio PDF",
+        #"geeks for geeks": "RxJava geeksforgeeks.com",
         #"Podcasts": "Python podcast episode YouTube.com",
         #"Apps": "Python learning apps play store",
-        "Tiktok": "RxJava android studio Tiktok.com discover",
-        "Medium": "RxJava android studio medium.com",
-        "CSDN": "RxJava android studio CSDN.com"
+        #"Tiktok": "RxJava android studio Tiktok.com discover",
+        #"Medium": "RxJava android studio medium.com",
+        #"CSDN": "RxJava android studio CSDN.com"
     }
 
     for page_name, query in resources.items():
