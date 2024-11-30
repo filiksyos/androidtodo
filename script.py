@@ -85,18 +85,16 @@ def add_links_to_page(page_id, links):
 if __name__ == "__main__":
     # Define resource categories and their search queries
     resources = {
-        #"Courses": "Kotlin companion objects",
-        #"YouTube Videos": "Python YouTube.com",
-        #"google books": "RxJava android studio googlebooks.com"
-        "PDFs": "Kotlin companion objects PDF",
-        "geeks for geeks": "Kotlin companion objects geeks for geeks",
-        #"Podcasts": "Python podcast episode YouTube.com",
-        #"Apps": "Python learning apps play store",
-        "Tiktok": "Kotlin companion objects explained Tiktok short",
-        #"Medium": "RxJava android studio medium.com",
-        #"CSDN": "RxJava android studio CSDN.com"
-        "Twitter": "Kotlin companion objects twitter post",
-        "Medium" : "Kotlin companion objects explained medium article"        
+        #"Courses": " ",
+        #"YouTube Videos": " ",
+        #"PDFs": " ",
+        "geeks for geeks": "geeks for geeks: Null Safety in Kotlin",
+        #"Podcasts": " ",
+        "Apps": "play.google.com: Null Safety in Kotlin",
+        #"Tiktok":  ",
+        "CSDN": "CSDN.net: Null Safety in Kotlin",
+        #"Twitter": " ",
+        "Medium" : "Medium.com: Null Safety in Kotlin"        
     }
 
     for page_name, query in resources.items():
