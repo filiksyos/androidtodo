@@ -92,7 +92,7 @@ if __name__ == "__main__":
         #"Podcasts": " ",
         "Apps": "play.google.com: Null Safety in Kotlin",
         #"Tiktok":  ",
-        "CSDN": "CSDN.net: Null Safety in Kotlin",
+        "CSDN": "CSDN.net: Kotlin 中的空安全",
         #"Twitter": " ",
         "Medium" : "Medium.com: Null Safety in Kotlin"        
     }
