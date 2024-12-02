@@ -35,13 +35,18 @@ class DashboardFragment : Fragment() {
     private lateinit var mainDashboardItemsRepo: MainDashboardItemsRepo
     private lateinit var dashboardAdapter: DashboardAdapter
 
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-
-    }
-
+    // Map adapter positions to actions (currently placeholders)
+    private val dashboardActions = mapOf(
+        0 to { displayProgressIfSlow() /* TODO: Add navigation logic */ },
+        1 to { displayProgressIfSlow() /* TODO: Add navigation logic */ },
+        2 to { displayProgressIfSlow() /* TODO: Add navigation logic */ },
+        3 to { displayProgressIfSlow() /* TODO: Add navigation logic */ },
+        4 to { displayProgressIfSlow() /* TODO: Add navigation logic */ },
+        5 to { displayProgressIfSlow() /* TODO: Add navigation logic */ },
+        6 to { displayProgressIfSlow() /* TODO: Add navigation logic */ },
+        7 to { displayProgressIfSlow() /* TODO: Add navigation logic */ },
+        8 to { displayProgressIfSlow() /* TODO: Add navigation logic */ }
+    )
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -49,7 +54,6 @@ class DashboardFragment : Fragment() {
     ): View {
         binding = FragmentDashboardBinding.inflate(layoutInflater)
         binding.progressBar.isVisible = false
-        // Inflate the layout for this fragment
         return binding.root
     }
 
@@ -62,69 +66,25 @@ class DashboardFragment : Fragment() {
         dashboardViewModel.addItemsToDashboard(mainDashboardItemsRepo.getDashboardItems())
 
         observeDashboardItems()
-
     }
 
     private fun observeDashboardItems() {
         val dashBoardItemList = dashboardViewModel.dashboardItems
 
         dashboardAdapter = DashboardAdapter(dashBoardItemList) { adapterPosition ->
-            onClick(adapterPosition)
+            handleDashboardAction(adapterPosition)
         }
+
         binding.rvMainDashboard.apply {
             adapter = dashboardAdapter
-            layoutManager =
-                GridLayoutManager(requireContext(), 1, GridLayoutManager.HORIZONTAL, false)
+            layoutManager = GridLayoutManager(requireContext(), 1, GridLayoutManager.HORIZONTAL, false)
         }
-
     }
 
-    private fun onClick(adapterPosition: Int) {
-        when (adapterPosition) {
-            0 -> {
-                displayProgressIfSlow()
-                //The intent navigation
-            }
-
-            1 -> {
-                displayProgressIfSlow()
-                //The intent navigation
-            }
-
-            2 -> {
-                displayProgressIfSlow()
-                //The intent navigation
-            }
-
-            3 -> {
-                displayProgressIfSlow()
-                //The intent navigation
-            }
-
-            4 -> {
-                displayProgressIfSlow()
-                //The intent navigation
-            }
-
-            5 -> {
-                displayProgressIfSlow()
-                //The intent navigation
-            }
-
-            6 -> {
-                displayProgressIfSlow()
-                //The intent navigation
-            }
-
-            7 -> {
-                displayProgressIfSlow()
-                //The intent navigation
-            }
-
-            8 -> {
-                displayProgressIfSlow()
-                //The intent navigation
-            }
+    private fun handleDashboardAction(adapterPosition: Int) {
+        // Execute the action defined in the dashboardActions map, if available
+        dashboardActions[adapterPosition]?.invoke() ?: run {
+            Toast.makeText(requireContext(), "No action defined for this item", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -140,6 +100,4 @@ class DashboardFragment : Fragment() {
         )
         dashboardViewModel.saveButtonVisibility(requireContext(), false)
     }
-
-
 }
