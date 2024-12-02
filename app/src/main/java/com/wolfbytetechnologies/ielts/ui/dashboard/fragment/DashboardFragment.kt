@@ -96,4 +96,3 @@ class DashboardFragment : Fragment() {
         dashboardViewModel.saveButtonVisibility(requireContext(), false)
     }
 }
-
