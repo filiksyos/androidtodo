@@ -1,5 +1,7 @@
 package com.wolfbytetechnologies.ielts.ui.dashboard.fragment
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
@@ -22,17 +24,17 @@ class DashboardFragment : Fragment() {
     private val mainDashboardItemsRepo: MainDashboardItemsRepo by inject()
     private val dashboardViewModel: DashboardViewModel by viewModel()
 
-    // Map adapter positions to actions (currently placeholders)
+    // Map adapter positions to YouTube search queries
     private val dashboardActions = mapOf(
-        0 to { displayProgressIfSlow() /* TODO: Add YouTube intent logic */ },
-        1 to { displayProgressIfSlow() /* TODO: Add YouTube intent logic */ },
-        2 to { displayProgressIfSlow() /* TODO: Add YouTube intent logic */ },
-        3 to { displayProgressIfSlow() /* TODO: Add YouTube intent logic */ },
-        4 to { displayProgressIfSlow() /* TODO: Add YouTube intent logic */ },
-        5 to { displayProgressIfSlow() /* TODO: Add YouTube intent logic */ },
-        6 to { displayProgressIfSlow() /* TODO: Add YouTube intent logic */ },
-        7 to { displayProgressIfSlow() /* TODO: Add YouTube intent logic */ },
-        8 to { displayProgressIfSlow() /* TODO: Add YouTube intent logic */ }
+        0 to { openYouTubeSearch("IELTS Reading Tips and Tricks") },
+        1 to { openYouTubeSearch("IELTS Listening Tips and Tricks") },
+        2 to { openYouTubeSearch("IELTS Writing Tips and Tricks") },
+        3 to { openYouTubeSearch("IELTS Speaking Tips and Tricks") },
+        4 to { openYouTubeSearch("IELTS Vocabulary Building") },
+        5 to { openYouTubeSearch("IELTS Grammar Lessons") },
+        6 to { openYouTubeSearch("IELTS Test Day Tips") },
+        7 to { openYouTubeSearch("IELTS General Training Tips") },
+        8 to { openYouTubeSearch("IELTS Academic Training Tips") }
     )
 
     override fun onCreateView(
@@ -74,9 +76,16 @@ class DashboardFragment : Fragment() {
         }
     }
 
-    private fun displayProgressIfSlow() {
-        binding.progressBar.isVisible =
-            Build.VERSION.SDK_INT == Build.VERSION_CODES.N || Build.VERSION.SDK_INT == 27 || Build.VERSION.SDK_INT == 26
+    private fun openYouTubeSearch(query: String) {
+        val link = "https://www.youtube.com/results?search_query=${Uri.encode(query)}"
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(link))
+
+        // Check if the intent is resolvable
+        if (intent.resolveActivity(requireContext().packageManager) != null) {
+            startActivity(intent)
+        } else {
+            Toast.makeText(requireContext(), "No app available to open the link", Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onResume() {
@@ -87,3 +96,4 @@ class DashboardFragment : Fragment() {
         dashboardViewModel.saveButtonVisibility(requireContext(), false)
     }
 }
+
