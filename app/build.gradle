@@ -3,7 +3,6 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'androidx.navigation.safeargs.kotlin'
     id 'kotlin-parcelize'
-    id 'kotlin-kapt'
 }
 
 android {
@@ -95,5 +94,8 @@ dependencies {
 
     //admob
     implementation 'com.google.android.gms:play-services-ads:22.6.0'
+
+    // Koin core dependency
+    implementation 'io.insert-koin:koin-android:4.0.0'
 
 }

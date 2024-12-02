@@ -2,56 +2,53 @@ package com.wolfbytetechnologies.ielts.ui.dashboard.fragment
 
 import android.os.Build
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import com.wolfbytetechnologies.ielts.R
 import com.wolfbytetechnologies.ielts.databinding.FragmentDashboardBinding
 import com.wolfbytetechnologies.ielts.ui.dashboard.adapter.DashboardAdapter
 import com.wolfbytetechnologies.ielts.ui.dashboard.repo.MainDashboardItemsRepo
 import com.wolfbytetechnologies.ielts.ui.dashboard.viewModel.DashboardViewModel
-
+import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class DashboardFragment : Fragment() {
     private lateinit var binding: FragmentDashboardBinding
-    private lateinit var dashboardViewModel: DashboardViewModel
-    private lateinit var mainDashboardItemsRepo: MainDashboardItemsRepo
-    private lateinit var dashboardAdapter: DashboardAdapter
+
+    // Inject dependencies using Koin
+    private val mainDashboardItemsRepo: MainDashboardItemsRepo by inject()
+    private val dashboardViewModel: DashboardViewModel by viewModel()
 
     // Map adapter positions to actions (currently placeholders)
     private val dashboardActions = mapOf(
-        0 to { displayProgressIfSlow() /* TODO: Add navigation logic */ },
-        1 to { displayProgressIfSlow() /* TODO: Add navigation logic */ },
-        2 to { displayProgressIfSlow() /* TODO: Add navigation logic */ },
-        3 to { displayProgressIfSlow() /* TODO: Add navigation logic */ },
-        4 to { displayProgressIfSlow() /* TODO: Add navigation logic */ },
-        5 to { displayProgressIfSlow() /* TODO: Add navigation logic */ },
-        6 to { displayProgressIfSlow() /* TODO: Add navigation logic */ },
-        7 to { displayProgressIfSlow() /* TODO: Add navigation logic */ },
-        8 to { displayProgressIfSlow() /* TODO: Add navigation logic */ }
+        0 to { displayProgressIfSlow() /* TODO: Add YouTube intent logic */ },
+        1 to { displayProgressIfSlow() /* TODO: Add YouTube intent logic */ },
+        2 to { displayProgressIfSlow() /* TODO: Add YouTube intent logic */ },
+        3 to { displayProgressIfSlow() /* TODO: Add YouTube intent logic */ },
+        4 to { displayProgressIfSlow() /* TODO: Add YouTube intent logic */ },
+        5 to { displayProgressIfSlow() /* TODO: Add YouTube intent logic */ },
+        6 to { displayProgressIfSlow() /* TODO: Add YouTube intent logic */ },
+        7 to { displayProgressIfSlow() /* TODO: Add YouTube intent logic */ },
+        8 to { displayProgressIfSlow() /* TODO: Add YouTube intent logic */ }
     )
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: android.view.LayoutInflater, container: android.view.ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View {
+    ): android.view.View {
         binding = FragmentDashboardBinding.inflate(layoutInflater)
         binding.progressBar.isVisible = false
         return binding.root
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: android.view.View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        mainDashboardItemsRepo = MainDashboardItemsRepo(requireContext())
-        dashboardViewModel = ViewModelProvider(this)[DashboardViewModel::class.java]
+        // Use injected dependencies
         dashboardViewModel.addItemsToDashboard(mainDashboardItemsRepo.getDashboardItems())
 
         observeDashboardItems()
@@ -60,7 +57,7 @@ class DashboardFragment : Fragment() {
     private fun observeDashboardItems() {
         val dashBoardItemList = dashboardViewModel.dashboardItems
 
-        dashboardAdapter = DashboardAdapter(dashBoardItemList) { adapterPosition ->
+        val dashboardAdapter = DashboardAdapter(dashBoardItemList) { adapterPosition ->
             handleDashboardAction(adapterPosition)
         }
 
