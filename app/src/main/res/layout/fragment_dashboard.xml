@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<ScrollView
-    android:id="@+id/dashboardScrollview"
+<androidx.core.widget.NestedScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -9,64 +8,96 @@
     android:layout_height="match_parent"
     android:scrollbars="none"
     android:descendantFocusability="afterDescendants"
-    >
-
+    tools:context=".ui.dashboard.fragment.DashboardFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/blue_50"
-        android:focusableInTouchMode="true"
-        tools:context=".ui.dashboard.fragment.DashboardFragment">
+        android:padding="16dp">
 
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardView"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="24dp"
-            android:layout_marginEnd="20dp"
-            app:cardBackgroundColor="@color/blue_500"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="20dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
-
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_mainDashboard"
-            style="@style/recycler_horizontal_style"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
-            android:paddingStart="10dp"
-            android:paddingTop="5dp"
-            android:paddingEnd="0dp"
-            android:paddingBottom="16dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0" />
-
-
-
-        <ProgressBar
-            android:id="@+id/progressBar"
-            style="@style/Base.Widget.AppCompat.ProgressBar"
+        <!-- Reading Row -->
+        <TextView
+            android:id="@+id/tvReadingTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:indeterminate="true"
-            android:visibility="invisible"
-            tools:layout_editor_absoluteX="182dp"
-            tools:layout_editor_absoluteY="44dp"
-            tools:ignore="MissingConstraints" />
+            android:text="Reading"
+            android:textSize="18sp"
+            android:textColor="@color/blue_700"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvReading"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingTop="8dp"
+            app:layout_constraintTop_toBottomOf="@id/tvReadingTitle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Listening Row -->
+        <TextView
+            android:id="@+id/tvListeningTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Listening"
+            android:textSize="18sp"
+            android:textColor="@color/blue_700"
+            app:layout_constraintTop_toBottomOf="@id/rvReading"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="16dp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvListening"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingTop="8dp"
+            app:layout_constraintTop_toBottomOf="@id/tvListeningTitle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Writing Row -->
+        <TextView
+            android:id="@+id/tvWritingTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Writing"
+            android:textSize="18sp"
+            android:textColor="@color/blue_700"
+            app:layout_constraintTop_toBottomOf="@id/rvListening"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="16dp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvWriting"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingTop="8dp"
+            app:layout_constraintTop_toBottomOf="@id/tvWritingTitle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Speaking Row -->
+        <TextView
+            android:id="@+id/tvSpeakingTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Speaking"
+            android:textSize="18sp"
+            android:textColor="@color/blue_700"
+            app:layout_constraintTop_toBottomOf="@id/rvWriting"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="16dp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvSpeaking"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingTop="8dp"
+            app:layout_constraintTop_toBottomOf="@id/tvSpeakingTitle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-</ScrollView>
-
+</androidx.core.widget.NestedScrollView>

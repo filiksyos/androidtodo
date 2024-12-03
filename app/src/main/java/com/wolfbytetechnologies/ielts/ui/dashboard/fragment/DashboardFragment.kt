@@ -1,17 +1,21 @@
 package com.wolfbytetechnologies.ielts.ui.dashboard.fragment
 
 import android.content.Intent
+import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
-import com.wolfbytetechnologies.ielts.R
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.wolfbytetechnologies.ielts.databinding.FragmentDashboardBinding
 import com.wolfbytetechnologies.ielts.ui.dashboard.adapter.DashboardAdapter
+import com.wolfbytetechnologies.ielts.ui.dashboard.data.DashboardItems
 import com.wolfbytetechnologies.ielts.ui.dashboard.repo.MainDashboardItemsRepo
 import com.wolfbytetechnologies.ielts.ui.dashboard.viewModel.DashboardViewModel
 import org.koin.android.ext.android.inject
@@ -20,59 +24,107 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class DashboardFragment : Fragment() {
     private lateinit var binding: FragmentDashboardBinding
 
-    // Inject dependencies using Koin
-    private val mainDashboardItemsRepo: MainDashboardItemsRepo by inject()
     private val dashboardViewModel: DashboardViewModel by viewModel()
 
-    // Map adapter positions to YouTube search queries
-    private val dashboardActions = mapOf(
-        0 to { openYouTubeSearch("IELTS Reading Tips and Tricks") },
-        1 to { openYouTubeSearch("IELTS Listening Tips and Tricks") },
-        2 to { openYouTubeSearch("IELTS Writing Tips and Tricks") },
-        3 to { openYouTubeSearch("IELTS Speaking Tips and Tricks") },
-        4 to { openYouTubeSearch("IELTS Vocabulary Building") },
-        5 to { openYouTubeSearch("IELTS Grammar Lessons") },
-        6 to { openYouTubeSearch("IELTS Test Day Tips") },
-        7 to { openYouTubeSearch("IELTS General Training Tips") },
-        8 to { openYouTubeSearch("IELTS Academic Training Tips") }
-    )
+    private lateinit var readingAdapter: DashboardAdapter
+    private lateinit var listeningAdapter: DashboardAdapter
+    private lateinit var writingAdapter: DashboardAdapter
+    private lateinit var speakingAdapter: DashboardAdapter
 
     override fun onCreateView(
-        inflater: android.view.LayoutInflater, container: android.view.ViewGroup?,
+        inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): android.view.View {
-        binding = FragmentDashboardBinding.inflate(layoutInflater)
-        binding.progressBar.isVisible = false
+    ): View {
+        binding = FragmentDashboardBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
-    override fun onViewCreated(view: android.view.View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Use injected dependencies
-        dashboardViewModel.addItemsToDashboard(mainDashboardItemsRepo.getDashboardItems())
+        setupAdapters()
+        setupRecyclerViews()
+        setupObservers()
 
-        observeDashboardItems()
+        // Trigger data categorization
+        dashboardViewModel.categorizeDashboardItems()
     }
 
-    private fun observeDashboardItems() {
-        val dashBoardItemList = dashboardViewModel.dashboardItems
-
-        val dashboardAdapter = DashboardAdapter(dashBoardItemList) { adapterPosition ->
-            handleDashboardAction(adapterPosition)
+    private fun setupAdapters() {
+        readingAdapter = DashboardAdapter(emptyList()) { position ->
+            handleItemClick(dashboardViewModel.readingItems.value?.get(position))
         }
 
-        binding.rvMainDashboard.apply {
-            adapter = dashboardAdapter
-            layoutManager = GridLayoutManager(requireContext(), 1, GridLayoutManager.HORIZONTAL, false)
+        listeningAdapter = DashboardAdapter(emptyList()) { position ->
+            handleItemClick(dashboardViewModel.listeningItems.value?.get(position))
+        }
+
+        writingAdapter = DashboardAdapter(emptyList()) { position ->
+            handleItemClick(dashboardViewModel.writingItems.value?.get(position))
+        }
+
+        speakingAdapter = DashboardAdapter(emptyList()) { position ->
+            handleItemClick(dashboardViewModel.speakingItems.value?.get(position))
         }
     }
 
-    private fun handleDashboardAction(adapterPosition: Int) {
-        // Execute the action defined in the dashboardActions map, if available
-        dashboardActions[adapterPosition]?.invoke() ?: run {
-            Toast.makeText(requireContext(), "No action defined for this item", Toast.LENGTH_SHORT).show()
+    private fun setupRecyclerViews() {
+        binding.rvReading.apply {
+            adapter = readingAdapter
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        }
+
+        binding.rvListening.apply {
+            adapter = listeningAdapter
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        }
+
+        binding.rvWriting.apply {
+            adapter = writingAdapter
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        }
+
+        binding.rvSpeaking.apply {
+            adapter = speakingAdapter
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        }
+    }
+
+    private fun setupObservers() {
+        dashboardViewModel.readingItems.observe(viewLifecycleOwner) { items ->
+            readingAdapter = DashboardAdapter(items) { position ->
+                handleItemClick(items[position])
+            }
+            binding.rvReading.adapter = readingAdapter
+        }
+
+        dashboardViewModel.listeningItems.observe(viewLifecycleOwner) { items ->
+            listeningAdapter = DashboardAdapter(items) { position ->
+                handleItemClick(items[position])
+            }
+            binding.rvListening.adapter = listeningAdapter
+        }
+
+        dashboardViewModel.writingItems.observe(viewLifecycleOwner) { items ->
+            writingAdapter = DashboardAdapter(items) { position ->
+                handleItemClick(items[position])
+            }
+            binding.rvWriting.adapter = writingAdapter
+        }
+
+        dashboardViewModel.speakingItems.observe(viewLifecycleOwner) { items ->
+            speakingAdapter = DashboardAdapter(items) { position ->
+                handleItemClick(items[position])
+            }
+            binding.rvSpeaking.adapter = speakingAdapter
+        }
+    }
+
+    private fun handleItemClick(item: DashboardItems?) {
+        item?.let {
+            val query = "${it.itemText} ${it.cardType} IELTS".trim() // e.g., "Reading Lesson IELTS"
+            openYouTubeSearch(query)
         }
     }
 
@@ -80,12 +132,10 @@ class DashboardFragment : Fragment() {
         val link = "https://www.youtube.com/results?search_query=${Uri.encode(query)}"
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(link))
 
-        // Check if the intent is resolvable
         if (intent.resolveActivity(requireContext().packageManager) != null) {
             startActivity(intent)
         } else {
             Toast.makeText(requireContext(), "No app available to open the link", Toast.LENGTH_SHORT).show()
         }
     }
-
 }

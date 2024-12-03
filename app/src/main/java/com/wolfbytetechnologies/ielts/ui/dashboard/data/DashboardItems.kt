@@ -4,7 +4,7 @@ import android.graphics.drawable.Drawable
 
 data class DashboardItems(
     val itemImage: Drawable?,
-    val itemText: String,
-    val cardType: String,
-    val color: Int
+    val itemText: String?,
+    val cardType: String?,
+    val color: Int?
 )

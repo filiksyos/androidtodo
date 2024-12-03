@@ -30,7 +30,8 @@ class DashboardAdapter(
             imageViewItemImage.setImageDrawable(currentItem.itemImage)
             tvItemName.text = currentItem.itemText
             tvLessonOrTest.text = currentItem.cardType
-            cvItemsMainBackground.setCardBackgroundColor(currentItem.color)
+            if (currentItem.color != null)
+                cvItemsMainBackground.setCardBackgroundColor(currentItem.color)
         }
         holder.itemView.setOnClickListener {
             itemOnClick(holder.adapterPosition)
