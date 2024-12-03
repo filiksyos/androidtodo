@@ -1,17 +1,13 @@
 package com.wolfbytetechnologies.ielts.ui.dashboard.viewModel
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import com.wolfbytetechnologies.ielts.ui.dashboard.data.DashboardItems
+import com.wolfbytetechnologies.ielts.ui.dashboard.repo.MainDashboardItemsRepo
 
-class DashboardViewModel : ViewModel() {
-    val dashboardItems : MutableList<DashboardItems> = mutableListOf()
+class DashboardViewModel(private val repo: MainDashboardItemsRepo) : ViewModel() {
+    val dashboardItems = mutableListOf<DashboardItems>()
 
-    fun addItemsToDashboard(listOfItems : List<DashboardItems>){
-        if (dashboardItems.isNullOrEmpty()){
-            listOfItems.forEach {
-                dashboardItems.add(it)
-            }
-        }
+    fun addItemsToDashboard(items: List<DashboardItems>) {
+        dashboardItems.addAll(items)
     }
 }

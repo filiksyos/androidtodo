@@ -11,6 +11,7 @@ val appModule = module {
     // Provide the repository as a singleton
     single { MainDashboardItemsRepo(androidContext()) }
 
-    // Provide the ViewModel
-    viewModel { DashboardViewModel() }
+    // Provide the ViewModel and inject the repository dependency
+    viewModel { DashboardViewModel(get()) }
 }
+
