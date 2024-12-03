@@ -216,6 +216,25 @@ class MainActivity : AppCompatActivity() {
 
 ========================================
 
+File: app/src/main/java/com/wolfbytetechnologies/ielts/InternetUtility.kt
+----------------------------------------
+package com.wolfbytetechnologies.ielts
+
+import android.content.Context
+import android.net.ConnectivityManager
+
+class InternetUtility(private val context: Context) {
+
+    val isConnected: Boolean
+        get() {
+            val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            val activeNetwork = connectivityManager.activeNetworkInfo
+            return activeNetwork != null && activeNetwork.isConnected
+        }
+}
+
+========================================
+
 File: app/src/main/java/com/wolfbytetechnologies/ielts/ui/dashboard/data/DashboardItems.kt
 ----------------------------------------
 package com.wolfbytetechnologies.ielts.ui.dashboard.data
@@ -224,10 +243,11 @@ import android.graphics.drawable.Drawable
 
 data class DashboardItems(
     val itemImage: Drawable?,
-    val itemText: String,
-    val cardType: String,
-    val color: Int
+    val itemText: String?,
+    val cardType: String?,
+    val color: Int?
 )
+
 ========================================
 
 File: app/src/main/java/com/wolfbytetechnologies/ielts/ui/dashboard/repo/MainDashboardItemsRepo.kt
@@ -312,78 +332,127 @@ File: app/src/main/java/com/wolfbytetechnologies/ielts/ui/dashboard/fragment/Das
 package com.wolfbytetechnologies.ielts.ui.dashboard.fragment
 
 import android.content.Intent
+import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
-import com.wolfbytetechnologies.ielts.R
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.wolfbytetechnologies.ielts.InternetUtility
 import com.wolfbytetechnologies.ielts.databinding.FragmentDashboardBinding
 import com.wolfbytetechnologies.ielts.ui.dashboard.adapter.DashboardAdapter
+import com.wolfbytetechnologies.ielts.ui.dashboard.data.DashboardItems
 import com.wolfbytetechnologies.ielts.ui.dashboard.repo.MainDashboardItemsRepo
 import com.wolfbytetechnologies.ielts.ui.dashboard.viewModel.DashboardViewModel
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class DashboardFragment : Fragment() {
+
     private lateinit var binding: FragmentDashboardBinding
-
-    // Inject dependencies using Koin
-    private val mainDashboardItemsRepo: MainDashboardItemsRepo by inject()
     private val dashboardViewModel: DashboardViewModel by viewModel()
+    private val internetUtility: InternetUtility by inject()
 
-    // Map adapter positions to YouTube search queries
-    private val dashboardActions = mapOf(
-        0 to { openYouTubeSearch("IELTS Reading Tips and Tricks") },
-        1 to { openYouTubeSearch("IELTS Listening Tips and Tricks") },
-        2 to { openYouTubeSearch("IELTS Writing Tips and Tricks") },
-        3 to { openYouTubeSearch("IELTS Speaking Tips and Tricks") },
-        4 to { openYouTubeSearch("IELTS Vocabulary Building") },
-        5 to { openYouTubeSearch("IELTS Grammar Lessons") },
-        6 to { openYouTubeSearch("IELTS Test Day Tips") },
-        7 to { openYouTubeSearch("IELTS General Training Tips") },
-        8 to { openYouTubeSearch("IELTS Academic Training Tips") }
-    )
+    private lateinit var readingAdapter: DashboardAdapter
+    private lateinit var listeningAdapter: DashboardAdapter
+    private lateinit var writingAdapter: DashboardAdapter
+    private lateinit var speakingAdapter: DashboardAdapter
 
     override fun onCreateView(
-        inflater: android.view.LayoutInflater, container: android.view.ViewGroup?,
+        inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): android.view.View {
-        binding = FragmentDashboardBinding.inflate(layoutInflater)
-        binding.progressBar.isVisible = false
+    ): View {
+        binding = FragmentDashboardBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
-    override fun onViewCreated(view: android.view.View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Use injected dependencies
-        dashboardViewModel.addItemsToDashboard(mainDashboardItemsRepo.getDashboardItems())
+        setupAdapters()
+        setupRecyclerViews()
+        setupObservers()
 
-        observeDashboardItems()
+        // Trigger data categorization
+        dashboardViewModel.categorizeDashboardItems()
     }
 
-    private fun observeDashboardItems() {
-        val dashBoardItemList = dashboardViewModel.dashboardItems
-
-        val dashboardAdapter = DashboardAdapter(dashBoardItemList) { adapterPosition ->
-            handleDashboardAction(adapterPosition)
+    private fun setupAdapters() {
+        readingAdapter = DashboardAdapter { position ->
+            handleItemClick(dashboardViewModel.readingItems.value?.get(position))
         }
 
-        binding.rvMainDashboard.apply {
-            adapter = dashboardAdapter
-            layoutManager = GridLayoutManager(requireContext(), 1, GridLayoutManager.HORIZONTAL, false)
+        listeningAdapter = DashboardAdapter { position ->
+            handleItemClick(dashboardViewModel.listeningItems.value?.get(position))
+        }
+
+        writingAdapter = DashboardAdapter { position ->
+            handleItemClick(dashboardViewModel.writingItems.value?.get(position))
+        }
+
+        speakingAdapter = DashboardAdapter { position ->
+            handleItemClick(dashboardViewModel.speakingItems.value?.get(position))
+        }
+
+        // Attach adapters to RecyclerViews
+        binding.rvReading.adapter = readingAdapter
+        binding.rvListening.adapter = listeningAdapter
+        binding.rvWriting.adapter = writingAdapter
+        binding.rvSpeaking.adapter = speakingAdapter
+    }
+
+
+    private fun setupRecyclerViews() {
+        binding.rvReading.apply {
+            adapter = readingAdapter
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        }
+
+        binding.rvListening.apply {
+            adapter = listeningAdapter
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        }
+
+        binding.rvWriting.apply {
+            adapter = writingAdapter
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        }
+
+        binding.rvSpeaking.apply {
+            adapter = speakingAdapter
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         }
     }
 
-    private fun handleDashboardAction(adapterPosition: Int) {
-        // Execute the action defined in the dashboardActions map, if available
-        dashboardActions[adapterPosition]?.invoke() ?: run {
-            Toast.makeText(requireContext(), "No action defined for this item", Toast.LENGTH_SHORT).show()
+    private fun setupObservers() {
+        dashboardViewModel.readingItems.observe(viewLifecycleOwner) { items ->
+            readingAdapter.submitList(items ?: emptyList()) // Submit the updated list
+        }
+
+        dashboardViewModel.listeningItems.observe(viewLifecycleOwner) { items ->
+            listeningAdapter.submitList(items ?: emptyList())
+        }
+
+        dashboardViewModel.writingItems.observe(viewLifecycleOwner) { items ->
+            writingAdapter.submitList(items ?: emptyList())
+        }
+
+        dashboardViewModel.speakingItems.observe(viewLifecycleOwner) { items ->
+            speakingAdapter.submitList(items ?: emptyList())
+        }
+    }
+
+    private fun handleItemClick(item: DashboardItems?) {
+        item?.let {
+            val query = "${it.itemText} ${it.cardType} IELTS".trim() // e.g., "Reading Lesson IELTS"
+            openYouTubeSearch(query)
         }
     }
 
@@ -391,15 +460,18 @@ class DashboardFragment : Fragment() {
         val link = "https://www.youtube.com/results?search_query=${Uri.encode(query)}"
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(link))
 
-        // Check if the intent is resolvable
-        if (intent.resolveActivity(requireContext().packageManager) != null) {
-            startActivity(intent)
+        if (internetUtility.isConnected) {
+            if (intent.resolveActivity(requireContext().packageManager) != null) {
+                startActivity(intent)
+            } else {
+                Toast.makeText(requireContext(), "No app available to open the link", Toast.LENGTH_SHORT).show()
+            }
         } else {
-            Toast.makeText(requireContext(), "No app available to open the link", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "No internet connection. Please check your connection.", Toast.LENGTH_SHORT).show()
         }
     }
-
 }
+
 ========================================
 
 File: app/src/main/java/com/wolfbytetechnologies/ielts/ui/dashboard/adapter/DashboardAdapter.kt
@@ -408,14 +480,15 @@ package com.wolfbytetechnologies.ielts.ui.dashboard.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.wolfbytetechnologies.ielts.ui.dashboard.data.DashboardItems
 import com.wolfbytetechnologies.ielts.databinding.DashboardCardviewItemsBinding
 
 class DashboardAdapter(
-    private val itemList: List<DashboardItems>,
     val itemOnClick: (Int) -> Unit
-) : RecyclerView.Adapter<DashboardAdapter.ViewHolder>() {
+) : ListAdapter<DashboardItems, DashboardAdapter.ViewHolder>(DashboardDiffCallback()) {
+
     class ViewHolder(
         val binding: DashboardCardviewItemsBinding
     ) : RecyclerView.ViewHolder(binding.root)
@@ -431,39 +504,75 @@ class DashboardAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val currentItem = itemList[position]
+        val currentItem = getItem(position)
         holder.binding.apply {
             imageViewItemImage.setImageDrawable(currentItem.itemImage)
             tvItemName.text = currentItem.itemText
             tvLessonOrTest.text = currentItem.cardType
-            cvItemsMainBackground.setCardBackgroundColor(currentItem.color)
+            if (currentItem.color != null)
+                cvItemsMainBackground.setCardBackgroundColor(currentItem.color)
         }
         holder.itemView.setOnClickListener {
             itemOnClick(holder.adapterPosition)
         }
     }
-
-    override fun getItemCount(): Int = itemList.size
 }
+
+========================================
+
+File: app/src/main/java/com/wolfbytetechnologies/ielts/ui/dashboard/adapter/DashboardDiffCallback.kt
+----------------------------------------
+package com.wolfbytetechnologies.ielts.ui.dashboard.adapter
+
+import androidx.recyclerview.widget.DiffUtil
+import com.wolfbytetechnologies.ielts.ui.dashboard.data.DashboardItems
+
+class DashboardDiffCallback : DiffUtil.ItemCallback<DashboardItems>() {
+    override fun areItemsTheSame(oldItem: DashboardItems, newItem: DashboardItems): Boolean {
+        return oldItem.itemText == newItem.itemText && oldItem.cardType == newItem.cardType
+    }
+
+    override fun areContentsTheSame(oldItem: DashboardItems, newItem: DashboardItems): Boolean {
+        return oldItem == newItem
+    }
+}
+
 ========================================
 
 File: app/src/main/java/com/wolfbytetechnologies/ielts/ui/dashboard/viewModel/DashboardViewModel.kt
 ----------------------------------------
 package com.wolfbytetechnologies.ielts.ui.dashboard.viewModel
 
-import android.content.Context
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.wolfbytetechnologies.ielts.ui.dashboard.data.DashboardItems
+import com.wolfbytetechnologies.ielts.ui.dashboard.repo.MainDashboardItemsRepo
 
-class DashboardViewModel : ViewModel() {
-    val dashboardItems : MutableList<DashboardItems> = mutableListOf()
+class DashboardViewModel(private val repo: MainDashboardItemsRepo) : ViewModel() {
 
-    fun addItemsToDashboard(listOfItems : List<DashboardItems>){
-        if (dashboardItems.isNullOrEmpty()){
-            listOfItems.forEach {
-                dashboardItems.add(it)
-            }
-        }
+    private val _readingItems = MutableLiveData<List<DashboardItems>>()
+    val readingItems: LiveData<List<DashboardItems>> get() = _readingItems
+
+    private val _listeningItems = MutableLiveData<List<DashboardItems>>()
+    val listeningItems: LiveData<List<DashboardItems>> get() = _listeningItems
+
+    private val _writingItems = MutableLiveData<List<DashboardItems>>()
+    val writingItems: LiveData<List<DashboardItems>> get() = _writingItems
+
+    private val _speakingItems = MutableLiveData<List<DashboardItems>>()
+    val speakingItems: LiveData<List<DashboardItems>> get() = _speakingItems
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    fun categorizeDashboardItems() {
+        val allItems = repo.getDashboardItems()
+
+        _readingItems.value = allItems.filter { it.itemText == "Reading" }
+        _listeningItems.value = allItems.filter { it.itemText == "Listening" }
+        _writingItems.value = allItems.filter { it.itemText == "Writing" }
+        _speakingItems.value = allItems.filter { it.itemText == "Speaking" }
     }
 }
 
@@ -504,6 +613,7 @@ File: app/src/main/java/com/wolfbytetechnologies/ielts/DI/KoinModule.kt
 ----------------------------------------
 package com.wolfbytetechnologies.ielts.DI
 
+import com.wolfbytetechnologies.ielts.InternetUtility
 import com.wolfbytetechnologies.ielts.ui.dashboard.repo.MainDashboardItemsRepo
 import com.wolfbytetechnologies.ielts.ui.dashboard.viewModel.DashboardViewModel
 import org.koin.android.ext.koin.androidContext
@@ -511,13 +621,12 @@ import org.koin.dsl.module
 import org.koin.androidx.viewmodel.dsl.viewModel
 
 val appModule = module {
-
-    // Provide the repository as a singleton
     single { MainDashboardItemsRepo(androidContext()) }
-
-    // Provide the ViewModel
-    viewModel { DashboardViewModel() }
+    viewModel { DashboardViewModel(get()) }
+    single { InternetUtility(androidContext()) } // Internet Utility Singleton
 }
+
+
 
 ========================================
 
@@ -19688,8 +19797,7 @@ File: app/src/main/res/layout/fragment_dashboard.xml
 ----------------------------------------
 <?xml version="1.0" encoding="utf-8"?>
 
-<ScrollView
-    android:id="@+id/dashboardScrollview"
+<androidx.core.widget.NestedScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -19697,67 +19805,99 @@ File: app/src/main/res/layout/fragment_dashboard.xml
     android:layout_height="match_parent"
     android:scrollbars="none"
     android:descendantFocusability="afterDescendants"
-    >
-
+    tools:context=".ui.dashboard.fragment.DashboardFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/blue_50"
-        android:focusableInTouchMode="true"
-        tools:context=".ui.dashboard.fragment.DashboardFragment">
+        android:padding="16dp">
 
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardView"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="24dp"
-            android:layout_marginEnd="20dp"
-            app:cardBackgroundColor="@color/blue_500"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="20dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
-
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_mainDashboard"
-            style="@style/recycler_horizontal_style"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
-            android:paddingStart="10dp"
-            android:paddingTop="5dp"
-            android:paddingEnd="0dp"
-            android:paddingBottom="16dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0" />
-
-
-
-        <ProgressBar
-            android:id="@+id/progressBar"
-            style="@style/Base.Widget.AppCompat.ProgressBar"
+        <!-- Reading Row -->
+        <TextView
+            android:id="@+id/tvReadingTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:indeterminate="true"
-            android:visibility="invisible"
-            tools:layout_editor_absoluteX="182dp"
-            tools:layout_editor_absoluteY="44dp"
-            tools:ignore="MissingConstraints" />
+            android:text="Reading"
+            android:textSize="18sp"
+            android:textColor="@color/blue_700"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvReading"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingTop="8dp"
+            app:layout_constraintTop_toBottomOf="@id/tvReadingTitle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Listening Row -->
+        <TextView
+            android:id="@+id/tvListeningTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Listening"
+            android:textSize="18sp"
+            android:textColor="@color/blue_700"
+            app:layout_constraintTop_toBottomOf="@id/rvReading"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="16dp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvListening"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingTop="8dp"
+            app:layout_constraintTop_toBottomOf="@id/tvListeningTitle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Writing Row -->
+        <TextView
+            android:id="@+id/tvWritingTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Writing"
+            android:textSize="18sp"
+            android:textColor="@color/blue_700"
+            app:layout_constraintTop_toBottomOf="@id/rvListening"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="16dp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvWriting"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingTop="8dp"
+            app:layout_constraintTop_toBottomOf="@id/tvWritingTitle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Speaking Row -->
+        <TextView
+            android:id="@+id/tvSpeakingTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Speaking"
+            android:textSize="18sp"
+            android:textColor="@color/blue_700"
+            app:layout_constraintTop_toBottomOf="@id/rvWriting"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="16dp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvSpeaking"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingTop="8dp"
+            app:layout_constraintTop_toBottomOf="@id/tvSpeakingTitle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-</ScrollView>
-
+</androidx.core.widget.NestedScrollView>
 
 ========================================
 
