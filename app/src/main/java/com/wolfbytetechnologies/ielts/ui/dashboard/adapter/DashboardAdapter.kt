@@ -2,14 +2,15 @@ package com.wolfbytetechnologies.ielts.ui.dashboard.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.wolfbytetechnologies.ielts.ui.dashboard.data.DashboardItems
 import com.wolfbytetechnologies.ielts.databinding.DashboardCardviewItemsBinding
 
 class DashboardAdapter(
-    private val itemList: List<DashboardItems>,
     val itemOnClick: (Int) -> Unit
-) : RecyclerView.Adapter<DashboardAdapter.ViewHolder>() {
+) : ListAdapter<DashboardItems, DashboardAdapter.ViewHolder>(DashboardDiffCallback()) {
+
     class ViewHolder(
         val binding: DashboardCardviewItemsBinding
     ) : RecyclerView.ViewHolder(binding.root)
@@ -25,7 +26,7 @@ class DashboardAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val currentItem = itemList[position]
+        val currentItem = getItem(position)
         holder.binding.apply {
             imageViewItemImage.setImageDrawable(currentItem.itemImage)
             tvItemName.text = currentItem.itemText
@@ -37,6 +38,4 @@ class DashboardAdapter(
             itemOnClick(holder.adapterPosition)
         }
     }
-
-    override fun getItemCount(): Int = itemList.size
 }

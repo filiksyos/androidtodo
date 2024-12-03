@@ -13,6 +13,7 @@ import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.wolfbytetechnologies.ielts.InternetUtility
 import com.wolfbytetechnologies.ielts.databinding.FragmentDashboardBinding
 import com.wolfbytetechnologies.ielts.ui.dashboard.adapter.DashboardAdapter
 import com.wolfbytetechnologies.ielts.ui.dashboard.data.DashboardItems
@@ -22,9 +23,10 @@ import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class DashboardFragment : Fragment() {
-    private lateinit var binding: FragmentDashboardBinding
 
+    private lateinit var binding: FragmentDashboardBinding
     private val dashboardViewModel: DashboardViewModel by viewModel()
+    private val internetUtility: InternetUtility by inject()
 
     private lateinit var readingAdapter: DashboardAdapter
     private lateinit var listeningAdapter: DashboardAdapter
@@ -52,22 +54,29 @@ class DashboardFragment : Fragment() {
     }
 
     private fun setupAdapters() {
-        readingAdapter = DashboardAdapter(emptyList()) { position ->
+        readingAdapter = DashboardAdapter { position ->
             handleItemClick(dashboardViewModel.readingItems.value?.get(position))
         }
 
-        listeningAdapter = DashboardAdapter(emptyList()) { position ->
+        listeningAdapter = DashboardAdapter { position ->
             handleItemClick(dashboardViewModel.listeningItems.value?.get(position))
         }
 
-        writingAdapter = DashboardAdapter(emptyList()) { position ->
+        writingAdapter = DashboardAdapter { position ->
             handleItemClick(dashboardViewModel.writingItems.value?.get(position))
         }
 
-        speakingAdapter = DashboardAdapter(emptyList()) { position ->
+        speakingAdapter = DashboardAdapter { position ->
             handleItemClick(dashboardViewModel.speakingItems.value?.get(position))
         }
+
+        // Attach adapters to RecyclerViews
+        binding.rvReading.adapter = readingAdapter
+        binding.rvListening.adapter = listeningAdapter
+        binding.rvWriting.adapter = writingAdapter
+        binding.rvSpeaking.adapter = speakingAdapter
     }
+
 
     private fun setupRecyclerViews() {
         binding.rvReading.apply {
@@ -93,31 +102,19 @@ class DashboardFragment : Fragment() {
 
     private fun setupObservers() {
         dashboardViewModel.readingItems.observe(viewLifecycleOwner) { items ->
-            readingAdapter = DashboardAdapter(items) { position ->
-                handleItemClick(items[position])
-            }
-            binding.rvReading.adapter = readingAdapter
+            readingAdapter.submitList(items ?: emptyList()) // Submit the updated list
         }
 
         dashboardViewModel.listeningItems.observe(viewLifecycleOwner) { items ->
-            listeningAdapter = DashboardAdapter(items) { position ->
-                handleItemClick(items[position])
-            }
-            binding.rvListening.adapter = listeningAdapter
+            listeningAdapter.submitList(items ?: emptyList())
         }
 
         dashboardViewModel.writingItems.observe(viewLifecycleOwner) { items ->
-            writingAdapter = DashboardAdapter(items) { position ->
-                handleItemClick(items[position])
-            }
-            binding.rvWriting.adapter = writingAdapter
+            writingAdapter.submitList(items ?: emptyList())
         }
 
         dashboardViewModel.speakingItems.observe(viewLifecycleOwner) { items ->
-            speakingAdapter = DashboardAdapter(items) { position ->
-                handleItemClick(items[position])
-            }
-            binding.rvSpeaking.adapter = speakingAdapter
+            speakingAdapter.submitList(items ?: emptyList())
         }
     }
 
@@ -132,10 +129,14 @@ class DashboardFragment : Fragment() {
         val link = "https://www.youtube.com/results?search_query=${Uri.encode(query)}"
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(link))
 
-        if (intent.resolveActivity(requireContext().packageManager) != null) {
-            startActivity(intent)
+        if (internetUtility.isConnected) {
+            if (intent.resolveActivity(requireContext().packageManager) != null) {
+                startActivity(intent)
+            } else {
+                Toast.makeText(requireContext(), "No app available to open the link", Toast.LENGTH_SHORT).show()
+            }
         } else {
-            Toast.makeText(requireContext(), "No app available to open the link", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "No internet connection. Please check your connection.", Toast.LENGTH_SHORT).show()
         }
     }
 }
