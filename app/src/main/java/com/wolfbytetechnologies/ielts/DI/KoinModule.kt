@@ -1,6 +1,6 @@
 package com.wolfbytetechnologies.ielts.DI
 
-import com.wolfbytetechnologies.ielts.InternetUtility
+import com.wolfbytetechnologies.ielts.Utils.InternetUtility
 import com.wolfbytetechnologies.ielts.ui.dashboard.repo.MainDashboardItemsRepo
 import com.wolfbytetechnologies.ielts.ui.dashboard.repo.ResourceProvider
 import com.wolfbytetechnologies.ielts.ui.dashboard.repo.ResourceProviderImpl

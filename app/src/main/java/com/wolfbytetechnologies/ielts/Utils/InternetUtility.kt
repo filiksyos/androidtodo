@@ -1,4 +1,4 @@
-package com.wolfbytetechnologies.ielts
+package com.wolfbytetechnologies.ielts.Utils
 
 import android.content.Context
 import android.net.ConnectivityManager

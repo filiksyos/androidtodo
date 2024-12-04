@@ -1,24 +1,21 @@
 package com.wolfbytetechnologies.ielts.ui.dashboard.fragment
 
 import android.content.Intent
-import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.wolfbytetechnologies.ielts.InternetUtility
+import com.wolfbytetechnologies.ielts.Utils.InternetUtility
+import com.wolfbytetechnologies.ielts.Utils.Logger
 import com.wolfbytetechnologies.ielts.databinding.FragmentDashboardBinding
 import com.wolfbytetechnologies.ielts.ui.dashboard.adapter.DashboardAdapter
 import com.wolfbytetechnologies.ielts.ui.dashboard.data.DashboardItems
-import com.wolfbytetechnologies.ielts.ui.dashboard.repo.MainDashboardItemsRepo
 import com.wolfbytetechnologies.ielts.ui.dashboard.viewModel.DashboardViewModel
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -103,22 +100,22 @@ class DashboardFragment : Fragment() {
 
     private fun setupObservers() {
         dashboardViewModel.readingItems.observe(viewLifecycleOwner) { items ->
-            Log.d("DashboardFragment", "Reading Items Updated: ${items?.size ?: 0}")
+            Logger.logDebug("DashboardFragment", "Reading Items Updated: ${items?.size ?: 0}")
             readingAdapter.submitList(items ?: emptyList())
         }
 
         dashboardViewModel.listeningItems.observe(viewLifecycleOwner) { items ->
-            Log.d("DashboardFragment", "Listening Items Updated: ${items?.size ?: 0}")
+            Logger.logDebug("DashboardFragment", "Listening Items Updated: ${items?.size ?: 0}")
             listeningAdapter.submitList(items ?: emptyList())
         }
 
         dashboardViewModel.writingItems.observe(viewLifecycleOwner) { items ->
-            Log.d("DashboardFragment", "Writing Items Updated: ${items?.size ?: 0}")
+            Logger.logDebug("DashboardFragment", "Writing Items Updated: ${items?.size ?: 0}")
             writingAdapter.submitList(items ?: emptyList())
         }
 
         dashboardViewModel.speakingItems.observe(viewLifecycleOwner) { items ->
-            Log.d("DashboardFragment", "Speaking Items Updated: ${items?.size ?: 0}")
+            Logger.logDebug("DashboardFragment", "Speaking Items Updated: ${items?.size ?: 0}")
             speakingAdapter.submitList(items ?: emptyList())
         }
     }
@@ -132,7 +129,7 @@ class DashboardFragment : Fragment() {
 
     private fun openYouTubeSearch(query: String) {
         val link = "https://www.youtube.com/results?search_query=${Uri.encode(query)}"
-        Log.d("DashboardFragment", "Navigating to YouTube with query: $query")
+        Logger.logDebug("DashboardFragment", "Navigating to YouTube with query: $query")
 
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(link))
 
@@ -140,11 +137,11 @@ class DashboardFragment : Fragment() {
             if (intent.resolveActivity(requireContext().packageManager) != null) {
                 startActivity(intent)
             } else {
-                Log.e("DashboardFragment", "No app available to handle the YouTube link.")
+                Logger.logError("DashboardFragment", "No app available to handle the YouTube link.")
                 Toast.makeText(requireContext(), "No app available to open the link", Toast.LENGTH_SHORT).show()
             }
         } else {
-            Log.e("DashboardFragment", "No internet connection.")
+            Logger.logError("DashboardFragment", "No internet connection.")
             Toast.makeText(requireContext(), "No internet connection. Please check your connection.", Toast.LENGTH_SHORT).show()
         }
     }
