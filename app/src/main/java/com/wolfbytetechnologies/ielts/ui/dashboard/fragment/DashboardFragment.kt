@@ -49,8 +49,8 @@ class DashboardFragment : Fragment() {
         setupRecyclerViews()
         setupObservers()
 
-        // Trigger data categorization
-        dashboardViewModel.categorizeDashboardItems()
+        // Load and categorize dashboard items
+        dashboardViewModel.loadDashboardItems()
     }
 
     private fun setupAdapters() {

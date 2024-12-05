@@ -8,7 +8,10 @@ import androidx.lifecycle.ViewModel
 import com.wolfbytetechnologies.ielts.ui.dashboard.data.DashboardItems
 import com.wolfbytetechnologies.ielts.ui.dashboard.repo.MainDashboardItemsRepo
 
-class DashboardViewModel(private val repo: MainDashboardItemsRepo) : ViewModel() {
+class DashboardViewModel(
+    private val repo: MainDashboardItemsRepo,
+    private val categorizeUseCase: CategorizeDashboardItemsUseCase
+) : ViewModel() {
 
     private val _readingItems = MutableLiveData<List<DashboardItems>>()
     val readingItems: LiveData<List<DashboardItems>> get() = _readingItems
@@ -23,12 +26,13 @@ class DashboardViewModel(private val repo: MainDashboardItemsRepo) : ViewModel()
     val speakingItems: LiveData<List<DashboardItems>> get() = _speakingItems
 
     @RequiresApi(Build.VERSION_CODES.M)
-    fun categorizeDashboardItems() {
+    fun loadDashboardItems() {
         val allItems = repo.getDashboardItems()
+        val categorizedItems = categorizeUseCase.invoke(allItems)
 
-        _readingItems.value = allItems.filter { it.itemText == "Reading" }
-        _listeningItems.value = allItems.filter { it.itemText == "Listening" }
-        _writingItems.value = allItems.filter { it.itemText == "Writing" }
-        _speakingItems.value = allItems.filter { it.itemText == "Speaking" }
+        _readingItems.value = categorizedItems.readingItems
+        _listeningItems.value = categorizedItems.listeningItems
+        _writingItems.value = categorizedItems.writingItems
+        _speakingItems.value = categorizedItems.speakingItems
     }
 }
