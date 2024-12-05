@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.wolfbytetechnologies.ielts.Utils.InternetUtility
 import com.wolfbytetechnologies.ielts.Utils.Logger
 import com.wolfbytetechnologies.ielts.databinding.FragmentDashboardBinding
+import com.wolfbytetechnologies.ielts.ui.dashboard.adapter.AdapterProvider
 import com.wolfbytetechnologies.ielts.ui.dashboard.adapter.DashboardAdapter
 import com.wolfbytetechnologies.ielts.ui.dashboard.data.DashboardItems
 import com.wolfbytetechnologies.ielts.ui.dashboard.viewModel.DashboardViewModel
@@ -25,6 +26,7 @@ class DashboardFragment : Fragment() {
     private lateinit var binding: FragmentDashboardBinding
     private val dashboardViewModel: DashboardViewModel by viewModel()
     private val internetUtility: InternetUtility by inject()
+    private val adapterProvider: AdapterProvider by inject()
 
     private lateinit var readingAdapter: DashboardAdapter
     private lateinit var listeningAdapter: DashboardAdapter
@@ -52,19 +54,19 @@ class DashboardFragment : Fragment() {
     }
 
     private fun setupAdapters() {
-        readingAdapter = DashboardAdapter { position ->
+        readingAdapter = adapterProvider.createDashboardAdapter { position ->
             handleItemClick(dashboardViewModel.readingItems.value?.get(position))
         }
 
-        listeningAdapter = DashboardAdapter { position ->
+        listeningAdapter = adapterProvider.createDashboardAdapter { position ->
             handleItemClick(dashboardViewModel.listeningItems.value?.get(position))
         }
 
-        writingAdapter = DashboardAdapter { position ->
+        writingAdapter = adapterProvider.createDashboardAdapter { position ->
             handleItemClick(dashboardViewModel.writingItems.value?.get(position))
         }
 
-        speakingAdapter = DashboardAdapter { position ->
+        speakingAdapter = adapterProvider.createDashboardAdapter { position ->
             handleItemClick(dashboardViewModel.speakingItems.value?.get(position))
         }
 
