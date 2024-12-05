@@ -1,28 +1,33 @@
 package com.abdulhaseeb.ielts_practice_app
 
 import com.wolfbytetechnologies.ielts.ui.dashboard.repo.MainDashboardItemsRepo
+import com.wolfbytetechnologies.ielts.ui.dashboard.repo.ResourceProvider
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
+import com.wolfbytetechnologies.ielts.ui.dashboard.data.DashboardItems
+import org.junit.Assert.assertEquals
 
 class MainDashboardItemsRepoTest {
 
     private lateinit var repo: MainDashboardItemsRepo
+    private lateinit var fakeResourceProvider: ResourceProvider
 
     @Before
     fun setup() {
-        // Inject the fake provider into the repository
-        val fakeResourceProvider = FakeResourceProvider()
+        // Using a FakeResourceProvider for testing
+        fakeResourceProvider = FakeResourceProvider()
         repo = MainDashboardItemsRepo(fakeResourceProvider)
     }
 
     @Test
-    fun testGetDashboardItems() {
-        // Fetch dashboard items
-        val items = repo.getDashboardItems()
+    fun `test getDashboardItems returns correct items`() {
+        val dashboardItems = repo.getDashboardItems()
 
-        // Verify that the fake values are returned
-        assertEquals("Fake Reading", items[0].itemText)
-        assertEquals("Fake Listening", items[1].itemText)
+        // Verifying item count and specific details
+        assertEquals(9, dashboardItems.size)
+        assertEquals("Fake Reading", dashboardItems[0].itemText)
+        assertEquals("Fake Writing", dashboardItems[2].itemText)
     }
 }
+

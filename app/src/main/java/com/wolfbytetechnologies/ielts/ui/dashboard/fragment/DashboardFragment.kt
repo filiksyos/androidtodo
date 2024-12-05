@@ -21,7 +21,7 @@ import com.wolfbytetechnologies.ielts.ui.dashboard.viewModel.DashboardViewModel
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class DashboardFragment : Fragment() {
+class DashboardFragment: Fragment() {
 
     private lateinit var binding: FragmentDashboardBinding
     private val dashboardViewModel: DashboardViewModel by viewModel()
