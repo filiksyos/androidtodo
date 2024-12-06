@@ -54,10 +54,137 @@ File: app/proguard-rules.pro
 #-renamesourcefileattribute SourceFile
 
 # Keep all classes in the app package
--keep class com.wolfbytetechnologies.ielts.** { *; }
+#-keep class com.wolfbytetechnologies.ielts.** { *; }
 
 # Keep AdMob classes
--keep class com.google.android.gms.ads.** { *; }
+#-keep class com.google.android.gms.ads.** { *; }
+
+========================================
+
+File: app/src/test/java/com/abdulhaseeb/ielts_practice_app/FakeResourceProvider.kt
+----------------------------------------
+package com.abdulhaseeb.ielts_practice_app
+
+import android.graphics.Color
+import android.graphics.drawable.Drawable
+import com.wolfbytetechnologies.ielts.ui.dashboard.repo.ResourceProvider
+import com.wolfbytetechnologies.ielts.R
+
+class FakeResourceProvider : ResourceProvider {
+    override fun getString(resId: Int): String {
+        return when (resId) {
+            R.string.reading -> "Fake Reading"
+            R.string.listening -> "Fake Listening"
+            R.string.writing -> "Fake Writing"
+            R.string.speaking -> "Fake Speaking"
+            else -> "Fake Default"
+        }
+    }
+
+    override fun getDrawable(resId: Int): Drawable? {
+        return null // Return null or mock a drawable
+    }
+
+    override fun getColor(resId: Int): Int {
+        return Color.BLACK // Return a default color
+    }
+}
+
+========================================
+
+File: app/src/test/java/com/abdulhaseeb/ielts_practice_app/ApiTest.kt
+----------------------------------------
+package com.abdulhaseeb.ielts_practice_app
+
+import com.google.android.gms.common.api.Response
+import com.wolfbytetechnologies.ielts.Networking.ApiResponse
+import com.wolfbytetechnologies.ielts.Networking.IELTSApiService
+import com.wolfbytetechnologies.ielts.Networking.NetworkRepository
+import com.wolfbytetechnologies.ielts.Networking.Questions
+import junit.framework.TestCase.assertTrue
+import kotlinx.coroutines.runBlocking
+import org.junit.Test
+
+class ApiTest {
+
+
+    @Test
+    fun `test successful API response`() = runBlocking {
+
+    }
+
+
+}
+========================================
+
+File: app/src/test/java/com/abdulhaseeb/ielts_practice_app/MainDashboardItemsRepoTest.kt
+----------------------------------------
+package com.abdulhaseeb.ielts_practice_app
+
+import com.wolfbytetechnologies.ielts.ui.dashboard.repo.MainDashboardItemsRepo
+import com.wolfbytetechnologies.ielts.ui.dashboard.repo.ResourceProvider
+import org.junit.Assert.assertEquals
+import org.junit.Before
+import org.junit.Test
+import com.wolfbytetechnologies.ielts.ui.dashboard.data.DashboardItems
+import org.junit.Assert.assertEquals
+
+class MainDashboardItemsRepoTest {
+
+    private lateinit var repo: MainDashboardItemsRepo
+    private lateinit var fakeResourceProvider: ResourceProvider
+
+    @Before
+    fun setup() {
+        // Using a FakeResourceProvider for testing
+        fakeResourceProvider = FakeResourceProvider()
+        repo = MainDashboardItemsRepo(fakeResourceProvider)
+    }
+
+    @Test
+    fun `test getDashboardItems returns correct items`() {
+        val dashboardItems = repo.getDashboardItems()
+
+        // Verifying item count and specific details
+        assertEquals(9, dashboardItems.size)
+        assertEquals("Fake Reading", dashboardItems[0].itemText)
+        assertEquals("Fake Writing", dashboardItems[2].itemText)
+    }
+}
+
+
+========================================
+
+File: app/src/test/java/com/abdulhaseeb/ielts_practice_app/CategorizeDashboardItemsUseCaseTest.kt
+----------------------------------------
+package com.abdulhaseeb.ielts_practice_app
+
+import com.wolfbytetechnologies.ielts.ui.dashboard.viewModel.CategorizeDashboardItemsUseCase
+import com.wolfbytetechnologies.ielts.ui.dashboard.data.DashboardItems
+import org.junit.Assert.assertEquals
+import org.junit.Test
+
+class CategorizeDashboardItemsUseCaseTest {
+
+    private val useCase = CategorizeDashboardItemsUseCase()
+
+    @Test
+    fun `test categorization of dashboard items`() {
+        val items = listOf(
+            DashboardItems(itemText = "Reading"),
+            DashboardItems(itemText = "Listening"),
+            DashboardItems(itemText = "Writing"),
+            DashboardItems(itemText = "Speaking")
+        )
+
+        val categorized = useCase.invoke(items)
+
+        assertEquals(1, categorized.readingItems.size)
+        assertEquals(1, categorized.listeningItems.size)
+        assertEquals(1, categorized.writingItems.size)
+        assertEquals(1, categorized.speakingItems.size)
+    }
+}
 
 ========================================
 
@@ -80,6 +207,69 @@ class ExampleUnitTest {
         assertEquals(4, 2 + 2)
     }
 }
+========================================
+
+File: app/src/test/java/com/abdulhaseeb/ielts_practice_app/InternetUtilityTest.kt
+----------------------------------------
+package com.abdulhaseeb.ielts_practice_app
+
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkInfo
+import com.wolfbytetechnologies.ielts.Utils.InternetUtility
+import io.mockk.every
+import io.mockk.mockk
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Before
+import org.junit.Test
+
+class InternetUtilityTest {
+
+    private lateinit var internetUtility: InternetUtility
+    private lateinit var mockContext: Context
+    private lateinit var mockConnectivityManager: ConnectivityManager
+    private lateinit var mockNetworkInfo: NetworkInfo
+
+    @Before
+    fun setup() {
+        // Mock Context and ConnectivityManager
+        mockContext = mockk()
+        mockConnectivityManager = mockk()
+        mockNetworkInfo = mockk()
+
+        // Stubbing context to return mock connectivity manager
+        every { mockContext.getSystemService(Context.CONNECTIVITY_SERVICE) } returns mockConnectivityManager
+        internetUtility = InternetUtility(mockContext)
+    }
+
+    @Test
+    fun `test isConnected returns true when network is connected`() {
+        // Stubbing connected network
+        every { mockConnectivityManager.activeNetworkInfo } returns mockNetworkInfo
+        every { mockNetworkInfo.isConnected } returns true
+
+        assertTrue(internetUtility.isConnected)
+    }
+
+    @Test
+    fun `test isConnected returns false when network is not connected`() {
+        // Stubbing disconnected network
+        every { mockConnectivityManager.activeNetworkInfo } returns mockNetworkInfo
+        every { mockNetworkInfo.isConnected } returns false
+
+        assertFalse(internetUtility.isConnected)
+    }
+
+    @Test
+    fun `test isConnected returns false when network info is null`() {
+        // Stubbing null network info
+        every { mockConnectivityManager.activeNetworkInfo } returns null
+
+        assertFalse(internetUtility.isConnected)
+    }
+}
+
 ========================================
 
 File: app/src/androidTest/java/com/abdulhaseeb/ielts_practice_app/ExampleInstrumentedTest.kt
@@ -216,9 +406,9 @@ class MainActivity : AppCompatActivity() {
 
 ========================================
 
-File: app/src/main/java/com/wolfbytetechnologies/ielts/InternetUtility.kt
+File: app/src/main/java/com/wolfbytetechnologies/ielts/Utils/InternetUtility.kt
 ----------------------------------------
-package com.wolfbytetechnologies.ielts
+package com.wolfbytetechnologies.ielts.Utils
 
 import android.content.Context
 import android.net.ConnectivityManager
@@ -235,18 +425,41 @@ class InternetUtility(private val context: Context) {
 
 ========================================
 
+File: app/src/main/java/com/wolfbytetechnologies/ielts/Utils/Logger.kt
+----------------------------------------
+package com.wolfbytetechnologies.ielts.Utils
+
+import android.util.Log
+import com.wolfbytetechnologies.ielts.BuildConfig
+
+object Logger {
+    private val ENABLE_LOGS = BuildConfig.DEBUG
+
+    fun logDebug(tag: String, message: String) {
+        if (ENABLE_LOGS) Log.d(tag, message)
+    }
+
+    fun logError(tag: String, message: String) {
+        if (ENABLE_LOGS) Log.e(tag, message)
+    }
+}
+
+========================================
+
 File: app/src/main/java/com/wolfbytetechnologies/ielts/ui/dashboard/data/DashboardItems.kt
 ----------------------------------------
 package com.wolfbytetechnologies.ielts.ui.dashboard.data
 
+import android.graphics.Color
 import android.graphics.drawable.Drawable
 
 data class DashboardItems(
-    val itemImage: Drawable?,
-    val itemText: String?,
-    val cardType: String?,
-    val color: Int?
+    val itemImage: Drawable? = null,
+    val itemText: String = "Unknown",
+    val cardType: String = "Undefined",
+    val color: Int = Color.GRAY
 )
+
 
 ========================================
 
@@ -254,77 +467,109 @@ File: app/src/main/java/com/wolfbytetechnologies/ielts/ui/dashboard/repo/MainDas
 ----------------------------------------
 package com.wolfbytetechnologies.ielts.ui.dashboard.repo
 
-import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import com.wolfbytetechnologies.ielts.R
 import com.wolfbytetechnologies.ielts.ui.dashboard.data.DashboardItems
 
 class MainDashboardItemsRepo(
-    val context: Context
+    private val resourceProvider: ResourceProvider
 ) {
     @RequiresApi(Build.VERSION_CODES.M)
     fun getDashboardItems(): List<DashboardItems> {
         return listOf(
             DashboardItems(
-                getDrawable(context, R.drawable.ic_reading_lesson_card),
-                context.getString(R.string.reading),
-                context.getString(R.string.lesson),
-                context.getColor(R.color.blue_500)
+                resourceProvider.getDrawable(R.drawable.ic_reading_lesson_card),
+                resourceProvider.getString(R.string.reading),
+                resourceProvider.getString(R.string.lesson),
+                resourceProvider.getColor(R.color.blue_500)
             ),
             DashboardItems(
-                getDrawable(context, R.drawable.ic_test_card),
-                context.getString(R.string.reading),
-                context.getString(R.string.test),
-                context.getColor(R.color.orange_800),
+                resourceProvider.getDrawable(R.drawable.ic_test_card),
+                resourceProvider.getString(R.string.reading),
+                resourceProvider.getString(R.string.test),
+                resourceProvider.getColor(R.color.orange_800)
+            ),
 
+            DashboardItems(
+                resourceProvider.getDrawable(R.drawable.ic_test_card),
+                resourceProvider.getString(R.string.writing),
+                resourceProvider.getString(R.string.lesson),
+                resourceProvider.getColor(R.color.purple_400)
             ),
             DashboardItems(
-                getDrawable(context, R.drawable.ic_test_card),
-                context.getString(R.string.writing),
-                context.getString(R.string.lesson),
-                context.getColor(R.color.purple_400)
+                resourceProvider.getDrawable(R.drawable.ic_test_card),
+                resourceProvider.getString(R.string.writing),
+                resourceProvider.getString(R.string.writing_task_1),
+                resourceProvider.getColor(R.color.orange_800)
             ),
             DashboardItems(
-                getDrawable(context, R.drawable.ic_test_card),
-                context.getString(R.string.writing),
-                context.getString(R.string.writing_task_1),
-                context.getColor(R.color.orange_800)
+                resourceProvider.getDrawable(R.drawable.ic_test_card),
+                resourceProvider.getString(R.string.writing),
+                resourceProvider.getString(R.string.writing_task_2),
+                resourceProvider.getColor(R.color.orange_800)
             ),
             DashboardItems(
-                getDrawable(context, R.drawable.ic_test_card),
-                context.getString(R.string.writing),
-                context.getString(R.string.writing_task_2),
-                context.getColor(R.color.orange_800)
+                resourceProvider.getDrawable(R.drawable.ic_speaking_image_transparent_background),
+                resourceProvider.getString(R.string.speaking),
+                resourceProvider.getString(R.string.lesson),
+                resourceProvider.getColor(R.color.green_400)
             ),
             DashboardItems(
-                getDrawable(context, R.drawable.ic_speaking_image_transparent_background),
-                context.getString(R.string.speaking),
-                context.getString(R.string.lesson),
-                context.getColor(R.color.green_400)
+                resourceProvider.getDrawable(R.drawable.ic_listening_image_transparent_background),
+                resourceProvider.getString(R.string.speaking),
+                resourceProvider.getString(R.string.test),
+                resourceProvider.getColor(R.color.blue_500)
             ),
             DashboardItems(
-                getDrawable(context, R.drawable.ic_listening_image_transparent_background),
-                context.getString(R.string.speaking),
-                context.getString(R.string.test),
-                context.getColor(R.color.blue_500)
+                resourceProvider.getDrawable(R.drawable.ic_listening_test),
+                resourceProvider.getString(R.string.listening),
+                resourceProvider.getString(R.string.lesson),
+                resourceProvider.getColor(R.color.red_500)
             ),
             DashboardItems(
-                getDrawable(context, R.drawable.ic_listening_test),
-                context.getString(R.string.listening),
-                context.getString(R.string.lesson),
-                context.getColor(R.color.red_500)
-            ),
-            DashboardItems(
-                getDrawable(context, R.drawable.ic_listening_test),
-                context.getString(R.string.listening),
-                context.getString(R.string.test),
-                context.getColor(R.color.pink_400)
+                resourceProvider.getDrawable(R.drawable.ic_listening_test),
+                resourceProvider.getString(R.string.listening),
+                resourceProvider.getString(R.string.test),
+                resourceProvider.getColor(R.color.pink_400)
             )
+
         )
     }
 }
+
+
+
+========================================
+
+File: app/src/main/java/com/wolfbytetechnologies/ielts/ui/dashboard/repo/ResourceProviderImpl.kt
+----------------------------------------
+package com.wolfbytetechnologies.ielts.ui.dashboard.repo
+
+import android.content.Context
+import android.graphics.drawable.Drawable
+import androidx.core.content.ContextCompat
+
+class ResourceProviderImpl(private val context: Context) : ResourceProvider {
+    override fun getString(resId: Int): String = context.getString(resId)
+    override fun getDrawable(resId: Int): Drawable? = ContextCompat.getDrawable(context, resId)
+    override fun getColor(resId: Int): Int = ContextCompat.getColor(context, resId)
+}
+
+========================================
+
+File: app/src/main/java/com/wolfbytetechnologies/ielts/ui/dashboard/repo/ResourceProvider.kt
+----------------------------------------
+package com.wolfbytetechnologies.ielts.ui.dashboard.repo
+
+import android.graphics.drawable.Drawable
+
+interface ResourceProvider {
+    fun getString(resId: Int): String
+    fun getDrawable(resId: Int): Drawable?
+    fun getColor(resId: Int): Int
+}
+
 ========================================
 
 File: app/src/main/java/com/wolfbytetechnologies/ielts/ui/dashboard/fragment/DashboardFragment.kt
@@ -332,7 +577,6 @@ File: app/src/main/java/com/wolfbytetechnologies/ielts/ui/dashboard/fragment/Das
 package com.wolfbytetechnologies.ielts.ui.dashboard.fragment
 
 import android.content.Intent
-import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -342,22 +586,23 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.wolfbytetechnologies.ielts.InternetUtility
+import com.wolfbytetechnologies.ielts.Utils.InternetUtility
+import com.wolfbytetechnologies.ielts.Utils.Logger
 import com.wolfbytetechnologies.ielts.databinding.FragmentDashboardBinding
+import com.wolfbytetechnologies.ielts.ui.dashboard.adapter.AdapterProvider
 import com.wolfbytetechnologies.ielts.ui.dashboard.adapter.DashboardAdapter
 import com.wolfbytetechnologies.ielts.ui.dashboard.data.DashboardItems
-import com.wolfbytetechnologies.ielts.ui.dashboard.repo.MainDashboardItemsRepo
 import com.wolfbytetechnologies.ielts.ui.dashboard.viewModel.DashboardViewModel
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class DashboardFragment : Fragment() {
+class DashboardFragment: Fragment() {
 
     private lateinit var binding: FragmentDashboardBinding
     private val dashboardViewModel: DashboardViewModel by viewModel()
     private val internetUtility: InternetUtility by inject()
+    private val adapterProvider: AdapterProvider by inject()
 
     private lateinit var readingAdapter: DashboardAdapter
     private lateinit var listeningAdapter: DashboardAdapter
@@ -380,24 +625,24 @@ class DashboardFragment : Fragment() {
         setupRecyclerViews()
         setupObservers()
 
-        // Trigger data categorization
-        dashboardViewModel.categorizeDashboardItems()
+        // Load and categorize dashboard items
+        dashboardViewModel.loadDashboardItems()
     }
 
     private fun setupAdapters() {
-        readingAdapter = DashboardAdapter { position ->
+        readingAdapter = adapterProvider.createDashboardAdapter { position ->
             handleItemClick(dashboardViewModel.readingItems.value?.get(position))
         }
 
-        listeningAdapter = DashboardAdapter { position ->
+        listeningAdapter = adapterProvider.createDashboardAdapter { position ->
             handleItemClick(dashboardViewModel.listeningItems.value?.get(position))
         }
 
-        writingAdapter = DashboardAdapter { position ->
+        writingAdapter = adapterProvider.createDashboardAdapter { position ->
             handleItemClick(dashboardViewModel.writingItems.value?.get(position))
         }
 
-        speakingAdapter = DashboardAdapter { position ->
+        speakingAdapter = adapterProvider.createDashboardAdapter { position ->
             handleItemClick(dashboardViewModel.speakingItems.value?.get(position))
         }
 
@@ -433,18 +678,22 @@ class DashboardFragment : Fragment() {
 
     private fun setupObservers() {
         dashboardViewModel.readingItems.observe(viewLifecycleOwner) { items ->
-            readingAdapter.submitList(items ?: emptyList()) // Submit the updated list
+            Logger.logDebug("DashboardFragment", "Reading Items Updated: ${items?.size ?: 0}")
+            readingAdapter.submitList(items ?: emptyList())
         }
 
         dashboardViewModel.listeningItems.observe(viewLifecycleOwner) { items ->
+            Logger.logDebug("DashboardFragment", "Listening Items Updated: ${items?.size ?: 0}")
             listeningAdapter.submitList(items ?: emptyList())
         }
 
         dashboardViewModel.writingItems.observe(viewLifecycleOwner) { items ->
+            Logger.logDebug("DashboardFragment", "Writing Items Updated: ${items?.size ?: 0}")
             writingAdapter.submitList(items ?: emptyList())
         }
 
         dashboardViewModel.speakingItems.observe(viewLifecycleOwner) { items ->
+            Logger.logDebug("DashboardFragment", "Speaking Items Updated: ${items?.size ?: 0}")
             speakingAdapter.submitList(items ?: emptyList())
         }
     }
@@ -458,18 +707,23 @@ class DashboardFragment : Fragment() {
 
     private fun openYouTubeSearch(query: String) {
         val link = "https://www.youtube.com/results?search_query=${Uri.encode(query)}"
+        Logger.logDebug("DashboardFragment", "Navigating to YouTube with query: $query")
+
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(link))
 
         if (internetUtility.isConnected) {
             if (intent.resolveActivity(requireContext().packageManager) != null) {
                 startActivity(intent)
             } else {
+                Logger.logError("DashboardFragment", "No app available to handle the YouTube link.")
                 Toast.makeText(requireContext(), "No app available to open the link", Toast.LENGTH_SHORT).show()
             }
         } else {
+            Logger.logError("DashboardFragment", "No internet connection.")
             Toast.makeText(requireContext(), "No internet connection. Please check your connection.", Toast.LENGTH_SHORT).show()
         }
     }
+
 }
 
 ========================================
@@ -539,6 +793,52 @@ class DashboardDiffCallback : DiffUtil.ItemCallback<DashboardItems>() {
 
 ========================================
 
+File: app/src/main/java/com/wolfbytetechnologies/ielts/ui/dashboard/adapter/AdapterProvider.kt
+----------------------------------------
+package com.wolfbytetechnologies.ielts.ui.dashboard.adapter
+
+interface AdapterProvider {
+    fun createDashboardAdapter(onClick: (Int) -> Unit): DashboardAdapter
+}
+========================================
+
+File: app/src/main/java/com/wolfbytetechnologies/ielts/ui/dashboard/adapter/AdapterProviderImpl.kt
+----------------------------------------
+package com.wolfbytetechnologies.ielts.ui.dashboard.adapter
+
+class AdapterProviderImpl : AdapterProvider {
+    override fun createDashboardAdapter(onClick: (Int) -> Unit): DashboardAdapter {
+        return DashboardAdapter(onClick)
+    }
+}
+========================================
+
+File: app/src/main/java/com/wolfbytetechnologies/ielts/ui/dashboard/viewModel/CategorizeDashboardItemsUseCase.kt
+----------------------------------------
+package com.wolfbytetechnologies.ielts.ui.dashboard.viewModel
+
+import com.wolfbytetechnologies.ielts.ui.dashboard.data.DashboardItems
+
+class CategorizeDashboardItemsUseCase {
+    fun invoke(items: List<DashboardItems>): CategorizedDashboardItems {
+        return CategorizedDashboardItems(
+            readingItems = items.filter { it.itemText == "Reading" },
+            listeningItems = items.filter { it.itemText == "Listening" },
+            writingItems = items.filter { it.itemText == "Writing" },
+            speakingItems = items.filter { it.itemText == "Speaking" }
+        )
+    }
+}
+
+data class CategorizedDashboardItems(
+    val readingItems: List<DashboardItems>,
+    val listeningItems: List<DashboardItems>,
+    val writingItems: List<DashboardItems>,
+    val speakingItems: List<DashboardItems>
+)
+
+========================================
+
 File: app/src/main/java/com/wolfbytetechnologies/ielts/ui/dashboard/viewModel/DashboardViewModel.kt
 ----------------------------------------
 package com.wolfbytetechnologies.ielts.ui.dashboard.viewModel
@@ -551,7 +851,10 @@ import androidx.lifecycle.ViewModel
 import com.wolfbytetechnologies.ielts.ui.dashboard.data.DashboardItems
 import com.wolfbytetechnologies.ielts.ui.dashboard.repo.MainDashboardItemsRepo
 
-class DashboardViewModel(private val repo: MainDashboardItemsRepo) : ViewModel() {
+class DashboardViewModel(
+    private val repo: MainDashboardItemsRepo,
+    private val categorizeUseCase: CategorizeDashboardItemsUseCase
+) : ViewModel() {
 
     private val _readingItems = MutableLiveData<List<DashboardItems>>()
     val readingItems: LiveData<List<DashboardItems>> get() = _readingItems
@@ -566,13 +869,14 @@ class DashboardViewModel(private val repo: MainDashboardItemsRepo) : ViewModel()
     val speakingItems: LiveData<List<DashboardItems>> get() = _speakingItems
 
     @RequiresApi(Build.VERSION_CODES.M)
-    fun categorizeDashboardItems() {
+    fun loadDashboardItems() {
         val allItems = repo.getDashboardItems()
+        val categorizedItems = categorizeUseCase.invoke(allItems)
 
-        _readingItems.value = allItems.filter { it.itemText == "Reading" }
-        _listeningItems.value = allItems.filter { it.itemText == "Listening" }
-        _writingItems.value = allItems.filter { it.itemText == "Writing" }
-        _speakingItems.value = allItems.filter { it.itemText == "Speaking" }
+        _readingItems.value = categorizedItems.readingItems
+        _listeningItems.value = categorizedItems.listeningItems
+        _writingItems.value = categorizedItems.writingItems
+        _speakingItems.value = categorizedItems.speakingItems
     }
 }
 
@@ -609,22 +913,141 @@ class SplashScreenActivity : AppCompatActivity() {
 }
 ========================================
 
+File: app/src/main/java/com/wolfbytetechnologies/ielts/Networking/ApiResponse.kt
+----------------------------------------
+package com.wolfbytetechnologies.ielts.Networking
+
+sealed class ApiResponse<out T> {
+    data class Success<out T>(val data: T) : ApiResponse<T>()
+    data class Error(val errorMessage: String) : ApiResponse<Nothing>()
+}
+
+========================================
+
+File: app/src/main/java/com/wolfbytetechnologies/ielts/Networking/NetworkingRepository.kt
+----------------------------------------
+package com.wolfbytetechnologies.ielts.Networking
+
+import com.wolfbytetechnologies.ielts.Networking.ApiResponse
+
+class NetworkRepository(private val apiService: IELTSApiService) {
+    suspend fun getQuestions(): ApiResponse<List<Questions>> {
+        return try {
+            val response = apiService.fetchQuestions()
+            if (response.isSuccessful) {
+                ApiResponse.Success(response.body() ?: emptyList())
+            } else {
+                ApiResponse.Error("Error: ${response.code()}")
+            }
+        } catch (e: Exception) {
+            ApiResponse.Error("Exception: ${e.localizedMessage}")
+        }
+    }
+}
+
+========================================
+
+File: app/src/main/java/com/wolfbytetechnologies/ielts/Networking/NetworkModule.kt
+----------------------------------------
+package com.wolfbytetechnologies.ielts.Networking
+
+import okhttp3.OkHttpClient
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+
+object NetworkModule {
+    private const val BASE_URL = "https://mock.api.example.com/" // Placeholder URL
+
+    private val client = OkHttpClient.Builder()
+        .build()
+
+    val retrofit: Retrofit = Retrofit.Builder()
+        .baseUrl(BASE_URL)
+        .client(client)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+}
+
+========================================
+
+File: app/src/main/java/com/wolfbytetechnologies/ielts/Networking/IELTSApiService.kt
+----------------------------------------
+package com.wolfbytetechnologies.ielts.Networking
+
+import retrofit2.Response
+import retrofit2.http.GET
+
+interface IELTSApiService {
+    @GET("questions") // Mock endpoint
+    suspend fun fetchQuestions(): Response<List<Questions>>
+}
+
+========================================
+
+File: app/src/main/java/com/wolfbytetechnologies/ielts/Networking/Questions.kt
+----------------------------------------
+package com.wolfbytetechnologies.ielts.Networking
+
+data class Questions(
+    val id: Int,
+    val type: String,
+    val topic: String,
+    val questionType: String,
+    val title: String,
+    val content: String
+)
+
+========================================
+
 File: app/src/main/java/com/wolfbytetechnologies/ielts/DI/KoinModule.kt
 ----------------------------------------
 package com.wolfbytetechnologies.ielts.DI
 
-import com.wolfbytetechnologies.ielts.InternetUtility
+import com.wolfbytetechnologies.ielts.Networking.IELTSApiService
+import com.wolfbytetechnologies.ielts.Networking.NetworkModule
+import com.wolfbytetechnologies.ielts.Networking.NetworkRepository
+import com.wolfbytetechnologies.ielts.ui.dashboard.adapter.AdapterProvider
+import com.wolfbytetechnologies.ielts.ui.dashboard.adapter.AdapterProviderImpl
+import com.wolfbytetechnologies.ielts.Utils.InternetUtility
 import com.wolfbytetechnologies.ielts.ui.dashboard.repo.MainDashboardItemsRepo
+import com.wolfbytetechnologies.ielts.ui.dashboard.repo.ResourceProvider
+import com.wolfbytetechnologies.ielts.ui.dashboard.repo.ResourceProviderImpl
+import com.wolfbytetechnologies.ielts.ui.dashboard.viewModel.CategorizeDashboardItemsUseCase
 import com.wolfbytetechnologies.ielts.ui.dashboard.viewModel.DashboardViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 import org.koin.androidx.viewmodel.dsl.viewModel
 
 val appModule = module {
-    single { MainDashboardItemsRepo(androidContext()) }
-    viewModel { DashboardViewModel(get()) }
-    single { InternetUtility(androidContext()) } // Internet Utility Singleton
+    // Providing the use case
+    single { CategorizeDashboardItemsUseCase() }
+
+    // Providing the ResourceProvider
+    single<ResourceProvider> { ResourceProviderImpl(androidContext()) }
+
+    // Providing the MainDashboardItemsRepo
+    single { MainDashboardItemsRepo(get()) }
+
+    // Providing the DashboardViewModel and injecting the use case properly
+    viewModel {
+        DashboardViewModel(
+            repo = get(),
+            categorizeUseCase = get()
+        )
+    }
+
+    // Providing InternetUtility
+    single { InternetUtility(androidContext()) }
+
+    // Providing AdapterProvider implementation
+    single<AdapterProvider> { AdapterProviderImpl() }
+
+    // Providing the network layer
+    single { NetworkModule.retrofit.create(IELTSApiService::class.java) }
+    single { NetworkRepository(get()) }
 }
+
+
 
 
 
@@ -19800,101 +20223,99 @@ File: app/src/main/res/layout/fragment_dashboard.xml
 <androidx.core.widget.NestedScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:scrollbars="none"
-    android:descendantFocusability="afterDescendants"
-    tools:context=".ui.dashboard.fragment.DashboardFragment">
+    android:layout_height="match_parent">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="16dp">
+        android:layout_height="wrap_content">
 
-        <!-- Reading Row -->
+        <!-- Guideline for consistent spacing -->
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_vertical_10"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintGuide_percent="0.1"/>
+
+        <!-- Reading RecyclerView -->
         <TextView
-            android:id="@+id/tvReadingTitle"
+            android:id="@+id/tvReading"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Reading"
-            android:textSize="18sp"
-            android:textColor="@color/blue_700"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/rvReading" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvReading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:paddingTop="8dp"
-            app:layout_constraintTop_toBottomOf="@id/tvReadingTitle"
+            app:layout_constraintTop_toBottomOf="@id/tvReading"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintWidth_percent="0.9" />
 
-        <!-- Listening Row -->
+        <!-- Listening RecyclerView -->
         <TextView
-            android:id="@+id/tvListeningTitle"
+            android:id="@+id/tvListening"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Listening"
-            android:textSize="18sp"
-            android:textColor="@color/blue_700"
-            app:layout_constraintTop_toBottomOf="@id/rvReading"
+            app:layout_constraintTop_toBottomOf="@+id/rvReading"
             app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="16dp" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/rvListening" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvListening"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:paddingTop="8dp"
-            app:layout_constraintTop_toBottomOf="@id/tvListeningTitle"
+            app:layout_constraintTop_toBottomOf="@id/tvListening"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintWidth_percent="0.9" />
 
-        <!-- Writing Row -->
+        <!-- Writing RecyclerView -->
         <TextView
-            android:id="@+id/tvWritingTitle"
+            android:id="@+id/tvWriting"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Writing"
-            android:textSize="18sp"
-            android:textColor="@color/blue_700"
-            app:layout_constraintTop_toBottomOf="@id/rvListening"
+            app:layout_constraintTop_toBottomOf="@+id/rvListening"
             app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="16dp" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/rvWriting" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvWriting"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:paddingTop="8dp"
-            app:layout_constraintTop_toBottomOf="@id/tvWritingTitle"
+            app:layout_constraintTop_toBottomOf="@id/tvWriting"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintWidth_percent="0.9" />
 
-        <!-- Speaking Row -->
+        <!-- Speaking RecyclerView -->
         <TextView
-            android:id="@+id/tvSpeakingTitle"
+            android:id="@+id/tvSpeaking"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Speaking"
-            android:textSize="18sp"
-            android:textColor="@color/blue_700"
-            app:layout_constraintTop_toBottomOf="@id/rvWriting"
+            app:layout_constraintTop_toBottomOf="@+id/rvWriting"
             app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="16dp" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/rvSpeaking" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvSpeaking"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:paddingTop="8dp"
-            app:layout_constraintTop_toBottomOf="@id/tvSpeakingTitle"
+            app:layout_constraintTop_toBottomOf="@id/tvSpeaking"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            app:layout_constraintWidth_percent="0.9" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>
