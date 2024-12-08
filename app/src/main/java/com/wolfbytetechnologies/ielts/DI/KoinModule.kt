@@ -42,9 +42,26 @@ val appModule = module {
     // Providing AdapterProvider implementation
     single<AdapterProvider> { AdapterProviderImpl() }
 
-    // Providing the network layer
-    single { NetworkModule.retrofit.create(IELTSApiService::class.java) }
-    single { NetworkRepository(get()) }
+
+
+//This area is commented out because The app doesn't implement API calls yet.
+
+/*    single { NetworkModule.retrofit.create(IELTSApiService::class.java) }
+    single { NetworkRepository(get()) }*/
+
+    //This area is commented out because The app doesn't use Room database yet.
+
+    /*
+        single {
+            Room.databaseBuilder(
+                androidContext(),
+                AppDatabase::class.java,
+                "app_database"
+            ).build()
+        }
+
+        single { get<AppDatabase>().questionDao() }*/
+
 }
 
 

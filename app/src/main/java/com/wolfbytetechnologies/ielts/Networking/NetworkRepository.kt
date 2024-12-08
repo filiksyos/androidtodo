@@ -1,5 +1,6 @@
 package com.wolfbytetechnologies.ielts.Networking
 
+//The app doesn't implement API calls yet.
 class NetworkRepository(private val apiService: IELTSApiService) {
 
     suspend fun getQuestions(): ApiResponse<List<Questions>> {

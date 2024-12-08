@@ -3,6 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'androidx.navigation.safeargs.kotlin'
     id 'kotlin-parcelize'
+    id 'com.google.devtools.ksp' version "2.0.21-1.0.27"
 }
 
 android {
@@ -104,6 +105,10 @@ dependencies {
     // Core testing utilities
     testImplementation "androidx.arch.core:core-testing:2.1.0"
 
+    //coroutine test
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+
+
     // AndroidX Test Core
     testImplementation "androidx.test:core:1.5.0"
 
@@ -130,5 +135,7 @@ dependencies {
 
     // Koin core dependency
     implementation 'io.insert-koin:koin-android:4.0.0'
+
+
 
 }

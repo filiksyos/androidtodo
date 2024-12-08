@@ -1,17 +1,10 @@
 package com.wolfbytetechnologies.ielts.ui.dashboard.viewModel
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.wolfbytetechnologies.ielts.Networking.ApiResponse
-import com.wolfbytetechnologies.ielts.Networking.Questions
 import com.wolfbytetechnologies.ielts.ui.dashboard.data.DashboardItems
 import com.wolfbytetechnologies.ielts.ui.dashboard.repo.MainDashboardItemsRepo
-import kotlinx.coroutines.launch
-import com.wolfbytetechnologies.ielts.Networking.NetworkRepository
 
 class DashboardViewModel(
     private val repo: MainDashboardItemsRepo,
@@ -42,6 +35,9 @@ class DashboardViewModel(
     }
 
 /*
+
+    This area is commented because the app doesn't implement API calls yet.
+
     val apiResponse = MutableLiveData<ApiResponse<List<Questions>>>()
 
     fun fetchQuestions() {
