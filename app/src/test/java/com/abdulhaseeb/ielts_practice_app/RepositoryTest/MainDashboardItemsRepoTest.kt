@@ -1,12 +1,10 @@
-package com.abdulhaseeb.ielts_practice_app
+package com.abdulhaseeb.ielts_practice_app.RepositoryTest
 
 import com.wolfbytetechnologies.ielts.ui.dashboard.repo.MainDashboardItemsRepo
 import com.wolfbytetechnologies.ielts.ui.dashboard.repo.ResourceProvider
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import com.wolfbytetechnologies.ielts.ui.dashboard.data.DashboardItems
-import org.junit.Assert.assertEquals
 
 class MainDashboardItemsRepoTest {
 

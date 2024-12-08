@@ -15,7 +15,7 @@ import com.wolfbytetechnologies.ielts.Networking.NetworkRepository
 
 class DashboardViewModel(
     private val repo: MainDashboardItemsRepo,
-    private val categorizeUseCase: CategorizeDashboardItemsUseCase
+    private val categorizeUseCase: CategorizeDashboardItems
 ) : ViewModel() {
 
     private val _readingItems = MutableLiveData<List<DashboardItems>>()

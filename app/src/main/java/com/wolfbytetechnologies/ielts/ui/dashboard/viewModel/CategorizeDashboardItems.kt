@@ -2,7 +2,7 @@ package com.wolfbytetechnologies.ielts.ui.dashboard.viewModel
 
 import com.wolfbytetechnologies.ielts.ui.dashboard.data.DashboardItems
 
-class CategorizeDashboardItemsUseCase {
+class CategorizeDashboardItems {
     fun invoke(items: List<DashboardItems>): CategorizedDashboardItems {
         return CategorizedDashboardItems(
             readingItems = items.filter { it.itemText == "Reading" },
