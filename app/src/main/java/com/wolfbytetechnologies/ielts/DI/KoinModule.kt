@@ -6,6 +6,7 @@ import com.wolfbytetechnologies.ielts.Networking.NetworkRepository
 import com.wolfbytetechnologies.ielts.ui.dashboard.adapter.AdapterProvider
 import com.wolfbytetechnologies.ielts.ui.dashboard.adapter.AdapterProviderImpl
 import com.wolfbytetechnologies.ielts.Utils.InternetUtility
+import com.wolfbytetechnologies.ielts.Utils.NetworkChecker
 import com.wolfbytetechnologies.ielts.ui.dashboard.repo.MainDashboardItemsRepo
 import com.wolfbytetechnologies.ielts.ui.dashboard.repo.ResourceProvider
 import com.wolfbytetechnologies.ielts.ui.dashboard.repo.ResourceProviderImpl
@@ -35,6 +36,8 @@ val appModule = module {
 
     // Providing InternetUtility
     single { InternetUtility(androidContext()) }
+
+    single<NetworkChecker> { InternetUtility(androidContext()) }
 
     // Providing AdapterProvider implementation
     single<AdapterProvider> { AdapterProviderImpl() }

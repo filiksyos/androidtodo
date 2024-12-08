@@ -5,8 +5,13 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.wolfbytetechnologies.ielts.Networking.ApiResponse
+import com.wolfbytetechnologies.ielts.Networking.Questions
 import com.wolfbytetechnologies.ielts.ui.dashboard.data.DashboardItems
 import com.wolfbytetechnologies.ielts.ui.dashboard.repo.MainDashboardItemsRepo
+import kotlinx.coroutines.launch
+import com.wolfbytetechnologies.ielts.Networking.NetworkRepository
 
 class DashboardViewModel(
     private val repo: MainDashboardItemsRepo,
@@ -25,7 +30,7 @@ class DashboardViewModel(
     private val _speakingItems = MutableLiveData<List<DashboardItems>>()
     val speakingItems: LiveData<List<DashboardItems>> get() = _speakingItems
 
-    @RequiresApi(Build.VERSION_CODES.M)
+
     fun loadDashboardItems() {
         val allItems = repo.getDashboardItems()
         val categorizedItems = categorizeUseCase.invoke(allItems)
@@ -35,4 +40,17 @@ class DashboardViewModel(
         _writingItems.value = categorizedItems.writingItems
         _speakingItems.value = categorizedItems.speakingItems
     }
+
+/*
+    val apiResponse = MutableLiveData<ApiResponse<List<Questions>>>()
+
+    fun fetchQuestions() {
+        viewModelScope.launch {
+            val response = NetworkRepository.getQuestions()
+            apiResponse.postValue(response)
+        }
+    }
+
+ */
+
 }

@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.wolfbytetechnologies.ielts.Utils.InternetUtility
 import com.wolfbytetechnologies.ielts.Utils.Logger
+import com.wolfbytetechnologies.ielts.Utils.NetworkChecker
 import com.wolfbytetechnologies.ielts.databinding.FragmentDashboardBinding
 import com.wolfbytetechnologies.ielts.ui.dashboard.adapter.AdapterProvider
 import com.wolfbytetechnologies.ielts.ui.dashboard.adapter.DashboardAdapter
@@ -21,12 +22,12 @@ import com.wolfbytetechnologies.ielts.ui.dashboard.viewModel.DashboardViewModel
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class DashboardFragment: Fragment() {
+class DashboardFragment : Fragment() {
 
     private lateinit var binding: FragmentDashboardBinding
     private val dashboardViewModel: DashboardViewModel by viewModel()
-    private val internetUtility: InternetUtility by inject()
     private val adapterProvider: AdapterProvider by inject()
+    private val networkChecker: NetworkChecker by inject()
 
     private lateinit var readingAdapter: DashboardAdapter
     private lateinit var listeningAdapter: DashboardAdapter
@@ -41,33 +42,35 @@ class DashboardFragment: Fragment() {
         return binding.root
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Initialize adapters
         setupAdapters()
         setupRecyclerViews()
+
+        // Observe LiveData
         setupObservers()
 
-        // Load and categorize dashboard items
+        // Load dashboard items
         dashboardViewModel.loadDashboardItems()
     }
 
     private fun setupAdapters() {
         readingAdapter = adapterProvider.createDashboardAdapter { position ->
-            handleItemClick(dashboardViewModel.readingItems.value?.get(position))
+            navigateToYouTube(dashboardViewModel.readingItems.value?.get(position))
         }
 
         listeningAdapter = adapterProvider.createDashboardAdapter { position ->
-            handleItemClick(dashboardViewModel.listeningItems.value?.get(position))
+            navigateToYouTube(dashboardViewModel.listeningItems.value?.get(position))
         }
 
         writingAdapter = adapterProvider.createDashboardAdapter { position ->
-            handleItemClick(dashboardViewModel.writingItems.value?.get(position))
+            navigateToYouTube(dashboardViewModel.writingItems.value?.get(position))
         }
 
         speakingAdapter = adapterProvider.createDashboardAdapter { position ->
-            handleItemClick(dashboardViewModel.speakingItems.value?.get(position))
+            navigateToYouTube(dashboardViewModel.speakingItems.value?.get(position))
         }
 
         // Attach adapters to RecyclerViews
@@ -122,30 +125,22 @@ class DashboardFragment: Fragment() {
         }
     }
 
-    private fun handleItemClick(item: DashboardItems?) {
-        item?.let {
-            val query = "${it.itemText} ${it.cardType} IELTS".trim() // e.g., "Reading Lesson IELTS"
-            openYouTubeSearch(query)
+    private fun navigateToYouTube(item: DashboardItems?) {
+        if (!networkChecker.isConnected) {
+            Toast.makeText(requireContext(), "No internet connection. Please try again.", Toast.LENGTH_SHORT).show()
+            return
         }
-    }
 
-    private fun openYouTubeSearch(query: String) {
-        val link = "https://www.youtube.com/results?search_query=${Uri.encode(query)}"
-        Logger.logDebug("DashboardFragment", "Navigating to YouTube with query: $query")
+        item?.let {
+            val query = "${it.itemText} ${it.cardType} IELTS".trim()
+            val link = "https://www.youtube.com/results?search_query=${Uri.encode(query)}"
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(link))
 
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(link))
-
-        if (internetUtility.isConnected) {
-            if (intent.resolveActivity(requireContext().packageManager) != null) {
+            if (requireContext().packageManager.resolveActivity(intent, 0) != null) {
                 startActivity(intent)
             } else {
-                Logger.logError("DashboardFragment", "No app available to handle the YouTube link.")
-                Toast.makeText(requireContext(), "No app available to open the link", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "No app available to open the link.", Toast.LENGTH_SHORT).show()
             }
-        } else {
-            Logger.logError("DashboardFragment", "No internet connection.")
-            Toast.makeText(requireContext(), "No internet connection. Please check your connection.", Toast.LENGTH_SHORT).show()
-        }
+        } ?: Toast.makeText(requireContext(), "Invalid navigation item.", Toast.LENGTH_SHORT).show()
     }
-
 }

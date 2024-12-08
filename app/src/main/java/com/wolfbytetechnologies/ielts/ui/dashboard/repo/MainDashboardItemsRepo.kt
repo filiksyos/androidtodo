@@ -8,7 +8,7 @@ import com.wolfbytetechnologies.ielts.ui.dashboard.data.DashboardItems
 class MainDashboardItemsRepo(
     private val resourceProvider: ResourceProvider
 ) {
-    @RequiresApi(Build.VERSION_CODES.M)
+
     fun getDashboardItems(): List<DashboardItems> {
         return listOf(
             DashboardItems(

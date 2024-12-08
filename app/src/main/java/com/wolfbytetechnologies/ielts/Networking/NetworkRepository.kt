@@ -1,8 +1,7 @@
 package com.wolfbytetechnologies.ielts.Networking
 
-import com.wolfbytetechnologies.ielts.Networking.ApiResponse
-
 class NetworkRepository(private val apiService: IELTSApiService) {
+
     suspend fun getQuestions(): ApiResponse<List<Questions>> {
         return try {
             val response = apiService.fetchQuestions()
