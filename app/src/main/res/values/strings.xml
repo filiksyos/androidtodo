@@ -163,4 +163,14 @@
     <string name="settings">Setting</string>
     <string name="enable_wifi">Enable Wifi and Try Again!</string>
     <string name="please_wait">Please Wait</string>
+
+
+
+    <string name="no_app_available">no_app_available</string>
+
+
+
+
+
+
 </resources>

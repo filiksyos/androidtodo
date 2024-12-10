@@ -14,6 +14,8 @@ import com.wolfbytetechnologies.ielts.adapter.DashboardAdapter
 import com.wolfbytetechnologies.ielts.data.DashboardItems
 import com.wolfbytetechnologies.ielts.viewModel.DashboardViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import com.wolfbytetechnologies.ielts.R
+import com.wolfbytetechnologies.ielts.Utils.YouTubeLink
 
 class DashboardFragment : Fragment() {
 
@@ -47,18 +49,20 @@ class DashboardFragment : Fragment() {
         dashboardViewModel.loadDashboardItems()
     }
 
+    //Set up UI
+
     private fun setupAdapters() {
         readingAdapter = DashboardAdapter { item ->
-            navigateToYouTube(item)
+            navigateToYouTube(item.query)
         }
         listeningAdapter = DashboardAdapter { item ->
-            navigateToYouTube(item)
+            navigateToYouTube(item.query)
         }
         writingAdapter = DashboardAdapter { item ->
-            navigateToYouTube(item)
+            navigateToYouTube(item.query)
         }
         speakingAdapter = DashboardAdapter { item ->
-            navigateToYouTube(item)
+            navigateToYouTube(item.query)
         }
     }
 
@@ -97,14 +101,28 @@ class DashboardFragment : Fragment() {
         }
     }
 
-    private fun navigateToYouTube(item: DashboardItems) {
-        val query = "${item.itemText} ${item.cardType} IELTS".trim()
-        val link = "https://www.youtube.com/results?search_query=${Uri.encode(query)}"
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(link))
-        if (requireContext().packageManager.resolveActivity(intent, 0) != null) {
+
+    private fun navigateToYouTube(query: String) {
+        val intent = createYouTubeIntent(query)
+        if (isIntentResolvable(intent)) {
             startActivity(intent)
         } else {
-            Toast.makeText(requireContext(), "No app available to open the link.", Toast.LENGTH_SHORT).show()
+            showErrorMessage()
         }
     }
+
+    private fun createYouTubeIntent(query: String): Intent {
+        val link = Uri.encode(query)
+        return Intent(Intent.ACTION_VIEW, Uri.parse(link))
+    }
+
+    private fun isIntentResolvable(intent: Intent): Boolean {
+        return requireContext().packageManager.resolveActivity(intent, 0) != null
+    }
+
+    private fun showErrorMessage() {
+        Toast.makeText(requireContext(), getString(R.string.no_app_available), Toast.LENGTH_SHORT).show()
+    }
+
+
 }
