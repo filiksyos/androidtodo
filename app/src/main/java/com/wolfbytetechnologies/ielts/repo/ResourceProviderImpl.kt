@@ -1,4 +1,4 @@
-package com.wolfbytetechnologies.ielts.ui.dashboard.repo
+package com.wolfbytetechnologies.ielts.repo
 
 import android.content.Context
 import android.graphics.drawable.Drawable

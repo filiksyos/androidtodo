@@ -1,4 +1,4 @@
-package com.wolfbytetechnologies.ielts.ui.dashboard.data
+package com.wolfbytetechnologies.ielts.data
 
 import android.graphics.Color
 import android.graphics.drawable.Drawable

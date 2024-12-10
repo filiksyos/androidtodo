@@ -1,7 +1,7 @@
-package com.wolfbytetechnologies.ielts.ui.dashboard.adapter
+package com.wolfbytetechnologies.ielts.adapter
 
 import androidx.recyclerview.widget.DiffUtil
-import com.wolfbytetechnologies.ielts.ui.dashboard.data.DashboardItems
+import com.wolfbytetechnologies.ielts.data.DashboardItems
 
 class DashboardDiffCallback : DiffUtil.ItemCallback<DashboardItems>() {
     override fun areItemsTheSame(oldItem: DashboardItems, newItem: DashboardItems): Boolean {
