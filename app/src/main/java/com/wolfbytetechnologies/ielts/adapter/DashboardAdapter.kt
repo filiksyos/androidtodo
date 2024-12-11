@@ -13,15 +13,18 @@ class DashboardAdapter(
 
     inner class ViewHolder(private val binding: DashboardCardviewItemsBinding) :
         RecyclerView.ViewHolder(binding.root) {
+
         fun bind(item: DashboardItems) {
             binding.apply {
                 imageViewItemImage.setImageDrawable(item.itemImage)
                 tvItemName.text = item.itemText
                 tvLessonOrTest.text = item.cardType
-                if (item.color != null) cvItemsMainBackground.setCardBackgroundColor(item.color)
+                cvItemsMainBackground.setCardBackgroundColor(item.color)
+                root.setOnClickListener { onItemClick(item) } // Directly handle onClick here
             }
-            binding.root.setOnClickListener { onItemClick(item) }
         }
+
+
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {

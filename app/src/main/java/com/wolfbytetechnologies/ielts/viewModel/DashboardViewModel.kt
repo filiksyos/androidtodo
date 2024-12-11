@@ -7,7 +7,7 @@ import com.wolfbytetechnologies.ielts.data.DashboardItems
 import com.wolfbytetechnologies.ielts.repo.Repository
 
 class DashboardViewModel(
-    private val repo: Repository
+    private val getDashboardItemsUseCase: GetDashboardItemsUseCase
 ) : ViewModel() {
 
     private val _readingItems = MutableLiveData<List<DashboardItems>>()
@@ -22,14 +22,11 @@ class DashboardViewModel(
     private val _speakingItems = MutableLiveData<List<DashboardItems>>()
     val speakingItems: LiveData<List<DashboardItems>> get() = _speakingItems
 
-    /**
-     * Loads items from the repository and updates LiveData for each category.
-     */
     fun loadDashboardItems() {
-        _readingItems.value = repo.getReadingItems()
-        _listeningItems.value = repo.getListeningItems()
-        _writingItems.value = repo.getWritingItems()
-        _speakingItems.value = repo.getSpeakingItems()
+        _readingItems.value = getDashboardItemsUseCase.getReadingItems()
+        _listeningItems.value = getDashboardItemsUseCase.getListeningItems()
+        _writingItems.value = getDashboardItemsUseCase.getWritingItems()
+        _speakingItems.value = getDashboardItemsUseCase.getSpeakingItems()
     }
 }
 
