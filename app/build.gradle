@@ -136,6 +136,9 @@ dependencies {
     // Koin core dependency
     implementation 'io.insert-koin:koin-android:4.0.0'
 
+    implementation "androidx.core:core-splashscreen:1.0.0"
+
+
 
 
 }

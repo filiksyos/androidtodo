@@ -9,13 +9,11 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.wolfbytetechnologies.ielts.databinding.FragmentDashboardBinding
+import com.wolfbytetechnologies.ielts.R
 import com.wolfbytetechnologies.ielts.adapter.DashboardAdapter
-import com.wolfbytetechnologies.ielts.data.DashboardItems
+import com.wolfbytetechnologies.ielts.databinding.FragmentDashboardBinding
 import com.wolfbytetechnologies.ielts.viewModel.DashboardViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import com.wolfbytetechnologies.ielts.R
-import com.wolfbytetechnologies.ielts.Utils.YouTubeLink
 
 class DashboardFragment : Fragment() {
 

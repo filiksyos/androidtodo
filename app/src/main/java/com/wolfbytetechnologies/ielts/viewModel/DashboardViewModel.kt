@@ -4,7 +4,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.wolfbytetechnologies.ielts.data.DashboardItems
-import com.wolfbytetechnologies.ielts.repo.Repository
 
 class DashboardViewModel(
     private val getDashboardItemsUseCase: GetDashboardItemsUseCase

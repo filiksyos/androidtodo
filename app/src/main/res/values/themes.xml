@@ -1,6 +1,6 @@
 <resources>
     <!-- Base application theme. -->
-    <style name="Theme.IELTS_PREPARATION_APP" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.IELTS_PREPARATION_APP" parent="Theme.MaterialComponents.Light.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/purple_500</item>
         <item name="colorPrimaryVariant">@color/purple_700</item>
@@ -11,25 +11,13 @@
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor">@color/white</item>
-        <!-- Customize your theme here. -->
-        <item name="bottomSheetDialogTheme">@style/AppBottomSheetDialogTheme</item>
+        <item name="android:windowBackground">@android:color/white</item>
     </style>
+    <!-- ... other themes ... -->
 
-    <style name="recycler_horizontal_style">
-        <item name="android:scrollbarSize">4dp</item>
-        <item name="android:scrollbars">horizontal</item>
-        <item name="android:scrollbarThumbHorizontal">@drawable/recycler_horizontal_scrollbar</item>
-        <item name="android:scrollbarTrackHorizontal">@drawable/recycler_horizontal_scrollbar_bg
-        </item>
-    </style>
-
-    <style name="AppBottomSheetDialogTheme"
-        parent="Theme.Design.Light.BottomSheetDialog">
-        <item name="bottomSheetStyle">@style/AppModalStyle</item>
-    </style>
-
-    <style name="AppModalStyle"
-        parent="Widget.Design.BottomSheet.Modal">
-        <item name="android:background">@drawable/top_corners_rounded</item>
+    <style name="Theme.IELTS_PREPARATION_APP.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/white</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/app_icon</item>
+        <item name="postSplashScreenTheme">@style/Theme.IELTS_PREPARATION_APP</item>
     </style>
 </resources>

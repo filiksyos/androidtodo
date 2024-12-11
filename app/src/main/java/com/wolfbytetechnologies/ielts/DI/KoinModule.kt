@@ -8,7 +8,8 @@ import com.wolfbytetechnologies.ielts.viewModel.DashboardViewModel
 import com.wolfbytetechnologies.ielts.viewModel.GetDashboardItemsUseCase
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
-import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.core.module.dsl.factoryOf
+
 
 val appModule = module {
 
@@ -22,7 +23,8 @@ val appModule = module {
     single { GetDashboardItemsUseCase(get()) }
 
     // Provide ViewModel
-    viewModel { DashboardViewModel(get()) }
+    factoryOf(::DashboardViewModel)
+
 
 }
 
