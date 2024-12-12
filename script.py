@@ -88,13 +88,13 @@ if __name__ == "__main__":
         #"Courses": " ",
         #"YouTube Videos": " ",
         #"PDFs": " ",
-        "geeks for geeks": "geeks for geeks: Null Safety in Kotlin",
+        #"geeks for geeks": "geeks for geeks: Null Safety in Kotlin",
         #"Podcasts": " ",
-        "Apps": "play.google.com: Null Safety in Kotlin",
+        #"Apps": "play.google.com: Null Safety in Kotlin",
         #"Tiktok":  ",
-        "CSDN": "CSDN.net: Kotlin 中的空安全",
+        #"CSDN": "CSDN.net: Kotlin 中的空安全",
         #"Twitter": " ",
-        "Medium" : "Medium.com: Null Safety in Kotlin"        
+        #"Medium" : "Medium.com: Null Safety in Kotlin"
     }
 
     for page_name, query in resources.items():

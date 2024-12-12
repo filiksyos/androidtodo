@@ -39,29 +39,17 @@ class DashboardFragment : Fragment() {
 
         setupAdapters()
         setupRecyclerViews()
-
-        // Observe LiveData for updates
         observeViewModel()
 
         // Load dashboard items
         dashboardViewModel.loadDashboardItems()
     }
 
-    //Set up UI
-
     private fun setupAdapters() {
-        readingAdapter = DashboardAdapter { item ->
-            navigateToYouTube(item.query)
-        }
-        listeningAdapter = DashboardAdapter { item ->
-            navigateToYouTube(item.query)
-        }
-        writingAdapter = DashboardAdapter { item ->
-            navigateToYouTube(item.query)
-        }
-        speakingAdapter = DashboardAdapter { item ->
-            navigateToYouTube(item.query)
-        }
+        readingAdapter = DashboardAdapter { item -> navigateToYouTube(item.query) }
+        listeningAdapter = DashboardAdapter { item -> navigateToYouTube(item.query) }
+        writingAdapter = DashboardAdapter { item -> navigateToYouTube(item.query) }
+        speakingAdapter = DashboardAdapter { item -> navigateToYouTube(item.query) }
     }
 
     private fun setupRecyclerViews() {
@@ -74,7 +62,7 @@ class DashboardFragment : Fragment() {
         binding.rvSpeaking.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
 
-        // Attach distinct adapters to each RecyclerView
+        // Attach adapters
         binding.rvReading.adapter = readingAdapter
         binding.rvListening.adapter = listeningAdapter
         binding.rvWriting.adapter = writingAdapter
@@ -99,7 +87,6 @@ class DashboardFragment : Fragment() {
         }
     }
 
-
     private fun navigateToYouTube(query: String) {
         val intent = createYouTubeIntent(query)
         if (isIntentResolvable(intent)) {
@@ -121,6 +108,4 @@ class DashboardFragment : Fragment() {
     private fun showErrorMessage() {
         Toast.makeText(requireContext(), getString(R.string.no_app_available), Toast.LENGTH_SHORT).show()
     }
-
-
 }

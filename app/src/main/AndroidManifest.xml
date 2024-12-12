@@ -14,15 +14,14 @@
         android:roundIcon="@mipmap/app_icon"
         android:supportsRtl="true"
         android:theme="@style/Theme.IELTS_PREPARATION_APP"
-        android:screenOrientation="portrait"
         >
+        <profileable android:shell="true" />
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-1254010252723206~4802988705"/>
         <activity
             android:name=".ui.splash.SplashScreenActivity"
             android:exported="true"
-            android:screenOrientation="portrait"
             android:theme="@style/Theme.IELTS_PREPARATION_APP.Starting"
             tools:ignore="LockedOrientationActivity">
             <intent-filter>
@@ -35,7 +34,6 @@
             android:name="com.wolfbytetechnologies.ielts.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.IELTS_PREPARATION_APP"
-            android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity">
         </activity>
 

@@ -3,6 +3,7 @@ package com.wolfbytetechnologies.ielts.viewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.wolfbytetechnologies.ielts.data.DashboardItems
 
 class DashboardViewModel(
@@ -27,5 +28,6 @@ class DashboardViewModel(
         _writingItems.value = getDashboardItemsUseCase.getWritingItems()
         _speakingItems.value = getDashboardItemsUseCase.getSpeakingItems()
     }
+
 }
 
