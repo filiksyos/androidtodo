@@ -1,11 +1,15 @@
 package com.wolfbytetechnologies.ielts.adapter
 
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.wolfbytetechnologies.ielts.data.DashboardItems
 import com.wolfbytetechnologies.ielts.databinding.DashboardCardviewItemsBinding
+import com.bumptech.glide.Glide
+import com.wolfbytetechnologies.ielts.R
+
 
 class DashboardAdapter(
     private val onItemClick: (DashboardItems) -> Unit
@@ -15,13 +19,20 @@ class DashboardAdapter(
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: DashboardItems) {
+
             binding.apply {
-                imageViewItemImage.setImageDrawable(item.itemImage)
+                Glide.with(binding.root.context) // Use the context from the view binding
+                    .load(Uri.parse(item.itemImageUri)) // Parse URI properly
+                    .placeholder(R.drawable.placeholder) // Placeholder image while loading
+                    .error(R.drawable.error_placeholder) // Fallback image in case of error
+                    .into(imageViewItemImage) // Target ImageView
+
                 tvItemName.text = item.itemText
                 tvLessonOrTest.text = item.cardType
                 cvItemsMainBackground.setCardBackgroundColor(item.color)
-                root.setOnClickListener { onItemClick(item) } // Directly handle onClick here
+                root.setOnClickListener { onItemClick(item) }
             }
+
         }
 
 

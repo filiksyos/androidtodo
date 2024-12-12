@@ -5,7 +5,10 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.lifecycleScope
 import com.wolfbytetechnologies.ielts.MainActivity
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @SuppressLint("CustomSplashScreen")
 class SplashScreenActivity : AppCompatActivity() {
@@ -16,18 +19,28 @@ class SplashScreenActivity : AppCompatActivity() {
         // Install splash screen
         val splashScreen = installSplashScreen()
 
-        // Keep splash screen visible while performing any initialization
-        splashScreen.setKeepOnScreenCondition {
-            // Add a condition to keep the splash screen visible (e.g., until initialization is done)
-            false // Use `false` if there's no initialization
+        // Offload initialization tasks
+        var isInitializationComplete = false
+        splashScreen.setKeepOnScreenCondition { !isInitializationComplete }
+
+        lifecycleScope.launch {
+            initializeApp() // Perform background initialization
+            isInitializationComplete = true
         }
 
-        // Start MainActivity after a slight delay to ensure smooth transition
+        // Transition to MainActivity
         splashScreen.setOnExitAnimationListener { splashScreenView ->
-            splashScreenView.remove() // Remove splash screen animation
+            splashScreenView.remove()
             startActivity(Intent(this, MainActivity::class.java))
             finish()
         }
     }
+
+    private suspend fun initializeApp() {
+        // Simulate heavy initialization tasks (e.g., loading resources, initializing Koin)
+        delay(1000) // Simulating a delay
+        // Add your actual initialization tasks here
+    }
 }
+
 

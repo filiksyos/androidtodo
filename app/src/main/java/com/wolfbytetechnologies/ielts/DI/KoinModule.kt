@@ -11,22 +11,25 @@ import org.koin.dsl.module
 import org.koin.core.module.dsl.factoryOf
 
 
-val appModule = module {
+import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.dsl.module
 
-    // Provide ResourceProvider
+val appModule = module {
+    // ResourceProvider
     single<ResourceProvider> { ResourceProviderImpl(androidContext()) }
 
-    // Provide Repository
+    // Repository
     single { Repository(get()) }
 
-    // Provide UseCase
-    single { GetDashboardItemsUseCase(get()) }
+    // Use Case
+    factory { GetDashboardItemsUseCase(get()) }
 
-    // Provide ViewModel
-    factoryOf(::DashboardViewModel)
-
-
+    // ViewModel
+    viewModel { DashboardViewModel(get()) }
 }
+
+
+
 
 
 
