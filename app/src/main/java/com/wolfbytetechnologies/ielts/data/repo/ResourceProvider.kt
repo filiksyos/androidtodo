@@ -1,4 +1,4 @@
-package com.wolfbytetechnologies.ielts.repo
+package com.wolfbytetechnologies.ielts.data.repo
 
 import android.graphics.drawable.Drawable
 

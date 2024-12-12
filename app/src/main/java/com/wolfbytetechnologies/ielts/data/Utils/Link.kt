@@ -1,4 +1,4 @@
-package com.wolfbytetechnologies.ielts.Utils
+package com.wolfbytetechnologies.ielts.data.Utils
 
 object YouTubeLink {
 

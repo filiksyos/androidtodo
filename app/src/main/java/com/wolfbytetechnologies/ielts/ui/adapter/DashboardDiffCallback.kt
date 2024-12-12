@@ -1,4 +1,4 @@
-package com.wolfbytetechnologies.ielts.adapter
+package com.wolfbytetechnologies.ielts.ui.adapter
 
 import androidx.recyclerview.widget.DiffUtil
 import com.wolfbytetechnologies.ielts.data.DashboardItems

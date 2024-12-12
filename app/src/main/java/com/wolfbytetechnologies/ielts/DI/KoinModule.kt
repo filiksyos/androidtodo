@@ -1,18 +1,16 @@
 package com.wolfbytetechnologies.ielts.DI
 
 
-import com.wolfbytetechnologies.ielts.repo.Repository
-import com.wolfbytetechnologies.ielts.repo.ResourceProvider
-import com.wolfbytetechnologies.ielts.repo.ResourceProviderImpl
-import com.wolfbytetechnologies.ielts.viewModel.DashboardViewModel
-import com.wolfbytetechnologies.ielts.viewModel.GetDashboardItemsUseCase
+import com.wolfbytetechnologies.ielts.data.repo.Repository
+import com.wolfbytetechnologies.ielts.data.repo.ResourceProvider
+import com.wolfbytetechnologies.ielts.data.repo.ResourceProviderImpl
+import com.wolfbytetechnologies.ielts.ui.viewModel.DashboardViewModel
+import com.wolfbytetechnologies.ielts.Domain.GetDashboardItemsUseCase
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
-import org.koin.core.module.dsl.factoryOf
 
 
 import org.koin.androidx.viewmodel.dsl.viewModel
-import org.koin.dsl.module
 
 val appModule = module {
     // ResourceProvider

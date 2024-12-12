@@ -1,9 +1,9 @@
-package com.wolfbytetechnologies.ielts.repo
+package com.wolfbytetechnologies.ielts.data.repo
 
 import android.content.Context
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
-import com.wolfbytetechnologies.ielts.Utils.YouTubeLink
+import com.wolfbytetechnologies.ielts.data.Utils.YouTubeLink
 
 class ResourceProviderImpl(private val context: Context) : ResourceProvider {
     override fun getString(resId: Int): String = context.getString(resId)

@@ -1,8 +1,9 @@
-package com.wolfbytetechnologies.ielts.adapter
+package com.wolfbytetechnologies.ielts.ui.adapter
 
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.wolfbytetechnologies.ielts.data.DashboardItems
@@ -13,29 +14,25 @@ import com.wolfbytetechnologies.ielts.R
 
 class DashboardAdapter(
     private val onItemClick: (DashboardItems) -> Unit
-) : ListAdapter<DashboardItems, DashboardAdapter.ViewHolder>(DashboardDiffCallback()) {
+) : PagingDataAdapter<DashboardItems, DashboardAdapter.ViewHolder>(DashboardDiffCallback()) {
 
     inner class ViewHolder(private val binding: DashboardCardviewItemsBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: DashboardItems) {
-
             binding.apply {
-                Glide.with(binding.root.context) // Use the context from the view binding
-                    .load(Uri.parse(item.itemImageUri)) // Parse URI properly
-                    .placeholder(R.drawable.placeholder) // Placeholder image while loading
-                    .error(R.drawable.error_placeholder) // Fallback image in case of error
-                    .into(imageViewItemImage) // Target ImageView
+                Glide.with(binding.root.context)
+                    .load(Uri.parse(item.itemImageUri))
+                    .placeholder(R.drawable.placeholder)
+                    .error(R.drawable.error_placeholder)
+                    .into(imageViewItemImage)
 
                 tvItemName.text = item.itemText
                 tvLessonOrTest.text = item.cardType
                 cvItemsMainBackground.setCardBackgroundColor(item.color)
                 root.setOnClickListener { onItemClick(item) }
             }
-
         }
-
-
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -49,6 +46,7 @@ class DashboardAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val currentItem = getItem(position)
-        holder.bind(currentItem)
+        currentItem?.let { holder.bind(it) } // Handle null safety as PagingDataAdapter can return null for placeholders
     }
 }
+

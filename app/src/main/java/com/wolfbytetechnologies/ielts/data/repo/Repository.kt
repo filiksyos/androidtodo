@@ -1,7 +1,7 @@
-package com.wolfbytetechnologies.ielts.repo
+package com.wolfbytetechnologies.ielts.data.repo
 
 import com.wolfbytetechnologies.ielts.R
-import com.wolfbytetechnologies.ielts.Utils.YouTubeLink
+import com.wolfbytetechnologies.ielts.data.Utils.YouTubeLink
 import com.wolfbytetechnologies.ielts.data.DashboardItems
 
 class Repository(

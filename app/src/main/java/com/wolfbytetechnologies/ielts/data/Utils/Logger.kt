@@ -1,4 +1,4 @@
-package com.wolfbytetechnologies.ielts.Utils
+package com.wolfbytetechnologies.ielts.data.Utils
 
 import android.util.Log
 import com.wolfbytetechnologies.ielts.BuildConfig

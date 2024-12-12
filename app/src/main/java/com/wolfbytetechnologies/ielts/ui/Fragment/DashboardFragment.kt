@@ -8,27 +8,37 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.tabs.TabLayout
-import com.wolfbytetechnologies.ielts.R
-import com.wolfbytetechnologies.ielts.adapter.DashboardAdapter
+import com.wolfbytetechnologies.ielts.ui.adapter.DashboardAdapter
 import com.wolfbytetechnologies.ielts.databinding.FragmentDashboardBinding
-import com.wolfbytetechnologies.ielts.viewModel.DashboardViewModel
+import com.wolfbytetechnologies.ielts.ui.viewModel.DashboardViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingSource
+import androidx.paging.PagingSource.LoadParams
+import androidx.paging.PagingSource.LoadResult
+import androidx.paging.PagingState
+import com.wolfbytetechnologies.ielts.Domain.GetDashboardItemsUseCase
+import androidx.paging.cachedIn
+import com.wolfbytetechnologies.ielts.data.DashboardItems
+import com.wolfbytetechnologies.ielts.ui.adapter.DashboardPagingSource
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 class DashboardFragment : Fragment() {
 
     private lateinit var binding: FragmentDashboardBinding
-        private val dashboardViewModel: DashboardViewModel by viewModel()
+    private val dashboardViewModel: DashboardViewModel by viewModel()
 
     private lateinit var readingAdapter: DashboardAdapter
     private lateinit var listeningAdapter: DashboardAdapter
     private lateinit var writingAdapter: DashboardAdapter
     private lateinit var speakingAdapter: DashboardAdapter
-
-    private val loadedSections = mutableSetOf<String>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -43,16 +53,7 @@ class DashboardFragment : Fragment() {
 
         setupAdapters()
         setupRecyclerViews()
-
-        // Safely initialize data loading
-        try {
-            loadReadingItems()
-        } catch (e: Exception) {
-            Log.e("DashboardFragment", "Error loading reading items: ${e.message}")
-        }
-
-        // Lazy loading for other RecyclerViews as user scrolls
-        setupLazyLoading()
+        loadPagedItems()
     }
 
     private fun setupAdapters() {
@@ -78,77 +79,28 @@ class DashboardFragment : Fragment() {
         binding.rvSpeaking.adapter = speakingAdapter
     }
 
-    private fun setupLazyLoading() {
-        binding.nestedScrollView.viewTreeObserver.addOnScrollChangedListener {
-            if (isViewVisible(binding.rvReading) && "reading" !in loadedSections) {
-                loadReadingItems()
-            }
-            if (isViewVisible(binding.rvListening) && "listening" !in loadedSections) {
-                loadListeningItems()
-            }
-            if (isViewVisible(binding.rvWriting) && "writing" !in loadedSections) {
-                loadWritingItems()
-            }
-            if (isViewVisible(binding.rvSpeaking) && "speaking" !in loadedSections) {
-                loadSpeakingItems()
+    private fun loadPagedItems() {
+        lifecycleScope.launch {
+            dashboardViewModel.readingPagingData.collectLatest { pagingData ->
+                readingAdapter.submitData(pagingData)
             }
         }
-    }
 
-    private fun isViewVisible(view: View): Boolean {
-        val scrollBounds = Rect()
-        binding.nestedScrollView.getHitRect(scrollBounds)
-        return view.getLocalVisibleRect(scrollBounds)
-    }
-
-    private fun loadReadingItems() {
-        if (!loadedSections.contains("reading")) {
-            dashboardViewModel.readingItems.observe(viewLifecycleOwner) { items ->
-                if (items != null) {
-                    readingAdapter.submitList(items)
-                    loadedSections.add("reading")
-                } else {
-                    Log.w("DashboardFragment", "No reading items found.")
-                }
+        lifecycleScope.launch {
+            dashboardViewModel.listeningPagingData.collectLatest { pagingData ->
+                listeningAdapter.submitData(pagingData)
             }
         }
-    }
 
-    private fun loadListeningItems() {
-        if (!loadedSections.contains("listening")) {
-            dashboardViewModel.listeningItems.observe(viewLifecycleOwner) { items ->
-                if (items != null) {
-                    listeningAdapter.submitList(items)
-                    loadedSections.add("listening")
-                } else {
-                    Log.w("DashboardFragment", "No listening items found.")
-                }
+        lifecycleScope.launch {
+            dashboardViewModel.writingPagingData.collectLatest { pagingData ->
+                writingAdapter.submitData(pagingData)
             }
         }
-    }
 
-    private fun loadWritingItems() {
-        if (!loadedSections.contains("writing")) {
-            dashboardViewModel.writingItems.observe(viewLifecycleOwner) { items ->
-                if (items != null) {
-                    writingAdapter.submitList(items)
-                    loadedSections.add("writing")
-                } else {
-                    Log.w("DashboardFragment", "No writing items found.")
-                }
-            }
-        }
-    }
-
-    private fun loadSpeakingItems() {
-        if (!loadedSections.contains("speaking")) {
-            dashboardViewModel.speakingItems.observe(viewLifecycleOwner) { items ->
-                if (items != null) {
-                    speakingAdapter.submitList(items)
-                    loadedSections.add("speaking")
-                } else {
-                    Log.w("DashboardFragment", "No speaking items found.")
-                }
+        lifecycleScope.launch {
+            dashboardViewModel.speakingPagingData.collectLatest { pagingData ->
+                speakingAdapter.submitData(pagingData)
             }
         }
     }
@@ -156,5 +108,35 @@ class DashboardFragment : Fragment() {
     private fun navigateToYouTube(query: String) {
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(query))
         startActivity(intent)
+    }
+}
+
+// DashboardPagingSource for Pagination
+class DashboardPagingSource(
+    private val getItems: suspend (Int, Int) -> List<DashboardItems>
+) : PagingSource<Int, DashboardItems>() {
+
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, DashboardItems> {
+        return try {
+            val currentPage = params.key ?: 0
+            val pageSize = params.loadSize
+
+            val items = getItems(currentPage, pageSize)
+
+            LoadResult.Page(
+                data = items,
+                prevKey = if (currentPage == 0) null else currentPage - 1,
+                nextKey = if (items.isEmpty()) null else currentPage + 1
+            )
+        } catch (e: Exception) {
+            LoadResult.Error(e)
+        }
+    }
+
+    override fun getRefreshKey(state: PagingState<Int, DashboardItems>): Int? {
+        return state.anchorPosition?.let { anchorPosition ->
+            state.closestPageToPosition(anchorPosition)?.prevKey?.plus(1)
+                ?: state.closestPageToPosition(anchorPosition)?.nextKey?.minus(1)
+        }
     }
 }
