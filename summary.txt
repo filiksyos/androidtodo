@@ -175,8 +175,7 @@ File: app/src/main/java/com/wolfbytetechnologies/ielts/data/DashboardItems.kt
 package com.wolfbytetechnologies.ielts.data
 
 import android.graphics.Color
-import android.graphics.drawable.Drawable
-import com.wolfbytetechnologies.ielts.Utils.YouTubeLink
+import com.wolfbytetechnologies.ielts.data.Utils.YouTubeLink
 
 
 data class DashboardItems(
@@ -191,14 +190,14 @@ data class DashboardItems(
 
 ========================================
 
-File: app/src/main/java/com/wolfbytetechnologies/ielts/repo/ResourceProviderImpl.kt
+File: app/src/main/java/com/wolfbytetechnologies/ielts/data/repo/ResourceProviderImpl.kt
 ----------------------------------------
-package com.wolfbytetechnologies.ielts.repo
+package com.wolfbytetechnologies.ielts.data.repo
 
 import android.content.Context
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
-import com.wolfbytetechnologies.ielts.Utils.YouTubeLink
+import com.wolfbytetechnologies.ielts.data.Utils.YouTubeLink
 
 class ResourceProviderImpl(private val context: Context) : ResourceProvider {
     override fun getString(resId: Int): String = context.getString(resId)
@@ -209,9 +208,9 @@ class ResourceProviderImpl(private val context: Context) : ResourceProvider {
 
 ========================================
 
-File: app/src/main/java/com/wolfbytetechnologies/ielts/repo/ResourceProvider.kt
+File: app/src/main/java/com/wolfbytetechnologies/ielts/data/repo/ResourceProvider.kt
 ----------------------------------------
-package com.wolfbytetechnologies.ielts.repo
+package com.wolfbytetechnologies.ielts.data.repo
 
 import android.graphics.drawable.Drawable
 
@@ -224,12 +223,12 @@ interface ResourceProvider {
 
 ========================================
 
-File: app/src/main/java/com/wolfbytetechnologies/ielts/repo/Repository.kt
+File: app/src/main/java/com/wolfbytetechnologies/ielts/data/repo/Repository.kt
 ----------------------------------------
-package com.wolfbytetechnologies.ielts.repo
+package com.wolfbytetechnologies.ielts.data.repo
 
 import com.wolfbytetechnologies.ielts.R
-import com.wolfbytetechnologies.ielts.Utils.YouTubeLink
+import com.wolfbytetechnologies.ielts.data.Utils.YouTubeLink
 import com.wolfbytetechnologies.ielts.data.DashboardItems
 
 class Repository(
@@ -326,9 +325,9 @@ class Repository(
 
 ========================================
 
-File: app/src/main/java/com/wolfbytetechnologies/ielts/Utils/Link.kt
+File: app/src/main/java/com/wolfbytetechnologies/ielts/data/Utils/Link.kt
 ----------------------------------------
-package com.wolfbytetechnologies.ielts.Utils
+package com.wolfbytetechnologies.ielts.data.Utils
 
 object YouTubeLink {
 
@@ -352,9 +351,9 @@ object YouTubeLink {
 }
 ========================================
 
-File: app/src/main/java/com/wolfbytetechnologies/ielts/Utils/Logger.kt
+File: app/src/main/java/com/wolfbytetechnologies/ielts/data/Utils/Logger.kt
 ----------------------------------------
-package com.wolfbytetechnologies.ielts.Utils
+package com.wolfbytetechnologies.ielts.data.Utils
 
 import android.util.Log
 import com.wolfbytetechnologies.ielts.BuildConfig
@@ -373,80 +372,18 @@ object Logger {
 
 ========================================
 
-File: app/src/main/java/com/wolfbytetechnologies/ielts/adapter/DashboardAdapter.kt
+File: app/src/main/java/com/wolfbytetechnologies/ielts/Domain/GetDashboardItemsUseCase.kt
 ----------------------------------------
-package com.wolfbytetechnologies.ielts.adapter
+package com.wolfbytetechnologies.ielts.Domain
 
-import android.net.Uri
-import android.view.LayoutInflater
-import android.view.ViewGroup
-import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.RecyclerView
 import com.wolfbytetechnologies.ielts.data.DashboardItems
-import com.wolfbytetechnologies.ielts.databinding.DashboardCardviewItemsBinding
-import com.bumptech.glide.Glide
-import com.wolfbytetechnologies.ielts.R
+import com.wolfbytetechnologies.ielts.data.repo.Repository
 
-
-class DashboardAdapter(
-    private val onItemClick: (DashboardItems) -> Unit
-) : ListAdapter<DashboardItems, DashboardAdapter.ViewHolder>(DashboardDiffCallback()) {
-
-    inner class ViewHolder(private val binding: DashboardCardviewItemsBinding) :
-        RecyclerView.ViewHolder(binding.root) {
-
-        fun bind(item: DashboardItems) {
-
-            binding.apply {
-                Glide.with(binding.root.context) // Use the context from the view binding
-                    .load(Uri.parse(item.itemImageUri)) // Parse URI properly
-                    .placeholder(R.drawable.placeholder) // Placeholder image while loading
-                    .error(R.drawable.error_placeholder) // Fallback image in case of error
-                    .into(imageViewItemImage) // Target ImageView
-
-                tvItemName.text = item.itemText
-                tvLessonOrTest.text = item.cardType
-                cvItemsMainBackground.setCardBackgroundColor(item.color)
-                root.setOnClickListener { onItemClick(item) }
-            }
-
-        }
-
-
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val binding = DashboardCardviewItemsBinding.inflate(
-            LayoutInflater.from(parent.context),
-            parent,
-            false
-        )
-        return ViewHolder(binding)
-    }
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val currentItem = getItem(position)
-        holder.bind(currentItem)
-    }
-}
-
-========================================
-
-File: app/src/main/java/com/wolfbytetechnologies/ielts/adapter/DashboardDiffCallback.kt
-----------------------------------------
-package com.wolfbytetechnologies.ielts.adapter
-
-import androidx.recyclerview.widget.DiffUtil
-import com.wolfbytetechnologies.ielts.data.DashboardItems
-
-class DashboardDiffCallback : DiffUtil.ItemCallback<DashboardItems>() {
-    override fun areItemsTheSame(oldItem: DashboardItems, newItem: DashboardItems): Boolean {
-        return oldItem.itemText == newItem.itemText && oldItem.cardType == newItem.cardType
-    }
-
-    override fun areContentsTheSame(oldItem: DashboardItems, newItem: DashboardItems): Boolean {
-        return oldItem == newItem
-    }
+class GetDashboardItemsUseCase(private val repository: Repository) {
+    fun getReadingItems(page: Int, size: Int): List<DashboardItems> = repository.getReadingItems()
+    fun getListeningItems(page: Int, size: Int): List<DashboardItems> = repository.getListeningItems()
+    fun getWritingItems(page: Int, size: Int): List<DashboardItems> = repository.getWritingItems()
+    fun getSpeakingItems(page: Int, size: Int): List<DashboardItems> = repository.getSpeakingItems()
 }
 
 ========================================
@@ -467,38 +404,130 @@ import kotlinx.coroutines.launch
 
 @SuppressLint("CustomSplashScreen")
 class SplashScreenActivity : AppCompatActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // Install splash screen
-        val splashScreen = installSplashScreen()
-
-        // Offload initialization tasks
-        var isInitializationComplete = false
-        splashScreen.setKeepOnScreenCondition { !isInitializationComplete }
-
-        lifecycleScope.launch {
-            initializeApp() // Perform background initialization
-            isInitializationComplete = true
-        }
-
-        // Transition to MainActivity
-        splashScreen.setOnExitAnimationListener { splashScreenView ->
-            splashScreenView.remove()
-            startActivity(Intent(this, MainActivity::class.java))
-            finish()
-        }
-    }
-
-    private suspend fun initializeApp() {
-        // Simulate heavy initialization tasks (e.g., loading resources, initializing Koin)
-        delay(1000) // Simulating a delay
-        // Add your actual initialization tasks here
+        startActivity(Intent(this, MainActivity::class.java))
+        finish() // No delays or redundant conditions.
     }
 }
 
 
+
+========================================
+
+File: app/src/main/java/com/wolfbytetechnologies/ielts/ui/adapter/DashboardAdapter.kt
+----------------------------------------
+package com.wolfbytetechnologies.ielts.ui.adapter
+
+import android.net.Uri
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import androidx.paging.PagingDataAdapter
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
+import com.wolfbytetechnologies.ielts.data.DashboardItems
+import com.wolfbytetechnologies.ielts.databinding.DashboardCardviewItemsBinding
+import com.bumptech.glide.Glide
+import com.wolfbytetechnologies.ielts.R
+
+
+class DashboardAdapter(
+    private val onItemClick: (DashboardItems) -> Unit
+) : PagingDataAdapter<DashboardItems, DashboardAdapter.ViewHolder>(DashboardDiffCallback()) {
+
+    inner class ViewHolder(private val binding: DashboardCardviewItemsBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(item: DashboardItems) {
+            binding.apply {
+                Glide.with(binding.root.context)
+                    .load(Uri.parse(item.itemImageUri))
+                    .placeholder(R.drawable.placeholder)
+                    .error(R.drawable.error_placeholder)
+                    .into(imageViewItemImage)
+
+                tvItemName.text = item.itemText
+                tvLessonOrTest.text = item.cardType
+                cvItemsMainBackground.setCardBackgroundColor(item.color)
+                root.setOnClickListener { onItemClick(item) }
+            }
+        }
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val binding = DashboardCardviewItemsBinding.inflate(
+            LayoutInflater.from(parent.context),
+            parent,
+            false
+        )
+        return ViewHolder(binding)
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val currentItem = getItem(position)
+        currentItem?.let { holder.bind(it) } // Handle null safety as PagingDataAdapter can return null for placeholders
+    }
+}
+
+
+========================================
+
+File: app/src/main/java/com/wolfbytetechnologies/ielts/ui/adapter/DashboardPagingSource.kt
+----------------------------------------
+package com.wolfbytetechnologies.ielts.ui.adapter
+
+import androidx.paging.PagingSource
+import androidx.paging.PagingState
+import com.wolfbytetechnologies.ielts.data.DashboardItems
+
+class DashboardPagingSource(
+    private val getItems: suspend (Int, Int) -> List<DashboardItems>
+) : PagingSource<Int, DashboardItems>() {
+
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, DashboardItems> {
+        return try {
+            val currentPage = params.key ?: 0
+            val pageSize = params.loadSize
+
+            // Fetch items from your data source
+            val items = getItems(currentPage, pageSize)
+
+            LoadResult.Page(
+                data = items,
+                prevKey = if (currentPage == 0) null else currentPage - 1,
+                nextKey = if (items.isEmpty()) null else currentPage + 1
+            )
+        } catch (e: Exception) {
+            LoadResult.Error(e)
+        }
+    }
+
+    override fun getRefreshKey(state: PagingState<Int, DashboardItems>): Int? {
+        return state.anchorPosition?.let { anchorPosition ->
+            state.closestPageToPosition(anchorPosition)?.prevKey?.plus(1)
+                ?: state.closestPageToPosition(anchorPosition)?.nextKey?.minus(1)
+        }
+    }
+}
+
+========================================
+
+File: app/src/main/java/com/wolfbytetechnologies/ielts/ui/adapter/DashboardDiffCallback.kt
+----------------------------------------
+package com.wolfbytetechnologies.ielts.ui.adapter
+
+import androidx.recyclerview.widget.DiffUtil
+import com.wolfbytetechnologies.ielts.data.DashboardItems
+
+class DashboardDiffCallback : DiffUtil.ItemCallback<DashboardItems>() {
+    override fun areItemsTheSame(oldItem: DashboardItems, newItem: DashboardItems): Boolean {
+        return oldItem.itemText == newItem.itemText && oldItem.cardType == newItem.cardType
+    }
+
+    override fun areContentsTheSame(oldItem: DashboardItems, newItem: DashboardItems): Boolean {
+        return oldItem == newItem
+    }
+}
 
 ========================================
 
@@ -514,27 +543,37 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.tabs.TabLayout
-import com.wolfbytetechnologies.ielts.R
-import com.wolfbytetechnologies.ielts.adapter.DashboardAdapter
+import com.wolfbytetechnologies.ielts.ui.adapter.DashboardAdapter
 import com.wolfbytetechnologies.ielts.databinding.FragmentDashboardBinding
-import com.wolfbytetechnologies.ielts.viewModel.DashboardViewModel
+import com.wolfbytetechnologies.ielts.ui.viewModel.DashboardViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingSource
+import androidx.paging.PagingSource.LoadParams
+import androidx.paging.PagingSource.LoadResult
+import androidx.paging.PagingState
+import com.wolfbytetechnologies.ielts.Domain.GetDashboardItemsUseCase
+import androidx.paging.cachedIn
+import com.wolfbytetechnologies.ielts.data.DashboardItems
+import com.wolfbytetechnologies.ielts.ui.adapter.DashboardPagingSource
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 class DashboardFragment : Fragment() {
 
     private lateinit var binding: FragmentDashboardBinding
-        private val dashboardViewModel: DashboardViewModel by viewModel()
+    private val dashboardViewModel: DashboardViewModel by viewModel()
 
     private lateinit var readingAdapter: DashboardAdapter
     private lateinit var listeningAdapter: DashboardAdapter
     private lateinit var writingAdapter: DashboardAdapter
     private lateinit var speakingAdapter: DashboardAdapter
-
-    private val loadedSections = mutableSetOf<String>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -549,16 +588,7 @@ class DashboardFragment : Fragment() {
 
         setupAdapters()
         setupRecyclerViews()
-
-        // Safely initialize data loading
-        try {
-            loadReadingItems()
-        } catch (e: Exception) {
-            Log.e("DashboardFragment", "Error loading reading items: ${e.message}")
-        }
-
-        // Lazy loading for other RecyclerViews as user scrolls
-        setupLazyLoading()
+        loadPagedItems()
     }
 
     private fun setupAdapters() {
@@ -584,77 +614,28 @@ class DashboardFragment : Fragment() {
         binding.rvSpeaking.adapter = speakingAdapter
     }
 
-    private fun setupLazyLoading() {
-        binding.nestedScrollView.viewTreeObserver.addOnScrollChangedListener {
-            if (isViewVisible(binding.rvReading) && "reading" !in loadedSections) {
-                loadReadingItems()
-            }
-            if (isViewVisible(binding.rvListening) && "listening" !in loadedSections) {
-                loadListeningItems()
-            }
-            if (isViewVisible(binding.rvWriting) && "writing" !in loadedSections) {
-                loadWritingItems()
-            }
-            if (isViewVisible(binding.rvSpeaking) && "speaking" !in loadedSections) {
-                loadSpeakingItems()
+    private fun loadPagedItems() {
+        lifecycleScope.launch {
+            dashboardViewModel.readingPagingData.collectLatest { pagingData ->
+                readingAdapter.submitData(pagingData)
             }
         }
-    }
 
-    private fun isViewVisible(view: View): Boolean {
-        val scrollBounds = Rect()
-        binding.nestedScrollView.getHitRect(scrollBounds)
-        return view.getLocalVisibleRect(scrollBounds)
-    }
-
-    private fun loadReadingItems() {
-        if (!loadedSections.contains("reading")) {
-            dashboardViewModel.readingItems.observe(viewLifecycleOwner) { items ->
-                if (items != null) {
-                    readingAdapter.submitList(items)
-                    loadedSections.add("reading")
-                } else {
-                    Log.w("DashboardFragment", "No reading items found.")
-                }
+        lifecycleScope.launch {
+            dashboardViewModel.listeningPagingData.collectLatest { pagingData ->
+                listeningAdapter.submitData(pagingData)
             }
         }
-    }
 
-    private fun loadListeningItems() {
-        if (!loadedSections.contains("listening")) {
-            dashboardViewModel.listeningItems.observe(viewLifecycleOwner) { items ->
-                if (items != null) {
-                    listeningAdapter.submitList(items)
-                    loadedSections.add("listening")
-                } else {
-                    Log.w("DashboardFragment", "No listening items found.")
-                }
+        lifecycleScope.launch {
+            dashboardViewModel.writingPagingData.collectLatest { pagingData ->
+                writingAdapter.submitData(pagingData)
             }
         }
-    }
 
-    private fun loadWritingItems() {
-        if (!loadedSections.contains("writing")) {
-            dashboardViewModel.writingItems.observe(viewLifecycleOwner) { items ->
-                if (items != null) {
-                    writingAdapter.submitList(items)
-                    loadedSections.add("writing")
-                } else {
-                    Log.w("DashboardFragment", "No writing items found.")
-                }
-            }
-        }
-    }
-
-    private fun loadSpeakingItems() {
-        if (!loadedSections.contains("speaking")) {
-            dashboardViewModel.speakingItems.observe(viewLifecycleOwner) { items ->
-                if (items != null) {
-                    speakingAdapter.submitList(items)
-                    loadedSections.add("speaking")
-                } else {
-                    Log.w("DashboardFragment", "No speaking items found.")
-                }
+        lifecycleScope.launch {
+            dashboardViewModel.speakingPagingData.collectLatest { pagingData ->
+                speakingAdapter.submitData(pagingData)
             }
         }
     }
@@ -665,59 +646,104 @@ class DashboardFragment : Fragment() {
     }
 }
 
+// DashboardPagingSource for Pagination
+class DashboardPagingSource(
+    private val getItems: suspend (Int, Int) -> List<DashboardItems>
+) : PagingSource<Int, DashboardItems>() {
+
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, DashboardItems> {
+        return try {
+            val currentPage = params.key ?: 0
+            val pageSize = params.loadSize
+
+            val items = getItems(currentPage, pageSize)
+
+            LoadResult.Page(
+                data = items,
+                prevKey = if (currentPage == 0) null else currentPage - 1,
+                nextKey = if (items.isEmpty()) null else currentPage + 1
+            )
+        } catch (e: Exception) {
+            LoadResult.Error(e)
+        }
+    }
+
+    override fun getRefreshKey(state: PagingState<Int, DashboardItems>): Int? {
+        return state.anchorPosition?.let { anchorPosition ->
+            state.closestPageToPosition(anchorPosition)?.prevKey?.plus(1)
+                ?: state.closestPageToPosition(anchorPosition)?.nextKey?.minus(1)
+        }
+    }
+}
+
 ========================================
 
-File: app/src/main/java/com/wolfbytetechnologies/ielts/viewModel/DashboardViewModel.kt
+File: app/src/main/java/com/wolfbytetechnologies/ielts/ui/viewModel/DashboardViewModel.kt
 ----------------------------------------
-package com.wolfbytetechnologies.ielts.viewModel
+package com.wolfbytetechnologies.ielts.ui.viewModel
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wolfbytetechnologies.ielts.data.DashboardItems
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import com.wolfbytetechnologies.ielts.Domain.GetDashboardItemsUseCase
+import androidx.paging.cachedIn
+import com.wolfbytetechnologies.ielts.ui.adapter.DashboardPagingSource
 
 class DashboardViewModel(
     private val getDashboardItemsUseCase: GetDashboardItemsUseCase
 ) : ViewModel() {
 
-    private val _readingItems = MutableLiveData<List<DashboardItems>>()
-    val readingItems: LiveData<List<DashboardItems>> get() = _readingItems
+    val readingPagingData = Pager(
+        config = PagingConfig(
+            pageSize = 20, // Number of items to load per page
+            enablePlaceholders = false
+        ),
+        pagingSourceFactory = {
+            DashboardPagingSource { page, size ->
+                getDashboardItemsUseCase.getReadingItems(page, size)
+            }
+        }
+    ).flow.cachedIn(viewModelScope)
 
-    private val _listeningItems = MutableLiveData<List<DashboardItems>>()
-    val listeningItems: LiveData<List<DashboardItems>> get() = _listeningItems
+    val listeningPagingData = Pager(
+        config = PagingConfig(
+            pageSize = 20,
+            enablePlaceholders = false
+        ),
+        pagingSourceFactory = {
+            DashboardPagingSource { page, size ->
+                getDashboardItemsUseCase.getListeningItems(page, size)
+            }
+        }
+    ).flow.cachedIn(viewModelScope)
 
-    private val _writingItems = MutableLiveData<List<DashboardItems>>()
-    val writingItems: LiveData<List<DashboardItems>> get() = _writingItems
+    val writingPagingData = Pager(
+        config = PagingConfig(
+            pageSize = 20,
+            enablePlaceholders = false
+        ),
+        pagingSourceFactory = {
+            DashboardPagingSource { page, size ->
+                getDashboardItemsUseCase.getWritingItems(page, size)
+            }
+        }
+    ).flow.cachedIn(viewModelScope)
 
-    private val _speakingItems = MutableLiveData<List<DashboardItems>>()
-    val speakingItems: LiveData<List<DashboardItems>> get() = _speakingItems
-
-    fun loadDashboardItems() {
-        _readingItems.value = getDashboardItemsUseCase.getReadingItems()
-        _listeningItems.value = getDashboardItemsUseCase.getListeningItems()
-        _writingItems.value = getDashboardItemsUseCase.getWritingItems()
-        _speakingItems.value = getDashboardItemsUseCase.getSpeakingItems()
-    }
-
+    val speakingPagingData = Pager(
+        config = PagingConfig(
+            pageSize = 20,
+            enablePlaceholders = false
+        ),
+        pagingSourceFactory = {
+            DashboardPagingSource { page, size ->
+                getDashboardItemsUseCase.getSpeakingItems(page, size)
+            }
+        }
+    ).flow.cachedIn(viewModelScope)
 }
 
 
-========================================
-
-File: app/src/main/java/com/wolfbytetechnologies/ielts/viewModel/GetDashboardItemsUseCase.kt
-----------------------------------------
-package com.wolfbytetechnologies.ielts.viewModel
-
-import com.wolfbytetechnologies.ielts.data.DashboardItems
-import com.wolfbytetechnologies.ielts.repo.Repository
-
-class GetDashboardItemsUseCase(private val repository: Repository) {
-    fun getReadingItems(): List<DashboardItems> = repository.getReadingItems()
-    fun getListeningItems(): List<DashboardItems> = repository.getListeningItems()
-    fun getWritingItems(): List<DashboardItems> = repository.getWritingItems()
-    fun getSpeakingItems(): List<DashboardItems> = repository.getSpeakingItems()
-}
 
 ========================================
 
@@ -726,18 +752,16 @@ File: app/src/main/java/com/wolfbytetechnologies/ielts/DI/KoinModule.kt
 package com.wolfbytetechnologies.ielts.DI
 
 
-import com.wolfbytetechnologies.ielts.repo.Repository
-import com.wolfbytetechnologies.ielts.repo.ResourceProvider
-import com.wolfbytetechnologies.ielts.repo.ResourceProviderImpl
-import com.wolfbytetechnologies.ielts.viewModel.DashboardViewModel
-import com.wolfbytetechnologies.ielts.viewModel.GetDashboardItemsUseCase
+import com.wolfbytetechnologies.ielts.data.repo.Repository
+import com.wolfbytetechnologies.ielts.data.repo.ResourceProvider
+import com.wolfbytetechnologies.ielts.data.repo.ResourceProviderImpl
+import com.wolfbytetechnologies.ielts.ui.viewModel.DashboardViewModel
+import com.wolfbytetechnologies.ielts.Domain.GetDashboardItemsUseCase
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
-import org.koin.core.module.dsl.factoryOf
 
 
 import org.koin.androidx.viewmodel.dsl.viewModel
-import org.koin.dsl.module
 
 val appModule = module {
     // ResourceProvider
