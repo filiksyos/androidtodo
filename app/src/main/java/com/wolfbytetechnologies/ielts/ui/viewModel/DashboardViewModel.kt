@@ -1,64 +1,40 @@
+// DashboardViewModel.kt
 package com.wolfbytetechnologies.ielts.ui.viewModel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
 import com.wolfbytetechnologies.ielts.Domain.GetDashboardItemsUseCase
-import androidx.paging.cachedIn
-import com.wolfbytetechnologies.ielts.ui.adapter.DashboardPagingSource
+import com.wolfbytetechnologies.ielts.data.DashboardItems
+import com.wolfbytetechnologies.ielts.Domain.DashboardCategory
+import com.wolfbytetechnologies.ielts.data.Utils.Logger
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 class DashboardViewModel(
     private val getDashboardItemsUseCase: GetDashboardItemsUseCase
 ) : ViewModel() {
 
-    val readingPagingData = Pager(
-        config = PagingConfig(
-            pageSize = 20, // Number of items to load per page
-            enablePlaceholders = false
-        ),
-        pagingSourceFactory = {
-            DashboardPagingSource { page, size ->
-                getDashboardItemsUseCase.getReadingItems(page, size)
-            }
-        }
-    ).flow.cachedIn(viewModelScope)
+    private val _readingItems = MutableStateFlow<List<DashboardItems>>(emptyList())
+    val readingItems: StateFlow<List<DashboardItems>> get() = _readingItems.asStateFlow()
 
-    val listeningPagingData = Pager(
-        config = PagingConfig(
-            pageSize = 20,
-            enablePlaceholders = false
-        ),
-        pagingSourceFactory = {
-            DashboardPagingSource { page, size ->
-                getDashboardItemsUseCase.getListeningItems(page, size)
-            }
-        }
-    ).flow.cachedIn(viewModelScope)
+    private val _listeningItems = MutableStateFlow<List<DashboardItems>>(emptyList())
+    val listeningItems: StateFlow<List<DashboardItems>> get() = _listeningItems.asStateFlow()
 
-    val writingPagingData = Pager(
-        config = PagingConfig(
-            pageSize = 20,
-            enablePlaceholders = false
-        ),
-        pagingSourceFactory = {
-            DashboardPagingSource { page, size ->
-                getDashboardItemsUseCase.getWritingItems(page, size)
-            }
-        }
-    ).flow.cachedIn(viewModelScope)
+    private val _writingItems = MutableStateFlow<List<DashboardItems>>(emptyList())
+    val writingItems: StateFlow<List<DashboardItems>> get() = _writingItems.asStateFlow()
 
-    val speakingPagingData = Pager(
-        config = PagingConfig(
-            pageSize = 20,
-            enablePlaceholders = false
-        ),
-        pagingSourceFactory = {
-            DashboardPagingSource { page, size ->
-                getDashboardItemsUseCase.getSpeakingItems(page, size)
-            }
+    private val _speakingItems = MutableStateFlow<List<DashboardItems>>(emptyList())
+    val speakingItems: StateFlow<List<DashboardItems>> get() = _speakingItems.asStateFlow()
+
+    fun loadDashboardItems() {
+        viewModelScope.launch {
+            _readingItems.value = getDashboardItemsUseCase.getDashboardItems(DashboardCategory.READING)
+            Logger.logDebug("DashboardViewModel", "Reading items: ${_readingItems.value}")
+            _listeningItems.value = getDashboardItemsUseCase.getDashboardItems(DashboardCategory.LISTENING)
+            _writingItems.value = getDashboardItemsUseCase.getDashboardItems(DashboardCategory.WRITING)
+            _speakingItems.value = getDashboardItemsUseCase.getDashboardItems(DashboardCategory.SPEAKING)
         }
-    ).flow.cachedIn(viewModelScope)
+    }
 }
-
-

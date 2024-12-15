@@ -3,7 +3,6 @@ package com.wolfbytetechnologies.ielts.ui.adapter
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.wolfbytetechnologies.ielts.data.DashboardItems
@@ -14,7 +13,7 @@ import com.wolfbytetechnologies.ielts.R
 
 class DashboardAdapter(
     private val onItemClick: (DashboardItems) -> Unit
-) : PagingDataAdapter<DashboardItems, DashboardAdapter.ViewHolder>(DashboardDiffCallback()) {
+) : ListAdapter<DashboardItems, DashboardAdapter.ViewHolder>(DashboardDiffCallback()) {
 
     inner class ViewHolder(private val binding: DashboardCardviewItemsBinding) :
         RecyclerView.ViewHolder(binding.root) {

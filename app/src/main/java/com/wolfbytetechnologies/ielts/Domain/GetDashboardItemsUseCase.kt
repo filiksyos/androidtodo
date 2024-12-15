@@ -4,8 +4,13 @@ import com.wolfbytetechnologies.ielts.data.DashboardItems
 import com.wolfbytetechnologies.ielts.data.repo.Repository
 
 class GetDashboardItemsUseCase(private val repository: Repository) {
-    fun getReadingItems(page: Int, size: Int): List<DashboardItems> = repository.getReadingItems()
-    fun getListeningItems(page: Int, size: Int): List<DashboardItems> = repository.getListeningItems()
-    fun getWritingItems(page: Int, size: Int): List<DashboardItems> = repository.getWritingItems()
-    fun getSpeakingItems(page: Int, size: Int): List<DashboardItems> = repository.getSpeakingItems()
+
+    fun getDashboardItems(category: DashboardCategory): List<DashboardItems> {
+        return when (category) {
+            DashboardCategory.READING -> repository.getReadingItems()
+            DashboardCategory.LISTENING -> repository.getListeningItems()
+            DashboardCategory.WRITING -> repository.getWritingItems()
+            DashboardCategory.SPEAKING -> repository.getSpeakingItems()
+        }
+    }
 }
