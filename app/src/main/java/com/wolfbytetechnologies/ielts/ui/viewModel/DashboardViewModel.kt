@@ -31,7 +31,6 @@ class DashboardViewModel(
     fun loadDashboardItems() {
         viewModelScope.launch {
             _readingItems.value = getDashboardItemsUseCase.getDashboardItems(DashboardCategory.READING)
-            Logger.logDebug("DashboardViewModel", "Reading items: ${_readingItems.value}")
             _listeningItems.value = getDashboardItemsUseCase.getDashboardItems(DashboardCategory.LISTENING)
             _writingItems.value = getDashboardItemsUseCase.getDashboardItems(DashboardCategory.WRITING)
             _speakingItems.value = getDashboardItemsUseCase.getDashboardItems(DashboardCategory.SPEAKING)

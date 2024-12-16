@@ -11,5 +11,3 @@ data class DashboardItems(
     val color: Int = Color.GRAY,
     val query: String = YouTubeLink.link
 )
-
-

@@ -52,52 +52,49 @@ class DashboardFragment : Fragment() {
     }
 
     private fun setupRecyclerViews() {
-        binding.rvReading.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        binding.rvListening.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        binding.rvWriting.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        binding.rvSpeaking.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        binding.rvReading.apply {
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+            adapter = readingAdapter
+        }
 
+        binding.rvListening.apply {
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+            adapter = listeningAdapter
+        }
 
+        binding.rvWriting.apply {
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+            adapter = writingAdapter
+        }
 
-        binding.rvReading.adapter = readingAdapter
-        binding.rvListening.adapter = listeningAdapter
-        binding.rvWriting.adapter = writingAdapter
-        binding.rvSpeaking.adapter = speakingAdapter
+        binding.rvSpeaking.apply {
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+            adapter = speakingAdapter
+        }
     }
 
     private fun observeViewModel() {
         lifecycleScope.launch {
             dashboardViewModel.readingItems.collect { items ->
-                if (items.isNotEmpty()) {
-                    readingAdapter.submitList(items)
-                    Logger.logDebug("DashboardFragment", "Reading items: ${items}")
-                }
-
+                readingAdapter.submitList(items)
             }
         }
 
         lifecycleScope.launch {
             dashboardViewModel.listeningItems.collect { items ->
-                if (items.isNotEmpty()) {
-                    listeningAdapter.submitList(items)
-                    Logger.logDebug("DashboardFragment", "Listening items: ${items}")
-                }
+                listeningAdapter.submitList(items)
             }
         }
 
         lifecycleScope.launch {
             dashboardViewModel.writingItems.collect { items ->
-                if (items.isNotEmpty()) {
-                    writingAdapter.submitList(items)
-                }
+                writingAdapter.submitList(items)
             }
         }
 
         lifecycleScope.launch {
             dashboardViewModel.speakingItems.collect { items ->
-                if (items.isNotEmpty()) {
-                    speakingAdapter.submitList(items)
-                }
+                speakingAdapter.submitList(items)
             }
         }
     }
