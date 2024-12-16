@@ -9,6 +9,7 @@ import com.wolfbytetechnologies.ielts.data.DashboardItems
 import com.wolfbytetechnologies.ielts.databinding.DashboardCardviewItemsBinding
 import com.bumptech.glide.Glide
 import com.wolfbytetechnologies.ielts.R
+import kotlin.text.get
 
 
 class DashboardAdapter(
@@ -44,8 +45,17 @@ class DashboardAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val currentItem = getItem(position)
-        currentItem?.let { holder.bind(it) } // Handle null safety as PagingDataAdapter can return null for placeholders
+        if (currentList.isNotEmpty()) { // Check if currentList is not empty
+            val actualPosition = position % currentList.size
+            val item = currentList[actualPosition]
+            holder.bind(item)
+        }
     }
+
+
+    override fun getItemCount(): Int {
+        return Int.MAX_VALUE // Simulate infinite scrolling
+    }
+
 }
 

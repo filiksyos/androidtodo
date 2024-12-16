@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import com.wolfbytetechnologies.ielts.data.Utils.Result
 
 class DashboardViewModel(
     private val getDashboardItemsUseCase: GetDashboardItemsUseCase
@@ -28,12 +29,29 @@ class DashboardViewModel(
     private val _speakingItems = MutableStateFlow<List<DashboardItems>>(emptyList())
     val speakingItems: StateFlow<List<DashboardItems>> get() = _speakingItems.asStateFlow()
 
+    private val _errorState = MutableStateFlow<String?>(null)
+    val errorState: StateFlow<String?> = _errorState.asStateFlow()
+
     fun loadDashboardItems() {
         viewModelScope.launch {
-            _readingItems.value = getDashboardItemsUseCase.getDashboardItems(DashboardCategory.READING)
-            _listeningItems.value = getDashboardItemsUseCase.getDashboardItems(DashboardCategory.LISTENING)
-            _writingItems.value = getDashboardItemsUseCase.getDashboardItems(DashboardCategory.WRITING)
-            _speakingItems.value = getDashboardItemsUseCase.getDashboardItems(DashboardCategory.SPEAKING)
+            // Fetch reading items
+            when (val result = getDashboardItemsUseCase.getDashboardItems(DashboardCategory.READING)) {
+                else -> _readingItems.value = result.getOrNull() ?: emptyList()
+            }
+
+            when (val result = getDashboardItemsUseCase.getDashboardItems(DashboardCategory.LISTENING)) {
+                else -> _listeningItems.value = result.getOrNull() ?: emptyList()
+            }
+
+
+            when (val result = getDashboardItemsUseCase.getDashboardItems(DashboardCategory.WRITING)) {
+                else -> _writingItems.value = result.getOrNull() ?: emptyList()
+            }
+
+            when (val result = getDashboardItemsUseCase.getDashboardItems(DashboardCategory.SPEAKING)) {
+                else -> _speakingItems.value = result.getOrNull() ?: emptyList()
+            }
+
         }
     }
 }

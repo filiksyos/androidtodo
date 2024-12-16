@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -52,25 +53,14 @@ class DashboardFragment : Fragment() {
     }
 
     private fun setupRecyclerViews() {
-        binding.rvReading.apply {
-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-            adapter = readingAdapter
-        }
-
-        binding.rvListening.apply {
-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-            adapter = listeningAdapter
-        }
-
-        binding.rvWriting.apply {
-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-            adapter = writingAdapter
-        }
-
-        binding.rvSpeaking.apply {
-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-            adapter = speakingAdapter
-        }
+        RecyclerViewHelper.setupRecyclerView(binding.rvReading, readingAdapter, requireContext())
+        binding.rvReading.scrollToPosition(Int.MAX_VALUE / 2) // Start in the middle for seamless looping
+        RecyclerViewHelper.setupRecyclerView(binding.rvListening, listeningAdapter, requireContext())
+        binding.rvReading.scrollToPosition(Int.MAX_VALUE / 2)
+        RecyclerViewHelper.setupRecyclerView(binding.rvWriting, writingAdapter, requireContext())
+        binding.rvReading.scrollToPosition(Int.MAX_VALUE / 2)
+        RecyclerViewHelper.setupRecyclerView(binding.rvSpeaking, speakingAdapter, requireContext())
+        binding.rvReading.scrollToPosition(Int.MAX_VALUE / 2)
     }
 
     private fun observeViewModel() {
@@ -97,6 +87,15 @@ class DashboardFragment : Fragment() {
                 speakingAdapter.submitList(items)
             }
         }
+
+        lifecycleScope.launch {
+            dashboardViewModel.errorState.collect { errorMessage ->
+                errorMessage?.let {
+                    Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+
     }
 
     private fun navigateToYouTube(query: String) {
