@@ -3,18 +3,16 @@ package com.wolfbytetechnologies.ielts.ui.adapter
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.widget.ListAdapter
+import androidx.paging.PagingDataAdapter
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.wolfbytetechnologies.ielts.data.DashboardItems
 import com.wolfbytetechnologies.ielts.databinding.DashboardCardviewItemsBinding
-import com.bumptech.glide.Glide
-import com.wolfbytetechnologies.ielts.R
-import kotlin.text.get
-
 
 class DashboardAdapter(
     private val onItemClick: (DashboardItems) -> Unit
-) : ListAdapter<DashboardItems, DashboardAdapter.ViewHolder>(DashboardDiffCallback()) {
+) : PagingDataAdapter<DashboardItems, DashboardAdapter.ViewHolder>(DashboardDiffCallback()) {
 
     inner class ViewHolder(private val binding: DashboardCardviewItemsBinding) :
         RecyclerView.ViewHolder(binding.root) {
@@ -23,8 +21,6 @@ class DashboardAdapter(
             binding.apply {
                 Glide.with(binding.root.context)
                     .load(Uri.parse(item.itemImageUri))
-                    .placeholder(R.drawable.placeholder)
-                    .error(R.drawable.error_placeholder)
                     .into(imageViewItemImage)
 
                 tvItemName.text = item.itemText
@@ -35,27 +31,33 @@ class DashboardAdapter(
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val binding = DashboardCardviewItemsBinding.inflate(
-            LayoutInflater.from(parent.context),
-            parent,
-            false
-        )
-        return ViewHolder(binding)
-    }
-
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        if (currentList.isNotEmpty()) { // Check if currentList is not empty
-            val actualPosition = position % currentList.size
-            val item = currentList[actualPosition]
-            holder.bind(item)
+        val snapshot = snapshot() // Get the current snapshot of the data
+        if (snapshot.isNotEmpty()) {
+            val actualPosition = position % snapshot.size // Use snapshot size for modulo
+            val item = getItem(actualPosition) // Get item from the snapshot
+            item?.let { holder.bind(it) }
         }
     }
 
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val binding = DashboardCardviewItemsBinding.inflate(
+            LayoutInflater.from(parent.context), parent, false
+        )
+        return ViewHolder(binding)
+    }
 
     override fun getItemCount(): Int {
         return Int.MAX_VALUE // Simulate infinite scrolling
     }
 
-}
+    class DashboardDiffCallback : DiffUtil.ItemCallback<DashboardItems>() {
+        override fun areItemsTheSame(oldItem: DashboardItems, newItem: DashboardItems): Boolean {
+            return oldItem.itemText == newItem.itemText
+        }
 
+        override fun areContentsTheSame(oldItem: DashboardItems, newItem: DashboardItems): Boolean {
+            return oldItem == newItem
+        }
+    }
+}

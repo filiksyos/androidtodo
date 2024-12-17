@@ -15,6 +15,7 @@ import com.wolfbytetechnologies.ielts.data.Utils.Logger
 import com.wolfbytetechnologies.ielts.ui.adapter.DashboardAdapter
 import com.wolfbytetechnologies.ielts.databinding.FragmentDashboardBinding
 import com.wolfbytetechnologies.ielts.ui.viewModel.DashboardViewModel
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -42,7 +43,7 @@ class DashboardFragment : Fragment() {
         setupAdapters()
         setupRecyclerViews()
         observeViewModel()
-        dashboardViewModel.loadDashboardItems()
+        //dashboardViewModel.loadDashboardItems()
     }
 
     private fun setupAdapters() {
@@ -64,35 +65,28 @@ class DashboardFragment : Fragment() {
     }
 
     private fun observeViewModel() {
+
         lifecycleScope.launch {
-            dashboardViewModel.readingItems.collect { items ->
-                readingAdapter.submitList(items)
+            dashboardViewModel.readingPagingFlow.collectLatest { pagingData ->
+                readingAdapter.submitData(pagingData)
             }
         }
 
         lifecycleScope.launch {
-            dashboardViewModel.listeningItems.collect { items ->
-                listeningAdapter.submitList(items)
+            dashboardViewModel.listeningPagingFlow.collectLatest { pagingData ->
+                listeningAdapter.submitData(pagingData)
             }
         }
 
         lifecycleScope.launch {
-            dashboardViewModel.writingItems.collect { items ->
-                writingAdapter.submitList(items)
+            dashboardViewModel.writingPagingFlow.collectLatest { pagingData ->
+                writingAdapter.submitData(pagingData)
             }
         }
 
         lifecycleScope.launch {
-            dashboardViewModel.speakingItems.collect { items ->
-                speakingAdapter.submitList(items)
-            }
-        }
-
-        lifecycleScope.launch {
-            dashboardViewModel.errorState.collect { errorMessage ->
-                errorMessage?.let {
-                    Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
-                }
+            dashboardViewModel.speakingPagingFlow.collectLatest { pagingData ->
+                speakingAdapter.submitData(pagingData)
             }
         }
 
