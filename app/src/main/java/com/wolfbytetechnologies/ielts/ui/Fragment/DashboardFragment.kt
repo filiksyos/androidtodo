@@ -10,11 +10,17 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.paging.PagingData
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.wolfbytetechnologies.ielts.data.DashboardItems
 import com.wolfbytetechnologies.ielts.data.Utils.Logger
 import com.wolfbytetechnologies.ielts.ui.adapter.DashboardAdapter
 import com.wolfbytetechnologies.ielts.databinding.FragmentDashboardBinding
+import com.wolfbytetechnologies.ielts.ui.viewModel.DashboardState
 import com.wolfbytetechnologies.ielts.ui.viewModel.DashboardViewModel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -65,32 +71,78 @@ class DashboardFragment : Fragment() {
     }
 
     private fun observeViewModel() {
-
-        lifecycleScope.launch {
-            dashboardViewModel.readingPagingFlow.collectLatest { pagingData ->
-                readingAdapter.submitData(pagingData)
-            }
-        }
-
-        lifecycleScope.launch {
-            dashboardViewModel.listeningPagingFlow.collectLatest { pagingData ->
-                listeningAdapter.submitData(pagingData)
-            }
-        }
-
-        lifecycleScope.launch {
-            dashboardViewModel.writingPagingFlow.collectLatest { pagingData ->
-                writingAdapter.submitData(pagingData)
-            }
-        }
-
-        lifecycleScope.launch {
-            dashboardViewModel.speakingPagingFlow.collectLatest { pagingData ->
-                speakingAdapter.submitData(pagingData)
-            }
-        }
-
+        observeCategory(
+            pagingFlow = dashboardViewModel.readingPagingFlow,
+            stateFlow = dashboardViewModel.readingState,
+            adapter = readingAdapter,
+            recyclerView = binding.rvReading
+        )
+        observeCategory(
+            pagingFlow = dashboardViewModel.listeningPagingFlow,
+            stateFlow = dashboardViewModel.listeningState,
+            adapter = listeningAdapter,
+            recyclerView = binding.rvListening
+        )
+        observeCategory(
+            pagingFlow = dashboardViewModel.writingPagingFlow,
+            stateFlow = dashboardViewModel.writingState,
+            adapter = writingAdapter,
+            recyclerView = binding.rvWriting
+        )
+        observeCategory(
+            pagingFlow = dashboardViewModel.speakingPagingFlow,
+            stateFlow = dashboardViewModel.speakingState,
+            adapter = speakingAdapter,
+            recyclerView = binding.rvSpeaking
+        )
     }
+
+    private fun observeCategory(
+        pagingFlow: Flow<PagingData<DashboardItems>>,
+        stateFlow: StateFlow<DashboardState>,
+        adapter: DashboardAdapter,
+        recyclerView: RecyclerView
+    ) {
+        lifecycleScope.launch {
+            pagingFlow.collectLatest { pagingData ->
+                adapter.submitData(pagingData)
+            }
+        }
+
+        lifecycleScope.launch {
+            stateFlow.collect { state ->
+                when (state) {
+                    is DashboardState.Loading -> showLoading(recyclerView)
+                    is DashboardState.Success -> showRecyclerView(recyclerView)
+                    is DashboardState.Empty -> showEmptyState(recyclerView)
+                    is DashboardState.Error -> showError(recyclerView, state.message)
+                }
+            }
+        }
+    }
+
+    private fun showLoading(recyclerView: RecyclerView) {
+        recyclerView.visibility = View.GONE
+        binding.progressBar.visibility = View.VISIBLE
+    }
+
+    private fun showRecyclerView(recyclerView: RecyclerView) {
+        recyclerView.visibility = View.VISIBLE
+        binding.progressBar.visibility = View.GONE
+    }
+
+    private fun showEmptyState(recyclerView: RecyclerView) {
+        recyclerView.visibility = View.GONE
+        binding.progressBar.visibility = View.GONE
+        Toast.makeText(requireContext(), "No items found", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun showError(recyclerView: RecyclerView, message: String) {
+        recyclerView.visibility = View.GONE
+        binding.progressBar.visibility = View.GONE
+        Toast.makeText(requireContext(), "Error: $message", Toast.LENGTH_LONG).show()
+    }
+
 
     private fun navigateToYouTube(query: String) {
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(query))
