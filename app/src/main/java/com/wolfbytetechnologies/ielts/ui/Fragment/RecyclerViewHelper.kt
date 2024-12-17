@@ -21,12 +21,16 @@ object RecyclerViewHelper {
         isHorizontal: Boolean = true
     ) {
         recyclerView.apply {
-            layoutManager = InfiniteLinearLayoutManager( // Use InfiniteLinearLayoutManager
+            layoutManager = InfiniteLinearLayoutManager(
                 context,
                 if (isHorizontal) LinearLayoutManager.HORIZONTAL else LinearLayoutManager.VERTICAL,
                 false
             )
             this.adapter = adapter
+            // Scroll to the middle after setting the adapter
+            post {
+                scrollToPosition(Int.MAX_VALUE / 2)
+            }
         }
     }
 }

@@ -462,18 +462,16 @@ package com.wolfbytetechnologies.ielts.ui.adapter
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.widget.ListAdapter
+import androidx.paging.PagingDataAdapter
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.wolfbytetechnologies.ielts.data.DashboardItems
 import com.wolfbytetechnologies.ielts.databinding.DashboardCardviewItemsBinding
-import com.bumptech.glide.Glide
-import com.wolfbytetechnologies.ielts.R
-import kotlin.text.get
-
 
 class DashboardAdapter(
     private val onItemClick: (DashboardItems) -> Unit
-) : ListAdapter<DashboardItems, DashboardAdapter.ViewHolder>(DashboardDiffCallback()) {
+) : PagingDataAdapter<DashboardItems, DashboardAdapter.ViewHolder>(DashboardDiffCallback()) {
 
     inner class ViewHolder(private val binding: DashboardCardviewItemsBinding) :
         RecyclerView.ViewHolder(binding.root) {
@@ -482,8 +480,6 @@ class DashboardAdapter(
             binding.apply {
                 Glide.with(binding.root.context)
                     .load(Uri.parse(item.itemImageUri))
-                    .placeholder(R.drawable.placeholder)
-                    .error(R.drawable.error_placeholder)
                     .into(imageViewItemImage)
 
                 tvItemName.text = item.itemText
@@ -494,30 +490,80 @@ class DashboardAdapter(
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val binding = DashboardCardviewItemsBinding.inflate(
-            LayoutInflater.from(parent.context),
-            parent,
-            false
-        )
-        return ViewHolder(binding)
-    }
-
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        if (currentList.isNotEmpty()) { // Check if currentList is not empty
-            val actualPosition = position % currentList.size
-            val item = currentList[actualPosition]
-            holder.bind(item)
+        val snapshot = snapshot() // Get the current snapshot of the data
+        if (snapshot.isNotEmpty()) {
+            val actualPosition = position % snapshot.size // Use snapshot size for modulo
+            val item = getItem(actualPosition) // Get item from the snapshot
+            item?.let { holder.bind(it) }
         }
     }
 
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val binding = DashboardCardviewItemsBinding.inflate(
+            LayoutInflater.from(parent.context), parent, false
+        )
+        return ViewHolder(binding)
+    }
 
     override fun getItemCount(): Int {
         return Int.MAX_VALUE // Simulate infinite scrolling
     }
 
+    class DashboardDiffCallback : DiffUtil.ItemCallback<DashboardItems>() {
+        override fun areItemsTheSame(oldItem: DashboardItems, newItem: DashboardItems): Boolean {
+            return oldItem.itemText == newItem.itemText
+        }
+
+        override fun areContentsTheSame(oldItem: DashboardItems, newItem: DashboardItems): Boolean {
+            return oldItem == newItem
+        }
+    }
 }
 
+========================================
+
+File: app/src/main/java/com/wolfbytetechnologies/ielts/ui/adapter/DashboardPagingSource.kt
+----------------------------------------
+package com.wolfbytetechnologies.ielts.ui.adapter
+
+import androidx.paging.PagingSource
+import androidx.paging.PagingState
+import com.wolfbytetechnologies.ielts.data.DashboardItems
+import com.wolfbytetechnologies.ielts.data.repo.Repository
+
+class DashboardPagingSource(
+    private val repository: Repository,
+    private val category: String
+) : PagingSource<Int, DashboardItems>() {
+
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, DashboardItems> {
+        val pageNumber = params.key ?: 0
+        return try {
+            val items = when (category) {
+                "READING" -> repository.getReadingItems().getOrElse { emptyList<DashboardItems>() }
+                "LISTENING" -> repository.getListeningItems().getOrElse { emptyList<DashboardItems>() }
+                "WRITING" -> repository.getWritingItems().getOrElse { emptyList<DashboardItems>() }
+                "SPEAKING" -> repository.getSpeakingItems().getOrElse { emptyList<DashboardItems>() }
+                else -> emptyList<DashboardItems>()
+            }
+
+            LoadResult.Page(
+                data = items, // No need for getOrNull() here
+                prevKey = if (pageNumber > 0) pageNumber - 1 else null,
+                nextKey = pageNumber + 1
+            )
+        } catch (e: Exception) {
+            LoadResult.Error(e)
+        }
+    }
+    override fun getRefreshKey(state: PagingState<Int, DashboardItems>): Int? {
+        return state.anchorPosition?.let { anchor ->
+            state.closestPageToPosition(anchor)?.prevKey?.plus(1)
+                ?: state.closestPageToPosition(anchor)?.nextKey?.minus(1)
+        }
+    }
+}
 
 ========================================
 
@@ -566,12 +612,16 @@ object RecyclerViewHelper {
         isHorizontal: Boolean = true
     ) {
         recyclerView.apply {
-            layoutManager = InfiniteLinearLayoutManager( // Use InfiniteLinearLayoutManager
+            layoutManager = InfiniteLinearLayoutManager(
                 context,
                 if (isHorizontal) LinearLayoutManager.HORIZONTAL else LinearLayoutManager.VERTICAL,
                 false
             )
             this.adapter = adapter
+            // Scroll to the middle after setting the adapter
+            post {
+                scrollToPosition(Int.MAX_VALUE / 2)
+            }
         }
     }
 }
@@ -613,6 +663,7 @@ import com.wolfbytetechnologies.ielts.data.Utils.Logger
 import com.wolfbytetechnologies.ielts.ui.adapter.DashboardAdapter
 import com.wolfbytetechnologies.ielts.databinding.FragmentDashboardBinding
 import com.wolfbytetechnologies.ielts.ui.viewModel.DashboardViewModel
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -640,7 +691,7 @@ class DashboardFragment : Fragment() {
         setupAdapters()
         setupRecyclerViews()
         observeViewModel()
-        dashboardViewModel.loadDashboardItems()
+        //dashboardViewModel.loadDashboardItems()
     }
 
     private fun setupAdapters() {
@@ -662,35 +713,28 @@ class DashboardFragment : Fragment() {
     }
 
     private fun observeViewModel() {
+
         lifecycleScope.launch {
-            dashboardViewModel.readingItems.collect { items ->
-                readingAdapter.submitList(items)
+            dashboardViewModel.readingPagingFlow.collectLatest { pagingData ->
+                readingAdapter.submitData(pagingData)
             }
         }
 
         lifecycleScope.launch {
-            dashboardViewModel.listeningItems.collect { items ->
-                listeningAdapter.submitList(items)
+            dashboardViewModel.listeningPagingFlow.collectLatest { pagingData ->
+                listeningAdapter.submitData(pagingData)
             }
         }
 
         lifecycleScope.launch {
-            dashboardViewModel.writingItems.collect { items ->
-                writingAdapter.submitList(items)
+            dashboardViewModel.writingPagingFlow.collectLatest { pagingData ->
+                writingAdapter.submitData(pagingData)
             }
         }
 
         lifecycleScope.launch {
-            dashboardViewModel.speakingItems.collect { items ->
-                speakingAdapter.submitList(items)
-            }
-        }
-
-        lifecycleScope.launch {
-            dashboardViewModel.errorState.collect { errorMessage ->
-                errorMessage?.let {
-                    Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
-                }
+            dashboardViewModel.speakingPagingFlow.collectLatest { pagingData ->
+                speakingAdapter.submitData(pagingData)
             }
         }
 
@@ -706,62 +750,35 @@ class DashboardFragment : Fragment() {
 
 File: app/src/main/java/com/wolfbytetechnologies/ielts/ui/viewModel/DashboardViewModel.kt
 ----------------------------------------
-// DashboardViewModel.kt
 package com.wolfbytetechnologies.ielts.ui.viewModel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wolfbytetechnologies.ielts.Domain.GetDashboardItemsUseCase
-import com.wolfbytetechnologies.ielts.data.DashboardItems
-import com.wolfbytetechnologies.ielts.Domain.DashboardCategory
-import com.wolfbytetechnologies.ielts.data.Utils.Logger
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
-import com.wolfbytetechnologies.ielts.data.Utils.Result
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.cachedIn
+import com.wolfbytetechnologies.ielts.ui.adapter.DashboardPagingSource
+import com.wolfbytetechnologies.ielts.data.repo.Repository
 
 class DashboardViewModel(
-    private val getDashboardItemsUseCase: GetDashboardItemsUseCase
+    private val repository: Repository
 ) : ViewModel() {
 
-    private val _readingItems = MutableStateFlow<List<DashboardItems>>(emptyList())
-    val readingItems: StateFlow<List<DashboardItems>> get() = _readingItems.asStateFlow()
+    val readingPagingFlow = Pager(PagingConfig(pageSize = 10)) {
+        DashboardPagingSource(repository, "READING")
+    }.flow.cachedIn(viewModelScope)
 
-    private val _listeningItems = MutableStateFlow<List<DashboardItems>>(emptyList())
-    val listeningItems: StateFlow<List<DashboardItems>> get() = _listeningItems.asStateFlow()
+    val listeningPagingFlow = Pager(PagingConfig(pageSize = 10)) {
+        DashboardPagingSource(repository, "LISTENING")
+    }.flow.cachedIn(viewModelScope)
 
-    private val _writingItems = MutableStateFlow<List<DashboardItems>>(emptyList())
-    val writingItems: StateFlow<List<DashboardItems>> get() = _writingItems.asStateFlow()
+    val writingPagingFlow = Pager(PagingConfig(pageSize = 10)) {
+        DashboardPagingSource(repository, "WRITING")
+    }.flow.cachedIn(viewModelScope)
 
-    private val _speakingItems = MutableStateFlow<List<DashboardItems>>(emptyList())
-    val speakingItems: StateFlow<List<DashboardItems>> get() = _speakingItems.asStateFlow()
-
-    private val _errorState = MutableStateFlow<String?>(null)
-    val errorState: StateFlow<String?> = _errorState.asStateFlow()
-
-    fun loadDashboardItems() {
-        viewModelScope.launch {
-            // Fetch reading items
-            when (val result = getDashboardItemsUseCase.getDashboardItems(DashboardCategory.READING)) {
-                else -> _readingItems.value = result.getOrNull() ?: emptyList()
-            }
-
-            when (val result = getDashboardItemsUseCase.getDashboardItems(DashboardCategory.LISTENING)) {
-                else -> _listeningItems.value = result.getOrNull() ?: emptyList()
-            }
-
-
-            when (val result = getDashboardItemsUseCase.getDashboardItems(DashboardCategory.WRITING)) {
-                else -> _writingItems.value = result.getOrNull() ?: emptyList()
-            }
-
-            when (val result = getDashboardItemsUseCase.getDashboardItems(DashboardCategory.SPEAKING)) {
-                else -> _speakingItems.value = result.getOrNull() ?: emptyList()
-            }
-
-        }
-    }
+    val speakingPagingFlow = Pager(PagingConfig(pageSize = 10)) {
+        DashboardPagingSource(repository, "SPEAKING")
+    }.flow.cachedIn(viewModelScope)
 }
 
 ========================================

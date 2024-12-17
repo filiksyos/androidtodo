@@ -114,6 +114,9 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.15.1")
     annotationProcessor("com.github.bumptech.glide:compiler:4.15.1")
 
+    //Paging
+    implementation "androidx.paging:paging-runtime:3.2.1" // Paging 3 for RecyclerView
+    implementation "androidx.paging:paging-common:3.2.1"  // Paging for tests (optional)
 
 
 
