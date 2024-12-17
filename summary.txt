@@ -83,9 +83,7 @@ File: app/src/main/AndroidManifest.xml
         android:theme="@style/Theme.IELTS_PREPARATION_APP"
         >
         <profileable android:shell="true" />
-        <meta-data
-            android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-1254010252723206~4802988705"/>
+
         <activity
             android:name=".ui.splash.SplashScreenActivity"
             android:exported="true"
@@ -115,29 +113,20 @@ File: app/src/main/java/com/wolfbytetechnologies/ielts/BaseClass.kt
 package com.wolfbytetechnologies.ielts
 
 import android.app.Application
-import android.content.Context
-import android.content.SharedPreferences
 import com.wolfbytetechnologies.ielts.DI.appModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 
 class BaseClass : Application() {
 
-    companion object {
-        fun prefEditor(context: Context): SharedPreferences? {
-            val sharedPreferences = context.getSharedPreferences("MySharedPref", MODE_PRIVATE)
-            return sharedPreferences
-        }
-    }
-
     override fun onCreate() {
         super.onCreate()
 
-        // Start Koin and load modules
         startKoin {
             androidContext(this@BaseClass) // Set the Android context
             modules(appModule) // Load the Koin module
         }
+
     }
 }
 
@@ -165,7 +154,6 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
-
 }
 
 ========================================
@@ -185,8 +173,6 @@ data class DashboardItems(
     val color: Int = Color.GRAY,
     val query: String = YouTubeLink.link
 )
-
-
 
 ========================================
 
@@ -227,99 +213,127 @@ File: app/src/main/java/com/wolfbytetechnologies/ielts/data/repo/Repository.kt
 ----------------------------------------
 package com.wolfbytetechnologies.ielts.data.repo
 
+import android.util.Log.e
 import com.wolfbytetechnologies.ielts.R
 import com.wolfbytetechnologies.ielts.data.Utils.YouTubeLink
 import com.wolfbytetechnologies.ielts.data.DashboardItems
+
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class Repository(
     private val resourceProvider: ResourceProvider
 ) {
 
-    fun getReadingItems(): List<DashboardItems> {
-        return listOf(
-            DashboardItems(
-                "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_reading_lesson_card",
-                resourceProvider.getString(R.string.reading),
-                resourceProvider.getString(R.string.lesson),
-                resourceProvider.getColor(R.color.blue_500),
-                resourceProvider.getQuery(YouTubeLink.ReadingLessonLink)
-            ),
-            DashboardItems(
-                "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_test_card",
-                resourceProvider.getString(R.string.reading),
-                resourceProvider.getString(R.string.test),
-                resourceProvider.getColor(R.color.orange_800),
-                resourceProvider.getQuery(YouTubeLink.ReadingTestLink)
+    suspend fun getReadingItems(): Result<List<DashboardItems>> = withContext(Dispatchers.IO) {
+        return@withContext try {
+            Result.success(
+                listOf(
+                    DashboardItems(
+                        "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_reading_lesson_card",
+                        resourceProvider.getString(R.string.reading),
+                        resourceProvider.getString(R.string.lesson),
+                        resourceProvider.getColor(R.color.blue_500),
+                        resourceProvider.getQuery(YouTubeLink.ReadingLessonLink)
+                    ),
+                    DashboardItems(
+                        "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_test_card",
+                        resourceProvider.getString(R.string.reading),
+                        resourceProvider.getString(R.string.test),
+                        resourceProvider.getColor(R.color.orange_800),
+                        resourceProvider.getQuery(YouTubeLink.ReadingTestLink)
+                    )
+                )
             )
-        )
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
-    fun getListeningItems(): List<DashboardItems> {
-        return listOf(
-            DashboardItems(
-                "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_listening_test",
-                resourceProvider.getString(R.string.listening),
-                resourceProvider.getString(R.string.lesson),
-                resourceProvider.getColor(R.color.red_500),
-                resourceProvider.getQuery(YouTubeLink.ListeningLessonLink)
-            ),
-            DashboardItems(
-                "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_listening_test",
-                resourceProvider.getString(R.string.listening),
-                resourceProvider.getString(R.string.test),
-                resourceProvider.getColor(R.color.pink_400),
-                resourceProvider.getQuery(YouTubeLink.ListeningTestLink)
+    suspend fun getListeningItems(): Result<List<DashboardItems>> = withContext(Dispatchers.IO) {
+        return@withContext try {
+            Result.success(
+                listOf(
+                    DashboardItems(
+                        "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_listening_test",
+                        resourceProvider.getString(R.string.listening),
+                        resourceProvider.getString(R.string.lesson),
+                        resourceProvider.getColor(R.color.red_500),
+                        resourceProvider.getQuery(YouTubeLink.ListeningLessonLink)
+                    ),
+                    DashboardItems(
+                        "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_listening_test",
+                        resourceProvider.getString(R.string.listening),
+                        resourceProvider.getString(R.string.test),
+                        resourceProvider.getColor(R.color.pink_400),
+                        resourceProvider.getQuery(YouTubeLink.ListeningTestLink)
+                    )
+                )
             )
-
-        )
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
-    fun getWritingItems(): List<DashboardItems> {
-        return listOf(
-        DashboardItems(
-            "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_test_card",
-            resourceProvider.getString(R.string.writing),
-            resourceProvider.getString(R.string.lesson),
-            resourceProvider.getColor(R.color.purple_400),
-            resourceProvider.getQuery(YouTubeLink.WritingLessonLink)
-        ),
-        DashboardItems(
-            "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_test_card",
-            resourceProvider.getString(R.string.writing),
-            resourceProvider.getString(R.string.writing_task_1),
-            resourceProvider.getColor(R.color.orange_800),
-            resourceProvider.getQuery(YouTubeLink.WritingTask1Link)
-        ),
-        DashboardItems(
-            "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_test_card",
-            resourceProvider.getString(R.string.writing),
-            resourceProvider.getString(R.string.writing_task_2),
-            resourceProvider.getColor(R.color.orange_800),
-            resourceProvider.getQuery(YouTubeLink.WritingTask2Link)
-        )
-        )
-
+    suspend fun getWritingItems(): Result<List<DashboardItems>> = withContext(Dispatchers.IO) {
+        try {
+            Result.success(
+                listOf(
+                    DashboardItems(
+                        "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_test_card",
+                        resourceProvider.getString(R.string.writing),
+                        resourceProvider.getString(R.string.lesson),
+                        resourceProvider.getColor(R.color.purple_400),
+                        resourceProvider.getQuery(YouTubeLink.WritingLessonLink)
+                    ),
+                    DashboardItems(
+                        "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_test_card",
+                        resourceProvider.getString(R.string.writing),
+                        resourceProvider.getString(R.string.writing_task_1),
+                        resourceProvider.getColor(R.color.orange_800),
+                        resourceProvider.getQuery(YouTubeLink.WritingTask1Link)
+                    ),
+                    DashboardItems(
+                        "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_test_card",
+                        resourceProvider.getString(R.string.writing),
+                        resourceProvider.getString(R.string.writing_task_2),
+                        resourceProvider.getColor(R.color.orange_800),
+                        resourceProvider.getQuery(YouTubeLink.WritingTask2Link)
+                    )
+                )
+            )
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
-    fun getSpeakingItems(): List<DashboardItems> {
-        return listOf(
-        DashboardItems(
-            "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_speaking_image_transparent_background",
-            resourceProvider.getString(R.string.speaking),
-            resourceProvider.getString(R.string.lesson),
-            resourceProvider.getColor(R.color.green_400),
-            resourceProvider.getQuery(YouTubeLink.SpeakingLessonLink)
-        ),
-        DashboardItems(
-            "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_listening_image_transparent_background",
-            resourceProvider.getString(R.string.speaking),
-            resourceProvider.getString(R.string.test),
-            resourceProvider.getColor(R.color.blue_500),
-            resourceProvider.getQuery(YouTubeLink.SpeakingTestLink)
-        )
-        )
+    suspend fun getSpeakingItems(): Result<List<DashboardItems>> = withContext(Dispatchers.IO) {
+        try {
+            Result.success(
+                listOf(
+                    DashboardItems(
+                        "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_speaking_image_transparent_background",
+                        resourceProvider.getString(R.string.speaking),
+                        resourceProvider.getString(R.string.lesson),
+                        resourceProvider.getColor(R.color.green_400),
+                        resourceProvider.getQuery(YouTubeLink.SpeakingLessonLink)
+                    ),
+                    DashboardItems(
+                        "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_listening_image_transparent_background",
+                        resourceProvider.getString(R.string.speaking),
+                        resourceProvider.getString(R.string.test),
+                        resourceProvider.getColor(R.color.blue_500),
+                        resourceProvider.getQuery(YouTubeLink.SpeakingTestLink)
+                    )
+                )
+            )
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 }
+
+
 
 
 
@@ -348,6 +362,16 @@ object YouTubeLink {
     }
 
 
+}
+========================================
+
+File: app/src/main/java/com/wolfbytetechnologies/ielts/data/Utils/Result.kt
+----------------------------------------
+package com.wolfbytetechnologies.ielts.data.Utils
+
+sealed class Result<out T> {
+    data class Success<out T>(val data: T) : Result<T>()
+    data class Failure(val exception: Throwable) : Result<Nothing>()
 }
 ========================================
 
@@ -380,10 +404,26 @@ import com.wolfbytetechnologies.ielts.data.DashboardItems
 import com.wolfbytetechnologies.ielts.data.repo.Repository
 
 class GetDashboardItemsUseCase(private val repository: Repository) {
-    fun getReadingItems(page: Int, size: Int): List<DashboardItems> = repository.getReadingItems()
-    fun getListeningItems(page: Int, size: Int): List<DashboardItems> = repository.getListeningItems()
-    fun getWritingItems(page: Int, size: Int): List<DashboardItems> = repository.getWritingItems()
-    fun getSpeakingItems(page: Int, size: Int): List<DashboardItems> = repository.getSpeakingItems()
+
+        suspend fun getDashboardItems(category: DashboardCategory): Result<List<DashboardItems>> {
+            return when (category) {
+                DashboardCategory.READING -> repository.getReadingItems()
+                DashboardCategory.LISTENING -> repository.getListeningItems()
+                DashboardCategory.WRITING -> repository.getWritingItems()
+                DashboardCategory.SPEAKING -> repository.getSpeakingItems()
+            }
+        }
+}
+
+
+========================================
+
+File: app/src/main/java/com/wolfbytetechnologies/ielts/Domain/DashboardCategory.kt
+----------------------------------------
+package com.wolfbytetechnologies.ielts.Domain
+
+enum class DashboardCategory {
+    READING, LISTENING, WRITING, SPEAKING
 }
 
 ========================================
@@ -423,13 +463,11 @@ import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
-import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.wolfbytetechnologies.ielts.data.DashboardItems
 import com.wolfbytetechnologies.ielts.databinding.DashboardCardviewItemsBinding
-import com.bumptech.glide.Glide
-import com.wolfbytetechnologies.ielts.R
-
 
 class DashboardAdapter(
     private val onItemClick: (DashboardItems) -> Unit
@@ -442,8 +480,6 @@ class DashboardAdapter(
             binding.apply {
                 Glide.with(binding.root.context)
                     .load(Uri.parse(item.itemImageUri))
-                    .placeholder(R.drawable.placeholder)
-                    .error(R.drawable.error_placeholder)
                     .into(imageViewItemImage)
 
                 tvItemName.text = item.itemText
@@ -454,21 +490,36 @@ class DashboardAdapter(
         }
     }
 
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val snapshot = snapshot() // Get the current snapshot of the data
+        if (snapshot.isNotEmpty()) {
+            val actualPosition = position % snapshot.size // Use snapshot size for modulo
+            val item = getItem(actualPosition) // Get item from the snapshot
+            item?.let { holder.bind(it) }
+        }
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = DashboardCardviewItemsBinding.inflate(
-            LayoutInflater.from(parent.context),
-            parent,
-            false
+            LayoutInflater.from(parent.context), parent, false
         )
         return ViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val currentItem = getItem(position)
-        currentItem?.let { holder.bind(it) } // Handle null safety as PagingDataAdapter can return null for placeholders
+    override fun getItemCount(): Int {
+        return Int.MAX_VALUE // Simulate infinite scrolling
+    }
+
+    class DashboardDiffCallback : DiffUtil.ItemCallback<DashboardItems>() {
+        override fun areItemsTheSame(oldItem: DashboardItems, newItem: DashboardItems): Boolean {
+            return oldItem.itemText == newItem.itemText
+        }
+
+        override fun areContentsTheSame(oldItem: DashboardItems, newItem: DashboardItems): Boolean {
+            return oldItem == newItem
+        }
     }
 }
-
 
 ========================================
 
@@ -479,33 +530,37 @@ package com.wolfbytetechnologies.ielts.ui.adapter
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.wolfbytetechnologies.ielts.data.DashboardItems
+import com.wolfbytetechnologies.ielts.data.repo.Repository
 
 class DashboardPagingSource(
-    private val getItems: suspend (Int, Int) -> List<DashboardItems>
+    private val repository: Repository,
+    private val category: String
 ) : PagingSource<Int, DashboardItems>() {
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, DashboardItems> {
+        val pageNumber = params.key ?: 0
         return try {
-            val currentPage = params.key ?: 0
-            val pageSize = params.loadSize
-
-            // Fetch items from your data source
-            val items = getItems(currentPage, pageSize)
+            val items = when (category) {
+                "READING" -> repository.getReadingItems().getOrElse { emptyList<DashboardItems>() }
+                "LISTENING" -> repository.getListeningItems().getOrElse { emptyList<DashboardItems>() }
+                "WRITING" -> repository.getWritingItems().getOrElse { emptyList<DashboardItems>() }
+                "SPEAKING" -> repository.getSpeakingItems().getOrElse { emptyList<DashboardItems>() }
+                else -> emptyList<DashboardItems>()
+            }
 
             LoadResult.Page(
-                data = items,
-                prevKey = if (currentPage == 0) null else currentPage - 1,
-                nextKey = if (items.isEmpty()) null else currentPage + 1
+                data = items, // No need for getOrNull() here
+                prevKey = if (pageNumber > 0) pageNumber - 1 else null,
+                nextKey = pageNumber + 1
             )
         } catch (e: Exception) {
             LoadResult.Error(e)
         }
     }
-
     override fun getRefreshKey(state: PagingState<Int, DashboardItems>): Int? {
-        return state.anchorPosition?.let { anchorPosition ->
-            state.closestPageToPosition(anchorPosition)?.prevKey?.plus(1)
-                ?: state.closestPageToPosition(anchorPosition)?.nextKey?.minus(1)
+        return state.anchorPosition?.let { anchor ->
+            state.closestPageToPosition(anchor)?.prevKey?.plus(1)
+                ?: state.closestPageToPosition(anchor)?.nextKey?.minus(1)
         }
     }
 }
@@ -529,41 +584,88 @@ class DashboardDiffCallback : DiffUtil.ItemCallback<DashboardItems>() {
     }
 }
 
+
+========================================
+
+File: app/src/main/java/com/wolfbytetechnologies/ielts/ui/Fragment/RecyclerViewHelper.kt
+----------------------------------------
+package com.wolfbytetechnologies.ielts.ui.Fragment
+
+import android.content.Context
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+
+object RecyclerViewHelper {
+
+    /**
+     * Sets up a RecyclerView with an InfiniteLinearLayoutManager and an adapter.
+     *
+     * @param recyclerView The RecyclerView to set up.
+     * @param adapter The RecyclerView.Adapter instance.
+     * @param context The context for the InfiniteLinearLayoutManager.
+     * @param isHorizontal Whether the layout should scroll horizontally (default: true).
+     */
+    fun setupRecyclerView(
+        recyclerView: RecyclerView,
+        adapter: RecyclerView.Adapter<*>,
+        context: Context,
+        isHorizontal: Boolean = true
+    ) {
+        recyclerView.apply {
+            layoutManager = InfiniteLinearLayoutManager(
+                context,
+                if (isHorizontal) LinearLayoutManager.HORIZONTAL else LinearLayoutManager.VERTICAL,
+                false
+            )
+            this.adapter = adapter
+            // Scroll to the middle after setting the adapter
+            post {
+                scrollToPosition(Int.MAX_VALUE / 2)
+            }
+        }
+    }
+}
+========================================
+
+File: app/src/main/java/com/wolfbytetechnologies/ielts/ui/Fragment/InfiniteLinearLayoutManager.kt
+----------------------------------------
+package com.wolfbytetechnologies.ielts.ui.Fragment
+
+import android.content.Context
+import androidx.recyclerview.widget.LinearLayoutManager
+
+class InfiniteLinearLayoutManager(context: Context, orientation: Int, reverseLayout: Boolean) :
+    LinearLayoutManager(context, orientation, reverseLayout) {
+
+    override fun supportsPredictiveItemAnimations(): Boolean {
+        return false // Avoid predictive animations for large position values
+    }
+}
+
 ========================================
 
 File: app/src/main/java/com/wolfbytetechnologies/ielts/ui/Fragment/DashboardFragment.kt
 ----------------------------------------
+// DashboardFragment.kt
 package com.wolfbytetechnologies.ielts.ui.Fragment
 
 import android.content.Intent
-import android.graphics.Rect
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.wolfbytetechnologies.ielts.data.Utils.Logger
 import com.wolfbytetechnologies.ielts.ui.adapter.DashboardAdapter
 import com.wolfbytetechnologies.ielts.databinding.FragmentDashboardBinding
 import com.wolfbytetechnologies.ielts.ui.viewModel.DashboardViewModel
-import org.koin.androidx.viewmodel.ext.android.viewModel
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.viewModelScope
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
-import androidx.paging.PagingSource
-import androidx.paging.PagingSource.LoadParams
-import androidx.paging.PagingSource.LoadResult
-import androidx.paging.PagingState
-import com.wolfbytetechnologies.ielts.Domain.GetDashboardItemsUseCase
-import androidx.paging.cachedIn
-import com.wolfbytetechnologies.ielts.data.DashboardItems
-import com.wolfbytetechnologies.ielts.ui.adapter.DashboardPagingSource
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class DashboardFragment : Fragment() {
 
@@ -588,7 +690,8 @@ class DashboardFragment : Fragment() {
 
         setupAdapters()
         setupRecyclerViews()
-        loadPagedItems()
+        observeViewModel()
+        //dashboardViewModel.loadDashboardItems()
     }
 
     private fun setupAdapters() {
@@ -599,80 +702,47 @@ class DashboardFragment : Fragment() {
     }
 
     private fun setupRecyclerViews() {
-        binding.rvReading.layoutManager =
-            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        binding.rvListening.layoutManager =
-            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        binding.rvWriting.layoutManager =
-            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        binding.rvSpeaking.layoutManager =
-            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-
-        binding.rvReading.adapter = readingAdapter
-        binding.rvListening.adapter = listeningAdapter
-        binding.rvWriting.adapter = writingAdapter
-        binding.rvSpeaking.adapter = speakingAdapter
+        RecyclerViewHelper.setupRecyclerView(binding.rvReading, readingAdapter, requireContext())
+        binding.rvReading.scrollToPosition(Int.MAX_VALUE / 2) // Start in the middle for seamless looping
+        RecyclerViewHelper.setupRecyclerView(binding.rvListening, listeningAdapter, requireContext())
+        binding.rvReading.scrollToPosition(Int.MAX_VALUE / 2)
+        RecyclerViewHelper.setupRecyclerView(binding.rvWriting, writingAdapter, requireContext())
+        binding.rvReading.scrollToPosition(Int.MAX_VALUE / 2)
+        RecyclerViewHelper.setupRecyclerView(binding.rvSpeaking, speakingAdapter, requireContext())
+        binding.rvReading.scrollToPosition(Int.MAX_VALUE / 2)
     }
 
-    private fun loadPagedItems() {
+    private fun observeViewModel() {
+
         lifecycleScope.launch {
-            dashboardViewModel.readingPagingData.collectLatest { pagingData ->
+            dashboardViewModel.readingPagingFlow.collectLatest { pagingData ->
                 readingAdapter.submitData(pagingData)
             }
         }
 
         lifecycleScope.launch {
-            dashboardViewModel.listeningPagingData.collectLatest { pagingData ->
+            dashboardViewModel.listeningPagingFlow.collectLatest { pagingData ->
                 listeningAdapter.submitData(pagingData)
             }
         }
 
         lifecycleScope.launch {
-            dashboardViewModel.writingPagingData.collectLatest { pagingData ->
+            dashboardViewModel.writingPagingFlow.collectLatest { pagingData ->
                 writingAdapter.submitData(pagingData)
             }
         }
 
         lifecycleScope.launch {
-            dashboardViewModel.speakingPagingData.collectLatest { pagingData ->
+            dashboardViewModel.speakingPagingFlow.collectLatest { pagingData ->
                 speakingAdapter.submitData(pagingData)
             }
         }
+
     }
 
     private fun navigateToYouTube(query: String) {
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(query))
         startActivity(intent)
-    }
-}
-
-// DashboardPagingSource for Pagination
-class DashboardPagingSource(
-    private val getItems: suspend (Int, Int) -> List<DashboardItems>
-) : PagingSource<Int, DashboardItems>() {
-
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, DashboardItems> {
-        return try {
-            val currentPage = params.key ?: 0
-            val pageSize = params.loadSize
-
-            val items = getItems(currentPage, pageSize)
-
-            LoadResult.Page(
-                data = items,
-                prevKey = if (currentPage == 0) null else currentPage - 1,
-                nextKey = if (items.isEmpty()) null else currentPage + 1
-            )
-        } catch (e: Exception) {
-            LoadResult.Error(e)
-        }
-    }
-
-    override fun getRefreshKey(state: PagingState<Int, DashboardItems>): Int? {
-        return state.anchorPosition?.let { anchorPosition ->
-            state.closestPageToPosition(anchorPosition)?.prevKey?.plus(1)
-                ?: state.closestPageToPosition(anchorPosition)?.nextKey?.minus(1)
-        }
     }
 }
 
@@ -686,64 +756,30 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
-import com.wolfbytetechnologies.ielts.Domain.GetDashboardItemsUseCase
 import androidx.paging.cachedIn
 import com.wolfbytetechnologies.ielts.ui.adapter.DashboardPagingSource
+import com.wolfbytetechnologies.ielts.data.repo.Repository
 
 class DashboardViewModel(
-    private val getDashboardItemsUseCase: GetDashboardItemsUseCase
+    private val repository: Repository
 ) : ViewModel() {
 
-    val readingPagingData = Pager(
-        config = PagingConfig(
-            pageSize = 20, // Number of items to load per page
-            enablePlaceholders = false
-        ),
-        pagingSourceFactory = {
-            DashboardPagingSource { page, size ->
-                getDashboardItemsUseCase.getReadingItems(page, size)
-            }
-        }
-    ).flow.cachedIn(viewModelScope)
+    val readingPagingFlow = Pager(PagingConfig(pageSize = 10)) {
+        DashboardPagingSource(repository, "READING")
+    }.flow.cachedIn(viewModelScope)
 
-    val listeningPagingData = Pager(
-        config = PagingConfig(
-            pageSize = 20,
-            enablePlaceholders = false
-        ),
-        pagingSourceFactory = {
-            DashboardPagingSource { page, size ->
-                getDashboardItemsUseCase.getListeningItems(page, size)
-            }
-        }
-    ).flow.cachedIn(viewModelScope)
+    val listeningPagingFlow = Pager(PagingConfig(pageSize = 10)) {
+        DashboardPagingSource(repository, "LISTENING")
+    }.flow.cachedIn(viewModelScope)
 
-    val writingPagingData = Pager(
-        config = PagingConfig(
-            pageSize = 20,
-            enablePlaceholders = false
-        ),
-        pagingSourceFactory = {
-            DashboardPagingSource { page, size ->
-                getDashboardItemsUseCase.getWritingItems(page, size)
-            }
-        }
-    ).flow.cachedIn(viewModelScope)
+    val writingPagingFlow = Pager(PagingConfig(pageSize = 10)) {
+        DashboardPagingSource(repository, "WRITING")
+    }.flow.cachedIn(viewModelScope)
 
-    val speakingPagingData = Pager(
-        config = PagingConfig(
-            pageSize = 20,
-            enablePlaceholders = false
-        ),
-        pagingSourceFactory = {
-            DashboardPagingSource { page, size ->
-                getDashboardItemsUseCase.getSpeakingItems(page, size)
-            }
-        }
-    ).flow.cachedIn(viewModelScope)
+    val speakingPagingFlow = Pager(PagingConfig(pageSize = 10)) {
+        DashboardPagingSource(repository, "SPEAKING")
+    }.flow.cachedIn(viewModelScope)
 }
-
-
 
 ========================================
 
@@ -767,15 +803,16 @@ val appModule = module {
     // ResourceProvider
     single<ResourceProvider> { ResourceProviderImpl(androidContext()) }
 
-    // Repository
+    // Repository: Singleton for shared instance
     single { Repository(get()) }
 
-    // Use Case
+    // UseCase: Factory ensures new instance for each ViewModel
     factory { GetDashboardItemsUseCase(get()) }
 
-    // ViewModel
+    // ViewModel: Globally available
     viewModel { DashboardViewModel(get()) }
 }
+
 
 
 
@@ -4171,84 +4208,6 @@ File: app/src/main/res/layout/activity_main.xml
 
 
 
-========================================
-
-File: app/src/main/res/layout/activity_splash_screen.xml
-----------------------------------------
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@drawable/ic_splash_background_complete"
-    tools:context=".ui.splash.SplashScreenActivity"
-    >
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.42" />
-
-    <TextView
-        android:id="@+id/tv_splashMainText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="59dp"
-        android:fontFamily="@font/montserrat_bold"
-        android:gravity="center"
-        android:paddingStart="30dp"
-        android:paddingEnd="30dp"
-        android:text="@string/ielts_preparation"
-        android:textColor="@color/black"
-        android:textSize="25sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/guideline3" />
-
-    <TextView
-        android:id="@+id/tv_splashDescriptionText"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:fontFamily="@font/montserrat_regular"
-        android:gravity="center"
-        android:text="@string/complete_vocabulary_learning_and_practice_app"
-        android:textColor="@color/black"
-        android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="@+id/tv_splashMainText"
-        app:layout_constraintStart_toStartOf="@+id/tv_splashMainText"
-        app:layout_constraintTop_toBottomOf="@+id/tv_splashMainText" />
-
-    <Button
-        android:id="@+id/btn_splashContinue"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="40dp"
-        android:layout_marginEnd="40dp"
-        android:backgroundTint="@color/orange_800"
-        android:fontFamily="@font/montserrat_bold"
-        android:inputType="textShortMessage"
-        android:padding="10dp"
-        android:text="@string/continue_splash"
-        android:letterSpacing="0"
-        android:textSize="22sp"
-        app:cornerRadius="24dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_splashDescriptionText"
-        tools:ignore="TextViewEdits"
-
-        android:layout_marginBottom="70dp"/>
-
-
-
-</androidx.constraintlayout.widget.ConstraintLayout>
 ========================================
 
 File: app/src/main/res/layout/dashboard_cardview_items.xml
