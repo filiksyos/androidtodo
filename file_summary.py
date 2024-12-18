@@ -2,8 +2,8 @@ import os
 
 # Define paths
 ROOT_BUILD_FILE = "build.gradle"
-MODULE_DIRS = ["data", "domain", "presentation"]  # Include all modules
-EXCLUDE_DIRS = ["data/build", "domain/build", "presentation/build"]  # Exclude build directories
+MODULE_DIRS = ["app", "data", "domain", "presentation"]  # Include all modules
+EXCLUDE_DIRS = ["app/build", "data/build", "domain/build", "presentation/build"]  # Exclude build directories
 SUMMARY_FILE = "summary.txt"
 
 def should_include_file(file_path):
