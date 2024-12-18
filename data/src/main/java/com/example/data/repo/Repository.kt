@@ -4,7 +4,8 @@ import com.example.data.DashboardItems
 import com.example.data.Utils.YouTubeLink
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import com.example.R
+import com.example.domain.ResourceProvider
+
 
 class Repository(
     private val resourceProvider: ResourceProvider
@@ -16,17 +17,17 @@ class Repository(
                 listOf(
                     DashboardItems(
                         "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_reading_lesson_card",
-                        resourceProvider.getString(R.string.reading),
-                        resourceProvider.getString(R.string.lesson),
-                        resourceProvider.getColor(R.color.blue_500),
-                        resourceProvider.getQuery(YouTubeLink.ReadingLessonLink)
+                        ResourceProvider.getString(R.string.reading),
+                        ResourceProvider.getString(R.string.lesson),
+                        ResourceProvider.getColor(R.color.blue_500),
+                        ResourceProvider.getQuery(YouTubeLink.ReadingLessonLink)
                     ),
                     DashboardItems(
                         "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_test_card",
-                        resourceProvider.getString(R.string.reading),
-                        resourceProvider.getString(R.string.test),
-                        resourceProvider.getColor(R.color.orange_800),
-                        resourceProvider.getQuery(YouTubeLink.ReadingTestLink)
+                        ResourceProvider.getString(R.string.reading),
+                        ResourceProvider.getString(R.string.test),
+                        ResourceProvider.getColor(R.color.orange_800),
+                        ResourceProvider.getQuery(YouTubeLink.ReadingTestLink)
                     )
                 )
             )
@@ -41,17 +42,17 @@ class Repository(
                 listOf(
                     DashboardItems(
                         "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_listening_test",
-                        resourceProvider.getString(R.string.listening),
-                        resourceProvider.getString(R.string.lesson),
-                        resourceProvider.getColor(R.color.red_500),
-                        resourceProvider.getQuery(YouTubeLink.ListeningLessonLink)
+                        ResourceProvider.getString(R.string.listening),
+                        ResourceProvider.getString(R.string.lesson),
+                        ResourceProvider.getColor(R.color.red_500),
+                        ResourceProvider.getQuery(YouTubeLink.ListeningLessonLink)
                     ),
                     DashboardItems(
                         "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_listening_test",
-                        resourceProvider.getString(R.string.listening),
-                        resourceProvider.getString(R.string.test),
-                        resourceProvider.getColor(R.color.pink_400),
-                        resourceProvider.getQuery(YouTubeLink.ListeningTestLink)
+                        ResourceProvider.getString(R.string.listening),
+                        ResourceProvider.getString(R.string.test),
+                        ResourceProvider.getColor(R.color.pink_400),
+                        ResourceProvider.getQuery(YouTubeLink.ListeningTestLink)
                     )
                 )
             )
@@ -66,24 +67,24 @@ class Repository(
                 listOf(
                     DashboardItems(
                         "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_test_card",
-                        resourceProvider.getString(R.string.writing),
-                        resourceProvider.getString(R.string.lesson),
-                        resourceProvider.getColor(R.color.purple_400),
-                        resourceProvider.getQuery(YouTubeLink.WritingLessonLink)
+                        ResourceProvider.getString(R.string.writing),
+                        ResourceProvider.getString(R.string.lesson),
+                        ResourceProvider.getColor(R.color.purple_400),
+                        ResourceProvider.getQuery(YouTubeLink.WritingLessonLink)
                     ),
                     DashboardItems(
                         "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_test_card",
-                        resourceProvider.getString(R.string.writing),
-                        resourceProvider.getString(R.string.writing_task_1),
-                        resourceProvider.getColor(R.color.orange_800),
-                        resourceProvider.getQuery(YouTubeLink.WritingTask1Link)
+                        ResourceProvider.getString(R.string.writing),
+                        ResourceProvider.getString(R.string.writing_task_1),
+                        ResourceProvider.getColor(R.color.orange_800),
+                        ResourceProvider.getQuery(YouTubeLink.WritingTask1Link)
                     ),
                     DashboardItems(
                         "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_test_card",
-                        resourceProvider.getString(R.string.writing),
-                        resourceProvider.getString(R.string.writing_task_2),
-                        resourceProvider.getColor(R.color.orange_800),
-                        resourceProvider.getQuery(YouTubeLink.WritingTask2Link)
+                        ResourceProvider.getString(R.string.writing),
+                        ResourceProvider.getString(R.string.writing_task_2),
+                        ResourceProvider.getColor(R.color.orange_800),
+                        ResourceProvider.getQuery(YouTubeLink.WritingTask2Link)
                     )
                 )
             )
@@ -98,17 +99,17 @@ class Repository(
                 listOf(
                     DashboardItems(
                         "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_speaking_image_transparent_background",
-                        resourceProvider.getString(R.string.speaking),
-                        resourceProvider.getString(R.string.lesson),
-                        resourceProvider.getColor(R.color.green_400),
-                        resourceProvider.getQuery(YouTubeLink.SpeakingLessonLink)
+                        ResourceProvider.getString(R.string.speaking),
+                        ResourceProvider.getString(R.string.lesson),
+                        ResourceProvider.getColor(R.color.green_400),
+                        ResourceProvider.getQuery(YouTubeLink.SpeakingLessonLink)
                     ),
                     DashboardItems(
                         "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_listening_image_transparent_background",
-                        resourceProvider.getString(R.string.speaking),
-                        resourceProvider.getString(R.string.test),
-                        resourceProvider.getColor(R.color.blue_500),
-                        resourceProvider.getQuery(YouTubeLink.SpeakingTestLink)
+                        ResourceProvider.getString(R.string.speaking),
+                        ResourceProvider.getString(R.string.test),
+                        ResourceProvider.getColor(R.color.blue_500),
+                        ResourceProvider.getQuery(YouTubeLink.SpeakingTestLink)
                     )
                 )
             )

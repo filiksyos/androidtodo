@@ -23,6 +23,7 @@ android {
 
     buildFeatures {
         viewBinding true
+        dataBinding true // Enable data binding
     }
 }
 
@@ -37,4 +38,6 @@ dependencies {
     // Koin for DI
     implementation 'io.insert-koin:koin-android:4.0.0'
     implementation project(':data')
+    implementation project(":resources")
+
 }

@@ -1,4 +1,4 @@
-package com.example.data.repo
+package com.example.domain
 
 import android.graphics.drawable.Drawable
 

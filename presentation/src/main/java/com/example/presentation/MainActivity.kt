@@ -2,7 +2,7 @@ package com.example.presentation
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-
+import com.example.resources.databinding
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: databinding.ActivityMainBinding
