@@ -39,8 +39,12 @@ dependencies {
     implementation 'androidx.navigation:navigation-ui-ktx:2.7.6'
 
 
-    implementation("androidx.databinding:databinding-runtime:8.1.0") // Or latest version
-    kapt("androidx.databinding:databinding-compiler:8.1.0") // Or latest version
+    implementation("androidx.databinding:databinding-runtime:8.1.0")
+    implementation 'com.github.bumptech.glide:glide:4.15.1'
+    kapt("androidx.databinding:databinding-compiler:8.1.0")
+
+    implementation("com.github.bumptech.glide:glide:4.16.1")
+    kapt("com.github.bumptech.glide:compiler:4.16.1")
 
 
     // Koin for DI
