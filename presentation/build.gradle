@@ -4,8 +4,8 @@ plugins {
 }
 
 android {
-    namespace 'com.example.presentation' // Update with the correct package
-    compileSdk 34
+    namespace 'com.example.presentation'
+    compileSdk 35// Update with the correct package
 
     defaultConfig {
         minSdk 21
@@ -49,6 +49,9 @@ dependencies {
 
     // Koin for DI
     implementation 'io.insert-koin:koin-android:4.0.0'
+
+    implementation("androidx.core:core-splashscreen:1.0.1")
+
 
 
 }
