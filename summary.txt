@@ -4,23 +4,19 @@ buildscript {
     repositories {
         google()
         mavenCentral()
-
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:8.7.2'
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0"
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:2.7.6"
     }
-
 }
+
 allprojects {
     repositories {
         google()
         mavenCentral()
     }
-}
-tasks.register('clean', Delete) {
-    delete rootProject.buildDir
 }
 
 ========================================
@@ -76,7 +72,7 @@ File: app/src/main/AndroidManifest.xml
     <application
         android:allowBackup="true"
         android:icon="@mipmap/app_icon"
-        android:name="com.wolfbytetechnologies.ielts.BaseClass"
+        android:name="com.wolfbytetechnologies.ielts.com.example.presentation.BaseClass"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/app_icon"
         android:supportsRtl="true"
@@ -85,7 +81,7 @@ File: app/src/main/AndroidManifest.xml
         <profileable android:shell="true" />
 
         <activity
-            android:name=".ui.splash.SplashScreenActivity"
+            android:name="com.example.presentation.splash.SplashScreenActivity"
             android:exported="true"
             android:theme="@style/Theme.IELTS_PREPARATION_APP.Starting"
             tools:ignore="LockedOrientationActivity">
@@ -96,7 +92,7 @@ File: app/src/main/AndroidManifest.xml
         </activity>
 
         <activity
-            android:name="com.wolfbytetechnologies.ielts.MainActivity"
+            android:name="com.wolfbytetechnologies.ielts.com.example.presentation.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.IELTS_PREPARATION_APP"
             tools:ignore="LockedOrientationActivity">
@@ -108,95 +104,48 @@ File: app/src/main/AndroidManifest.xml
 </manifest>
 ========================================
 
-File: app/src/main/java/com/wolfbytetechnologies/ielts/BaseClass.kt
+File: data/.gitignore
 ----------------------------------------
-package com.wolfbytetechnologies.ielts
-
-import android.app.Application
-import com.wolfbytetechnologies.ielts.DI.appModule
-import org.koin.android.ext.koin.androidContext
-import org.koin.core.context.startKoin
-
-class BaseClass : Application() {
-
-    override fun onCreate() {
-        super.onCreate()
-
-        startKoin {
-            androidContext(this@BaseClass) // Set the Android context
-            modules(appModule) // Load the Koin module
-        }
-
-    }
-}
-
+/build
 ========================================
 
-File: app/src/main/java/com/wolfbytetechnologies/ielts/MainActivity.kt
+File: data/src/main/java/com/example/data/DashboardItems.kt
 ----------------------------------------
-package com.wolfbytetechnologies.ielts
-
-import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
-import com.wolfbytetechnologies.ielts.databinding.ActivityMainBinding
-
-
-class MainActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityMainBinding
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-    }
-
-}
-
-========================================
-
-File: app/src/main/java/com/wolfbytetechnologies/ielts/data/DashboardItems.kt
-----------------------------------------
-package com.wolfbytetechnologies.ielts.data
+package com.example.data
 
 import android.graphics.Color
-import com.wolfbytetechnologies.ielts.data.Utils.YouTubeLink
-
 
 data class DashboardItems(
     val itemImageUri: String? = null,
     val itemText: String? = null,
     val cardType: String? = null,
     val color: Int = Color.GRAY,
-    val query: String = YouTubeLink.link
+    val query: String = com.example.data.Utils.YouTubeLink.link
 )
 
 ========================================
 
-File: app/src/main/java/com/wolfbytetechnologies/ielts/data/repo/ResourceProviderImpl.kt
+File: data/src/main/java/com/example/data/repo/ResourceProviderImpl.kt
 ----------------------------------------
-package com.wolfbytetechnologies.ielts.data.repo
+package com.example.data.repo
 
 import android.content.Context
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
-import com.wolfbytetechnologies.ielts.data.Utils.YouTubeLink
+import com.example.data.Utils.YouTubeLink
 
 class ResourceProviderImpl(private val context: Context) : ResourceProvider {
     override fun getString(resId: Int): String = context.getString(resId)
     override fun getDrawable(resId: Int): Drawable? = ContextCompat.getDrawable(context, resId)
     override fun getColor(resId: Int): Int = ContextCompat.getColor(context, resId)
-    override fun getQuery(query: String): String = YouTubeLink.getLink(query)
+    override fun getQuery(query: String): String =YouTubeLink.getLink(query)
 }
 
 ========================================
 
-File: app/src/main/java/com/wolfbytetechnologies/ielts/data/repo/ResourceProvider.kt
+File: data/src/main/java/com/example/data/repo/ResourceProvider.kt
 ----------------------------------------
-package com.wolfbytetechnologies.ielts.data.repo
+package com.example.data.repo
 
 import android.graphics.drawable.Drawable
 
@@ -209,17 +158,15 @@ interface ResourceProvider {
 
 ========================================
 
-File: app/src/main/java/com/wolfbytetechnologies/ielts/data/repo/Repository.kt
+File: data/src/main/java/com/example/data/repo/Repository.kt
 ----------------------------------------
-package com.wolfbytetechnologies.ielts.data.repo
+package com.example.data.repo
 
-import android.util.Log.e
-import com.wolfbytetechnologies.ielts.R
-import com.wolfbytetechnologies.ielts.data.Utils.YouTubeLink
-import com.wolfbytetechnologies.ielts.data.DashboardItems
-
+import com.example.data.DashboardItems
+import com.example.data.Utils.YouTubeLink
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.example.R
 
 class Repository(
     private val resourceProvider: ResourceProvider
@@ -227,7 +174,7 @@ class Repository(
 
     suspend fun getReadingItems(): Result<List<DashboardItems>> = withContext(Dispatchers.IO) {
         return@withContext try {
-            Result.success(
+            Result.Companion.success(
                 listOf(
                     DashboardItems(
                         "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_reading_lesson_card",
@@ -246,13 +193,13 @@ class Repository(
                 )
             )
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Companion.failure(e)
         }
     }
 
     suspend fun getListeningItems(): Result<List<DashboardItems>> = withContext(Dispatchers.IO) {
         return@withContext try {
-            Result.success(
+            Result.Companion.success(
                 listOf(
                     DashboardItems(
                         "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_listening_test",
@@ -271,13 +218,13 @@ class Repository(
                 )
             )
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Companion.failure(e)
         }
     }
 
     suspend fun getWritingItems(): Result<List<DashboardItems>> = withContext(Dispatchers.IO) {
         try {
-            Result.success(
+            Result.Companion.success(
                 listOf(
                     DashboardItems(
                         "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_test_card",
@@ -303,13 +250,13 @@ class Repository(
                 )
             )
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Companion.failure(e)
         }
     }
 
     suspend fun getSpeakingItems(): Result<List<DashboardItems>> = withContext(Dispatchers.IO) {
         try {
-            Result.success(
+            Result.Companion.success(
                 listOf(
                     DashboardItems(
                         "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_speaking_image_transparent_background",
@@ -328,7 +275,7 @@ class Repository(
                 )
             )
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Companion.failure(e)
         }
     }
 }
@@ -339,9 +286,9 @@ class Repository(
 
 ========================================
 
-File: app/src/main/java/com/wolfbytetechnologies/ielts/data/Utils/Link.kt
+File: data/src/main/java/com/example/data/Utils/Link.kt
 ----------------------------------------
-package com.wolfbytetechnologies.ielts.data.Utils
+package com.example.data.Utils
 
 object YouTubeLink {
 
@@ -365,9 +312,9 @@ object YouTubeLink {
 }
 ========================================
 
-File: app/src/main/java/com/wolfbytetechnologies/ielts/data/Utils/Result.kt
+File: data/src/main/java/com/example/data/Utils/Result.kt
 ----------------------------------------
-package com.wolfbytetechnologies.ielts.data.Utils
+package com.example.data.Utils
 
 sealed class Result<out T> {
     data class Success<out T>(val data: T) : Result<T>()
@@ -375,15 +322,15 @@ sealed class Result<out T> {
 }
 ========================================
 
-File: app/src/main/java/com/wolfbytetechnologies/ielts/data/Utils/Logger.kt
+File: data/src/main/java/com/example/data/Utils/Logger.kt
 ----------------------------------------
-package com.wolfbytetechnologies.ielts.data.Utils
+package com.example.data.Utils
 
 import android.util.Log
-import com.wolfbytetechnologies.ielts.BuildConfig
 
 object Logger {
-    private val ENABLE_LOGS = BuildConfig.DEBUG
+
+    private val ENABLE_LOGS = true
 
     fun logDebug(tag: String, message: String) {
         if (ENABLE_LOGS) Log.d(tag, message)
@@ -396,31 +343,47 @@ object Logger {
 
 ========================================
 
-File: app/src/main/java/com/wolfbytetechnologies/ielts/Domain/GetDashboardItemsUseCase.kt
+File: domain/.gitignore
 ----------------------------------------
-package com.wolfbytetechnologies.ielts.Domain
+/build
+========================================
 
-import com.wolfbytetechnologies.ielts.data.DashboardItems
-import com.wolfbytetechnologies.ielts.data.repo.Repository
+File: domain/src/main/java/com/example/domain/GetDashboardItemsUseCase.kt
+----------------------------------------
+package com.example.domain
+
+import com.example.data.DashboardItems
+import com.example.data.repo.Repository
+
+sealed class DashboardResult {
+    data class Success(val data: Result<List<DashboardItems>>) : DashboardResult()
+    data class Error(val exception: Throwable) : DashboardResult()
+    object Loading : DashboardResult()
+}
 
 class GetDashboardItemsUseCase(private val repository: Repository) {
-
-        suspend fun getDashboardItems(category: DashboardCategory): Result<List<DashboardItems>> {
-            return when (category) {
+    suspend fun execute(category: DashboardCategory): DashboardResult {
+        return try {
+            val items = when (category) {
                 DashboardCategory.READING -> repository.getReadingItems()
                 DashboardCategory.LISTENING -> repository.getListeningItems()
                 DashboardCategory.WRITING -> repository.getWritingItems()
                 DashboardCategory.SPEAKING -> repository.getSpeakingItems()
             }
+            DashboardResult.Success(items)
+        } catch (e: Exception) {
+            DashboardResult.Error(e)
         }
+    }
 }
+
 
 
 ========================================
 
-File: app/src/main/java/com/wolfbytetechnologies/ielts/Domain/DashboardCategory.kt
+File: domain/src/main/java/com/example/domain/DashboardCategory.kt
 ----------------------------------------
-package com.wolfbytetechnologies.ielts.Domain
+package com.example.domain
 
 enum class DashboardCategory {
     READING, LISTENING, WRITING, SPEAKING
@@ -428,25 +391,198 @@ enum class DashboardCategory {
 
 ========================================
 
-File: app/src/main/java/com/wolfbytetechnologies/ielts/ui/splash/SplashScreenActivity.kt
+File: presentation/consumer-rules.pro
 ----------------------------------------
-package com.wolfbytetechnologies.ielts.ui.splash
+
+========================================
+
+File: presentation/.gitignore
+----------------------------------------
+/build
+========================================
+
+File: presentation/proguard-rules.pro
+----------------------------------------
+# Add project specific ProGuard rules here.
+# You can control the set of applied configuration files using the
+# proguardFiles setting in build.gradle.
+#
+# For more details, see
+#   http://developer.android.com/guide/developing/tools/proguard.html
+
+# If your project uses WebView with JS, uncomment the following
+# and specify the fully qualified class name to the JavaScript interface
+# class:
+#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
+#   public *;
+#}
+
+# Uncomment this to preserve the line number information for
+# debugging stack traces.
+#-keepattributes SourceFile,LineNumberTable
+
+# If you keep the line number information, uncomment this to
+# hide the original source file name.
+#-renamesourcefileattribute SourceFile
+========================================
+
+File: presentation/src/test/java/com/example/presentation/ExampleUnitTest.kt
+----------------------------------------
+package com.example.presentation
+
+  import org.junit.Test
+
+  import org.junit.Assert.*
+
+  /**
+   * Example local unit test, which will execute on the development machine (host).
+   *
+   * See [testing documentation](http://d.android.com/tools/testing).
+   */
+  class ExampleUnitTest {
+      @Test
+      fun addition_isCorrect() {
+          assertEquals(4, 2 + 2)
+      }
+  }
+========================================
+
+File: presentation/src/androidTest/java/com/example/presentation/ExampleInstrumentedTest.kt
+----------------------------------------
+package com.example.presentation
+
+  import androidx.test.platform.app.InstrumentationRegistry
+  import androidx.test.ext.junit.runners.AndroidJUnit4
+
+  import org.junit.Test
+  import org.junit.runner.RunWith
+
+  import org.junit.Assert.*
+
+  /**
+   * Instrumented test, which will execute on an Android device.
+   *
+   * See [testing documentation](http://d.android.com/tools/testing).
+   */
+  @RunWith(AndroidJUnit4::class)
+  class ExampleInstrumentedTest {
+    @Test
+    fun useAppContext() {
+      // Context of the app under test.
+      val appContext = InstrumentationRegistry.getInstrumentation().targetContext
+      assertEquals("com.example.presentation.test", appContext.packageName)
+    }
+  }
+========================================
+
+File: presentation/src/main/AndroidManifest.xml
+----------------------------------------
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID"/>
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/app_icon"
+        android:name="com.example.presentation.BaseClass"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/app_icon"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.IELTS_PREPARATION_APP"
+        >
+        <profileable android:shell="true" />
+
+        <activity
+            android:name="com.example.presentation.splash.SplashScreenActivity"
+            android:exported="true"
+            android:theme="@style/Theme.IELTS_PREPARATION_APP.Starting"
+            tools:ignore="LockedOrientationActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name="com.example.presentation.MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.IELTS_PREPARATION_APP"
+            tools:ignore="LockedOrientationActivity">
+        </activity>
+
+
+    </application>
+
+</manifest>
+========================================
+
+File: presentation/src/main/java/com/example/presentation/BaseClass.kt
+----------------------------------------
+package com.example.presentation
+
+import android.app.Application
+import com.wolfbytetechnologies.ielts.DI.appModule
+import org.koin.android.ext.koin.androidContext
+import org.koin.core.context.startKoin
+
+class BaseClass : Application() {
+
+    override fun onCreate() {
+        super.onCreate()
+
+        startKoin {
+            androidContext(this@BaseClass) // Set the Android context
+            modules(com.wolfbytetechnologies.ielts.DI.appModule) // Load the Koin module
+        }
+
+    }
+}
+
+========================================
+
+File: presentation/src/main/java/com/example/presentation/MainActivity.kt
+----------------------------------------
+package com.example.presentation
+
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+
+
+class MainActivity : AppCompatActivity() {
+    private lateinit var binding: databinding.ActivityMainBinding
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = databinding.ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+    }
+
+}
+
+========================================
+
+File: presentation/src/main/java/com/example/presentation/splash/SplashScreenActivity.kt
+----------------------------------------
+package com.example.presentation.splash
 
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.lifecycle.lifecycleScope
-import com.wolfbytetechnologies.ielts.MainActivity
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @SuppressLint("CustomSplashScreen")
 class SplashScreenActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        startActivity(Intent(this, MainActivity::class.java))
+        startActivity(Intent(this, com.wolfbytetechnologies.ielts.MainActivity::class.java))
         finish() // No delays or redundant conditions.
     }
 }
@@ -455,37 +591,35 @@ class SplashScreenActivity : AppCompatActivity() {
 
 ========================================
 
-File: app/src/main/java/com/wolfbytetechnologies/ielts/ui/adapter/DashboardAdapter.kt
+File: presentation/src/main/java/com/example/presentation/adapter/DashboardAdapter.kt
 ----------------------------------------
-package com.wolfbytetechnologies.ielts.ui.adapter
+package com.example.presentation.adapter
 
-import android.net.Uri
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.wolfbytetechnologies.ielts.data.DashboardItems
-import com.wolfbytetechnologies.ielts.databinding.DashboardCardviewItemsBinding
+import com.example.data.DashboardItems
+import com.example.databinding.DashboardCardviewItemsBinding
 
 class DashboardAdapter(
     private val onItemClick: (DashboardItems) -> Unit
-) : PagingDataAdapter<DashboardItems, DashboardAdapter.ViewHolder>(DashboardDiffCallback()) {
+) : PagingDataAdapter<com.example.data.DashboardItems, DashboardAdapter.ViewHolder>(DashboardDiffCallback()) {
 
-    inner class ViewHolder(private val binding: DashboardCardviewItemsBinding) :
-        RecyclerView.ViewHolder(binding.root) {
+    inner class ViewHolder(private val binding: databinding.DashboardCardviewItemsBinding) :
+        RecyclerView.ViewHolder(databinding.DashboardCardviewItemsBinding.getRoot) {
 
-        fun bind(item: DashboardItems) {
+        fun bind(item: com.example.data.DashboardItems) {
             binding.apply {
-                Glide.with(binding.root.context)
-                    .load(Uri.parse(item.itemImageUri))
-                    .into(imageViewItemImage)
+                com.bumptech.glide.RequestBuilder.into(databinding.DashboardCardviewItemsBinding.imageViewItemImage)
 
-                tvItemName.text = item.itemText
-                tvLessonOrTest.text = item.cardType
-                cvItemsMainBackground.setCardBackgroundColor(item.color)
-                root.setOnClickListener { onItemClick(item) }
+                TextView.setText = com.example.data.DashboardItems.itemText
+                TextView.setText = com.example.data.DashboardItems.cardType
+                databinding.DashboardCardviewItemsBinding.cvItemsMainBackground.setCardBackgroundColor(com.example.data.DashboardItems.color)
+                View.setOnClickListener { onItemClick(item) }
             }
         }
     }
@@ -500,9 +634,10 @@ class DashboardAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val binding = DashboardCardviewItemsBinding.inflate(
-            LayoutInflater.from(parent.context), parent, false
-        )
+        val binding =
+            databinding.DashboardCardviewItemsBinding.inflate(
+                LayoutInflater.from(parent.context), parent, false
+            )
         return ViewHolder(binding)
     }
 
@@ -510,12 +645,12 @@ class DashboardAdapter(
         return Int.MAX_VALUE // Simulate infinite scrolling
     }
 
-    class DashboardDiffCallback : DiffUtil.ItemCallback<DashboardItems>() {
-        override fun areItemsTheSame(oldItem: DashboardItems, newItem: DashboardItems): Boolean {
-            return oldItem.itemText == newItem.itemText
+    class DashboardDiffCallback : DiffUtil.ItemCallback<com.example.data.DashboardItems>() {
+        override fun areItemsTheSame(oldItem: com.example.data.DashboardItems, newItem: com.example.data.DashboardItems): Boolean {
+            return com.example.data.DashboardItems.itemText == com.example.data.DashboardItems.itemText
         }
 
-        override fun areContentsTheSame(oldItem: DashboardItems, newItem: DashboardItems): Boolean {
+        override fun areContentsTheSame(oldItem: com.example.data.DashboardItems, newItem: com.example.data.DashboardItems): Boolean {
             return oldItem == newItem
         }
     }
@@ -523,29 +658,27 @@ class DashboardAdapter(
 
 ========================================
 
-File: app/src/main/java/com/wolfbytetechnologies/ielts/ui/adapter/DashboardPagingSource.kt
+File: presentation/src/main/java/com/example/presentation/adapter/DashboardPagingSource.kt
 ----------------------------------------
-package com.wolfbytetechnologies.ielts.ui.adapter
+package com.example.presentation.adapter
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.wolfbytetechnologies.ielts.data.DashboardItems
-import com.wolfbytetechnologies.ielts.data.repo.Repository
 
 class DashboardPagingSource(
-    private val repository: Repository,
+    private val repository: com.example.data.repo.Repository,
     private val category: String
-) : PagingSource<Int, DashboardItems>() {
+) : PagingSource<Int, com.example.data.DashboardItems>() {
 
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, DashboardItems> {
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, com.example.data.DashboardItems> {
         val pageNumber = params.key ?: 0
         return try {
             val items = when (category) {
-                "READING" -> repository.getReadingItems().getOrElse { emptyList<DashboardItems>() }
-                "LISTENING" -> repository.getListeningItems().getOrElse { emptyList<DashboardItems>() }
-                "WRITING" -> repository.getWritingItems().getOrElse { emptyList<DashboardItems>() }
-                "SPEAKING" -> repository.getSpeakingItems().getOrElse { emptyList<DashboardItems>() }
-                else -> emptyList<DashboardItems>()
+                "READING" -> com.example.data.repo.Repository.getReadingItems().getOrElse { emptyList<com.example.data.DashboardItems>() }
+                "LISTENING" -> com.example.data.repo.Repository.getListeningItems().getOrElse { emptyList<com.example.data.DashboardItems>() }
+                "WRITING" -> com.example.data.repo.Repository.getWritingItems().getOrElse { emptyList<com.example.data.DashboardItems>() }
+                "SPEAKING" -> com.example.data.repo.Repository.getSpeakingItems().getOrElse { emptyList<com.example.data.DashboardItems>() }
+                else -> emptyList<com.example.data.DashboardItems>()
             }
 
             LoadResult.Page(
@@ -557,7 +690,7 @@ class DashboardPagingSource(
             LoadResult.Error(e)
         }
     }
-    override fun getRefreshKey(state: PagingState<Int, DashboardItems>): Int? {
+    override fun getRefreshKey(state: PagingState<Int, com.example.data.DashboardItems>): Int? {
         return state.anchorPosition?.let { anchor ->
             state.closestPageToPosition(anchor)?.prevKey?.plus(1)
                 ?: state.closestPageToPosition(anchor)?.nextKey?.minus(1)
@@ -567,19 +700,19 @@ class DashboardPagingSource(
 
 ========================================
 
-File: app/src/main/java/com/wolfbytetechnologies/ielts/ui/adapter/DashboardDiffCallback.kt
+File: presentation/src/main/java/com/example/presentation/adapter/DashboardDiffCallback.kt
 ----------------------------------------
-package com.wolfbytetechnologies.ielts.ui.adapter
+package com.example.presentation.adapter
 
 import androidx.recyclerview.widget.DiffUtil
-import com.wolfbytetechnologies.ielts.data.DashboardItems
+import com.example.data.DashboardItems
 
-class DashboardDiffCallback : DiffUtil.ItemCallback<DashboardItems>() {
-    override fun areItemsTheSame(oldItem: DashboardItems, newItem: DashboardItems): Boolean {
-        return oldItem.itemText == newItem.itemText && oldItem.cardType == newItem.cardType
+class DashboardDiffCallback : DiffUtil.ItemCallback<com.example.data.DashboardItems>() {
+    override fun areItemsTheSame(oldItem: com.example.data.DashboardItems, newItem: com.example.data.DashboardItems): Boolean {
+        return com.example.data.DashboardItems.itemText == com.example.data.DashboardItems.itemText && com.example.data.DashboardItems.cardType == com.example.data.DashboardItems.cardType
     }
 
-    override fun areContentsTheSame(oldItem: DashboardItems, newItem: DashboardItems): Boolean {
+    override fun areContentsTheSame(oldItem: com.example.data.DashboardItems, newItem: com.example.data.DashboardItems): Boolean {
         return oldItem == newItem
     }
 }
@@ -587,9 +720,9 @@ class DashboardDiffCallback : DiffUtil.ItemCallback<DashboardItems>() {
 
 ========================================
 
-File: app/src/main/java/com/wolfbytetechnologies/ielts/ui/Fragment/RecyclerViewHelper.kt
+File: presentation/src/main/java/com/example/presentation/Fragment/RecyclerViewHelper.kt
 ----------------------------------------
-package com.wolfbytetechnologies.ielts.ui.Fragment
+package com.example.presentation.Fragment
 
 import android.content.Context
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -616,9 +749,9 @@ object RecyclerViewHelper {
 
 ========================================
 
-File: app/src/main/java/com/wolfbytetechnologies/ielts/ui/Fragment/InfiniteLinearLayoutManager.kt
+File: presentation/src/main/java/com/example/presentation/Fragment/InfiniteLinearLayoutManager.kt
 ----------------------------------------
-package com.wolfbytetechnologies.ielts.ui.Fragment
+package com.example.presentation.Fragment
 
 import android.content.Context
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -644,10 +777,10 @@ class InfiniteLinearLayoutManager(
 
 ========================================
 
-File: app/src/main/java/com/wolfbytetechnologies/ielts/ui/Fragment/DashboardFragment.kt
+File: presentation/src/main/java/com/example/presentation/Fragment/DashboardFragment.kt
 ----------------------------------------
 // DashboardFragment.kt
-package com.wolfbytetechnologies.ielts.ui.Fragment
+package com.example.presentation.Fragment
 
 import android.content.Intent
 import android.net.Uri
@@ -659,14 +792,11 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.PagingData
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.wolfbytetechnologies.ielts.data.DashboardItems
-import com.wolfbytetechnologies.ielts.data.Utils.Logger
-import com.wolfbytetechnologies.ielts.ui.adapter.DashboardAdapter
-import com.wolfbytetechnologies.ielts.databinding.FragmentDashboardBinding
-import com.wolfbytetechnologies.ielts.ui.viewModel.DashboardState
-import com.wolfbytetechnologies.ielts.ui.viewModel.DashboardViewModel
+import com.example.data.DashboardItems
+import com.example.presentation.adapter.DashboardAdapter
+import com.example.presentation.viewModel.DashboardState
+import com.example.presentation.viewModel.DashboardViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -675,7 +805,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class DashboardFragment : Fragment() {
 
-    private lateinit var binding: FragmentDashboardBinding
+    private lateinit var binding: databinding.FragmentDashboardBinding
     private val dashboardViewModel: DashboardViewModel by viewModel()
 
     private lateinit var readingAdapter: DashboardAdapter
@@ -687,8 +817,12 @@ class DashboardFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentDashboardBinding.inflate(inflater, container, false)
-        return binding.root
+        binding = databinding.FragmentDashboardBinding.inflate(
+            inflater,
+            container,
+            false
+        )
+        return databinding.FragmentDashboardBinding.getRoot
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -701,21 +835,25 @@ class DashboardFragment : Fragment() {
     }
 
     private fun setupAdapters() {
-        readingAdapter = DashboardAdapter { item -> navigateToYouTube(item.query) }
-        listeningAdapter = DashboardAdapter { item -> navigateToYouTube(item.query) }
-        writingAdapter = DashboardAdapter { item -> navigateToYouTube(item.query) }
-        speakingAdapter = DashboardAdapter { item -> navigateToYouTube(item.query) }
+        readingAdapter =
+            DashboardAdapter { item -> navigateToYouTube(com.example.data.DashboardItems.query) }
+        listeningAdapter =
+            DashboardAdapter { item -> navigateToYouTube(com.example.data.DashboardItems.query) }
+        writingAdapter =
+            DashboardAdapter { item -> navigateToYouTube(com.example.data.DashboardItems.query) }
+        speakingAdapter =
+            DashboardAdapter { item -> navigateToYouTube(com.example.data.DashboardItems.query) }
     }
 
     private fun setupRecyclerViews() {
-        RecyclerViewHelper.setupRecyclerView(binding.rvReading, readingAdapter, requireContext())
-        binding.rvReading.scrollToPosition(Int.MAX_VALUE / 2) // Start in the middle for seamless looping
-        RecyclerViewHelper.setupRecyclerView(binding.rvListening, listeningAdapter, requireContext())
-        binding.rvReading.scrollToPosition(Int.MAX_VALUE / 2)
-        RecyclerViewHelper.setupRecyclerView(binding.rvWriting, writingAdapter, requireContext())
-        binding.rvReading.scrollToPosition(Int.MAX_VALUE / 2)
-        RecyclerViewHelper.setupRecyclerView(binding.rvSpeaking, speakingAdapter, requireContext())
-        binding.rvReading.scrollToPosition(Int.MAX_VALUE / 2)
+        RecyclerViewHelper.setupRecyclerView(databinding.FragmentDashboardBinding.rvReading, readingAdapter, requireContext())
+        RecyclerView.scrollToPosition(Int.MAX_VALUE / 2) // Start in the middle for seamless looping
+        RecyclerViewHelper.setupRecyclerView(databinding.FragmentDashboardBinding.rvListening, listeningAdapter, requireContext())
+        RecyclerView.scrollToPosition(Int.MAX_VALUE / 2)
+        RecyclerViewHelper.setupRecyclerView(databinding.FragmentDashboardBinding.rvWriting, writingAdapter, requireContext())
+        RecyclerView.scrollToPosition(Int.MAX_VALUE / 2)
+        RecyclerViewHelper.setupRecyclerView(databinding.FragmentDashboardBinding.rvSpeaking, speakingAdapter, requireContext())
+        RecyclerView.scrollToPosition(Int.MAX_VALUE / 2)
     }
 
     private fun observeViewModel() {
@@ -723,30 +861,30 @@ class DashboardFragment : Fragment() {
             pagingFlow = dashboardViewModel.readingPagingFlow,
             stateFlow = dashboardViewModel.readingState,
             adapter = readingAdapter,
-            recyclerView = binding.rvReading
+            recyclerView = databinding.FragmentDashboardBinding.rvReading
         )
         observeCategory(
             pagingFlow = dashboardViewModel.listeningPagingFlow,
             stateFlow = dashboardViewModel.listeningState,
             adapter = listeningAdapter,
-            recyclerView = binding.rvListening
+            recyclerView = databinding.FragmentDashboardBinding.rvListening
         )
         observeCategory(
             pagingFlow = dashboardViewModel.writingPagingFlow,
             stateFlow = dashboardViewModel.writingState,
             adapter = writingAdapter,
-            recyclerView = binding.rvWriting
+            recyclerView = databinding.FragmentDashboardBinding.rvWriting
         )
         observeCategory(
             pagingFlow = dashboardViewModel.speakingPagingFlow,
             stateFlow = dashboardViewModel.speakingState,
             adapter = speakingAdapter,
-            recyclerView = binding.rvSpeaking
+            recyclerView = databinding.FragmentDashboardBinding.rvSpeaking
         )
     }
 
     private fun observeCategory(
-        pagingFlow: Flow<PagingData<DashboardItems>>,
+        pagingFlow: Flow<PagingData<com.example.data.DashboardItems>>,
         stateFlow: StateFlow<DashboardState>,
         adapter: DashboardAdapter,
         recyclerView: RecyclerView
@@ -771,23 +909,23 @@ class DashboardFragment : Fragment() {
 
     private fun showLoading(recyclerView: RecyclerView) {
         recyclerView.visibility = View.GONE
-        binding.progressBar.visibility = View.VISIBLE
+        View.setVisibility = View.VISIBLE
     }
 
     private fun showRecyclerView(recyclerView: RecyclerView) {
         recyclerView.visibility = View.VISIBLE
-        binding.progressBar.visibility = View.GONE
+        View.setVisibility = View.GONE
     }
 
     private fun showEmptyState(recyclerView: RecyclerView) {
         recyclerView.visibility = View.GONE
-        binding.progressBar.visibility = View.GONE
+        View.setVisibility = View.GONE
         Toast.makeText(requireContext(), "No items found", Toast.LENGTH_SHORT).show()
     }
 
     private fun showError(recyclerView: RecyclerView, message: String) {
         recyclerView.visibility = View.GONE
-        binding.progressBar.visibility = View.GONE
+        View.setVisibility = View.GONE
         Toast.makeText(requireContext(), "Error: $message", Toast.LENGTH_LONG).show()
     }
 
@@ -800,9 +938,9 @@ class DashboardFragment : Fragment() {
 
 ========================================
 
-File: app/src/main/java/com/wolfbytetechnologies/ielts/ui/viewModel/DashboardViewModel.kt
+File: presentation/src/main/java/com/example/presentation/viewModel/DashboardViewModel.kt
 ----------------------------------------
-package com.wolfbytetechnologies.ielts.ui.viewModel
+package com.example.presentation.viewModel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -810,19 +948,15 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import com.wolfbytetechnologies.ielts.data.DashboardItems
-import com.wolfbytetechnologies.ielts.ui.adapter.DashboardPagingSource
-import com.wolfbytetechnologies.ielts.data.repo.Repository
+import com.example.presentation.adapter.DashboardPagingSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 
-class DashboardViewModel(private val repository: Repository) : ViewModel() {
+class DashboardViewModel(private val repository: com.example.data.repo.Repository) : ViewModel() {
 
     // State flows for each category
     private val _readingState = MutableStateFlow<DashboardState>(DashboardState.Loading)
@@ -863,7 +997,7 @@ class DashboardViewModel(private val repository: Repository) : ViewModel() {
     }
 
     private fun observePagingState(
-        pagingFlow: Flow<PagingData<DashboardItems>>,
+        pagingFlow: Flow<PagingData<com.example.data.DashboardItems>>,
         stateFlow: MutableStateFlow<DashboardState>
     ) {
         viewModelScope.launch {
@@ -876,64 +1010,23 @@ class DashboardViewModel(private val repository: Repository) : ViewModel() {
 
 ========================================
 
-File: app/src/main/java/com/wolfbytetechnologies/ielts/ui/viewModel/DashboardState.kt
+File: presentation/src/main/java/com/example/presentation/viewModel/DashboardState.kt
 ----------------------------------------
-package com.wolfbytetechnologies.ielts.ui.viewModel
+package com.example.presentation.viewModel
 
 import androidx.paging.PagingData
-import com.wolfbytetechnologies.ielts.data.DashboardItems
 
 sealed class DashboardState {
     object Loading : DashboardState()
     object Empty : DashboardState()
-    data class Success(val data: PagingData<DashboardItems>) : DashboardState()
+    data class Success(val data: PagingData<com.example.data.DashboardItems>) : DashboardState()
     data class Error(val message: String) : DashboardState()
 }
 
 
 ========================================
 
-File: app/src/main/java/com/wolfbytetechnologies/ielts/DI/KoinModule.kt
-----------------------------------------
-package com.wolfbytetechnologies.ielts.DI
-
-
-import com.wolfbytetechnologies.ielts.data.repo.Repository
-import com.wolfbytetechnologies.ielts.data.repo.ResourceProvider
-import com.wolfbytetechnologies.ielts.data.repo.ResourceProviderImpl
-import com.wolfbytetechnologies.ielts.ui.viewModel.DashboardViewModel
-import com.wolfbytetechnologies.ielts.Domain.GetDashboardItemsUseCase
-import org.koin.android.ext.koin.androidContext
-import org.koin.dsl.module
-
-
-import org.koin.androidx.viewmodel.dsl.viewModel
-
-val appModule = module {
-    // ResourceProvider
-    single<ResourceProvider> { ResourceProviderImpl(androidContext()) }
-
-    // Repository: Singleton for shared instance
-    single { Repository(get()) }
-
-    // UseCase: Factory ensures new instance for each ViewModel
-    factory { GetDashboardItemsUseCase(get()) }
-
-    // ViewModel: Globally available
-    viewModel { DashboardViewModel(get()) }
-}
-
-
-
-
-
-
-
-
-
-========================================
-
-File: app/src/main/res/drawable/ic_speaking_image_transparent_background.xml
+File: presentation/src/res/drawable/ic_speaking_image_transparent_background.xml
 ----------------------------------------
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="112dp"
@@ -1620,7 +1713,7 @@ File: app/src/main/res/drawable/ic_speaking_image_transparent_background.xml
 
 ========================================
 
-File: app/src/main/res/drawable/placeholder.xml
+File: presentation/src/res/drawable/placeholder.xml
 ----------------------------------------
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
@@ -1628,7 +1721,7 @@ File: app/src/main/res/drawable/placeholder.xml
 </shape>
 ========================================
 
-File: app/src/main/res/drawable/ic_test_card.xml
+File: presentation/src/res/drawable/ic_test_card.xml
 ----------------------------------------
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="175dp"
@@ -2237,7 +2330,7 @@ File: app/src/main/res/drawable/ic_test_card.xml
 
 ========================================
 
-File: app/src/main/res/drawable/ic_reading_lesson_card.xml
+File: presentation/src/res/drawable/ic_reading_lesson_card.xml
 ----------------------------------------
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="177dp"
@@ -2483,7 +2576,7 @@ File: app/src/main/res/drawable/ic_reading_lesson_card.xml
 
 ========================================
 
-File: app/src/main/res/drawable/ic_listening_test.xml
+File: presentation/src/res/drawable/ic_listening_test.xml
 ----------------------------------------
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="166dp"
@@ -2658,7 +2751,7 @@ File: app/src/main/res/drawable/ic_listening_test.xml
 
 ========================================
 
-File: app/src/main/res/drawable/recycler_horizontal_scrollbar_bg.xml
+File: presentation/src/res/drawable/recycler_horizontal_scrollbar_bg.xml
 ----------------------------------------
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list
@@ -2678,7 +2771,7 @@ File: app/src/main/res/drawable/recycler_horizontal_scrollbar_bg.xml
 </layer-list>
 ========================================
 
-File: app/src/main/res/drawable/recycler_horizontal_scrollbar.xml
+File: presentation/src/res/drawable/recycler_horizontal_scrollbar.xml
 ----------------------------------------
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list
@@ -2700,7 +2793,7 @@ File: app/src/main/res/drawable/recycler_horizontal_scrollbar.xml
 </layer-list>
 ========================================
 
-File: app/src/main/res/drawable/ic_listening_image_transparent_background.xml
+File: presentation/src/res/drawable/ic_listening_image_transparent_background.xml
 ----------------------------------------
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="118dp"
@@ -3278,7 +3371,7 @@ File: app/src/main/res/drawable/ic_listening_image_transparent_background.xml
 
 ========================================
 
-File: app/src/main/res/drawable/top_corners_rounded.xml
+File: presentation/src/res/drawable/top_corners_rounded.xml
 ----------------------------------------
 <?xml version="1.0" encoding="utf-8"?>
 <shape android:shape="rectangle"
@@ -3294,7 +3387,7 @@ File: app/src/main/res/drawable/top_corners_rounded.xml
 </shape>
 ========================================
 
-File: app/src/main/res/drawable/ic_splash_main_image.xml
+File: presentation/src/res/drawable/ic_splash_main_image.xml
 ----------------------------------------
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="415dp"
@@ -3535,7 +3628,7 @@ File: app/src/main/res/drawable/ic_splash_main_image.xml
 
 ========================================
 
-File: app/src/main/res/drawable/error_placeholder.xml
+File: presentation/src/res/drawable/error_placeholder.xml
 ----------------------------------------
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
@@ -3543,7 +3636,7 @@ File: app/src/main/res/drawable/error_placeholder.xml
 </shape>
 ========================================
 
-File: app/src/main/res/drawable/ic_launcher_background.xml
+File: presentation/src/res/drawable/ic_launcher_background.xml
 ----------------------------------------
 <?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
@@ -3718,7 +3811,7 @@ File: app/src/main/res/drawable/ic_launcher_background.xml
 
 ========================================
 
-File: app/src/main/res/drawable/ic_splash_background_complete.xml
+File: presentation/src/res/drawable/ic_splash_background_complete.xml
 ----------------------------------------
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:aapt="http://schemas.android.com/aapt"
@@ -4104,139 +4197,139 @@ File: app/src/main/res/drawable/ic_splash_background_complete.xml
 
 ========================================
 
-File: app/src/main/res/font/montserrat_extr_bold_italic.ttf
+File: presentation/src/res/font/montserrat_extr_bold_italic.ttf
 ----------------------------------------
 Error reading file: 'utf-8' codec can't decode byte 0xb5 in position 17: invalid start byte
 
 ========================================
 
-File: app/src/main/res/font/montserrat_medium.ttf
+File: presentation/src/res/font/montserrat_medium.ttf
 ----------------------------------------
 Error reading file: 'utf-8' codec can't decode byte 0xa4 in position 17: invalid start byte
 
 ========================================
 
-File: app/src/main/res/font/montserrat_extra_bold.ttf
+File: presentation/src/res/font/montserrat_extra_bold.ttf
 ----------------------------------------
 Error reading file: 'utf-8' codec can't decode byte 0xa4 in position 17: invalid start byte
 
 ========================================
 
-File: app/src/main/res/font/montserrat_thin_italic.ttf
+File: presentation/src/res/font/montserrat_thin_italic.ttf
 ----------------------------------------
 Error reading file: 'utf-8' codec can't decode byte 0xb5 in position 17: invalid start byte
 
 ========================================
 
-File: app/src/main/res/font/montserrat_medium_italic.ttf
+File: presentation/src/res/font/montserrat_medium_italic.ttf
 ----------------------------------------
 Error reading file: 'utf-8' codec can't decode byte 0xb5 in position 17: invalid start byte
 
 ========================================
 
-File: app/src/main/res/font/montserrat_bold.ttf
+File: presentation/src/res/font/montserrat_bold.ttf
 ----------------------------------------
 Error reading file: 'utf-8' codec can't decode byte 0xa4 in position 17: invalid start byte
 
 ========================================
 
-File: app/src/main/res/font/montserrat_light_italic.ttf
+File: presentation/src/res/font/montserrat_light_italic.ttf
 ----------------------------------------
 Error reading file: 'utf-8' codec can't decode byte 0xb5 in position 17: invalid start byte
 
 ========================================
 
-File: app/src/main/res/font/montserrat_extra_light_italic.ttf
+File: presentation/src/res/font/montserrat_extra_light_italic.ttf
 ----------------------------------------
 Error reading file: 'utf-8' codec can't decode byte 0xb5 in position 17: invalid start byte
 
 ========================================
 
-File: app/src/main/res/font/montserrat_semi_bold.ttf
+File: presentation/src/res/font/montserrat_semi_bold.ttf
 ----------------------------------------
 Error reading file: 'utf-8' codec can't decode byte 0xa4 in position 17: invalid start byte
 
 ========================================
 
-File: app/src/main/res/font/montserrat_black_italic.ttf
+File: presentation/src/res/font/montserrat_black_italic.ttf
 ----------------------------------------
 Error reading file: 'utf-8' codec can't decode byte 0xb5 in position 17: invalid start byte
 
 ========================================
 
-File: app/src/main/res/font/montserrat_light.ttf
+File: presentation/src/res/font/montserrat_light.ttf
 ----------------------------------------
 Error reading file: 'utf-8' codec can't decode byte 0xa4 in position 17: invalid start byte
 
 ========================================
 
-File: app/src/main/res/font/montserrat_variable_font_wght.ttf
+File: presentation/src/res/font/montserrat_variable_font_wght.ttf
 ----------------------------------------
 Error reading file: 'utf-8' codec can't decode byte 0xd3 in position 16: invalid continuation byte
 
 ========================================
 
-File: app/src/main/res/font/montserrat_black.ttf
+File: presentation/src/res/font/montserrat_black.ttf
 ----------------------------------------
 Error reading file: 'utf-8' codec can't decode byte 0xa4 in position 17: invalid start byte
 
 ========================================
 
-File: app/src/main/res/font/montserrat_extra_light.ttf
+File: presentation/src/res/font/montserrat_extra_light.ttf
 ----------------------------------------
 Error reading file: 'utf-8' codec can't decode byte 0xa4 in position 17: invalid start byte
 
 ========================================
 
-File: app/src/main/res/font/montserrat_bold_italic.ttf
+File: presentation/src/res/font/montserrat_bold_italic.ttf
 ----------------------------------------
 Error reading file: 'utf-8' codec can't decode byte 0xb5 in position 17: invalid start byte
 
 ========================================
 
-File: app/src/main/res/font/montserrat_thin.ttf
+File: presentation/src/res/font/montserrat_thin.ttf
 ----------------------------------------
 Error reading file: 'utf-8' codec can't decode byte 0xa4 in position 17: invalid start byte
 
 ========================================
 
-File: app/src/main/res/font/montserrat_semi_bold_italic.ttf
+File: presentation/src/res/font/montserrat_semi_bold_italic.ttf
 ----------------------------------------
 Error reading file: 'utf-8' codec can't decode byte 0xb5 in position 17: invalid start byte
 
 ========================================
 
-File: app/src/main/res/font/montserrat_italic.ttf
+File: presentation/src/res/font/montserrat_italic.ttf
 ----------------------------------------
 Error reading file: 'utf-8' codec can't decode byte 0xb5 in position 17: invalid start byte
 
 ========================================
 
-File: app/src/main/res/font/montserrat_regular.ttf
+File: presentation/src/res/font/montserrat_regular.ttf
 ----------------------------------------
 Error reading file: 'utf-8' codec can't decode byte 0xa4 in position 17: invalid start byte
 
 ========================================
 
-File: app/src/main/res/mipmap-hdpi/app_icon.png
+File: presentation/src/res/mipmap-hdpi/app_icon.png
 ----------------------------------------
 Error reading file: 'utf-8' codec can't decode byte 0x89 in position 0: invalid start byte
 
 ========================================
 
-File: app/src/main/res/mipmap-hdpi/ic_launcher.webp
+File: presentation/src/res/mipmap-hdpi/ic_launcher.webp
 ----------------------------------------
 Error reading file: 'utf-8' codec can't decode byte 0xcc in position 34: invalid continuation byte
 
 ========================================
 
-File: app/src/main/res/mipmap-hdpi/ic_launcher_round.webp
+File: presentation/src/res/mipmap-hdpi/ic_launcher_round.webp
 ----------------------------------------
 Error reading file: 'utf-8' codec can't decode byte 0xbd in position 34: invalid start byte
 
 ========================================
 
-File: app/src/main/res/drawable-v24/ic_launcher_foreground.xml
+File: presentation/src/res/drawable-v24/ic_launcher_foreground.xml
 ----------------------------------------
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:aapt="http://schemas.android.com/aapt"
@@ -4270,7 +4363,7 @@ File: app/src/main/res/drawable-v24/ic_launcher_foreground.xml
 </vector>
 ========================================
 
-File: app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
+File: presentation/src/res/mipmap-anydpi-v26/ic_launcher_round.xml
 ----------------------------------------
 <?xml version="1.0" encoding="utf-8"?>
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
@@ -4279,7 +4372,7 @@ File: app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
 </adaptive-icon>
 ========================================
 
-File: app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
+File: presentation/src/res/mipmap-anydpi-v26/ic_launcher.xml
 ----------------------------------------
 <?xml version="1.0" encoding="utf-8"?>
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
@@ -4288,7 +4381,7 @@ File: app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
 </adaptive-icon>
 ========================================
 
-File: app/src/main/res/layout/activity_main.xml
+File: presentation/src/res/layout/activity_main.xml
 ----------------------------------------
 <?xml version="1.0" encoding="utf-8"?>
 
@@ -4296,7 +4389,7 @@ File: app/src/main/res/layout/activity_main.xml
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".MainActivity"
+    tools:context="com.example.presentation.MainActivity"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -4320,7 +4413,7 @@ File: app/src/main/res/layout/activity_main.xml
 
 ========================================
 
-File: app/src/main/res/layout/dashboard_cardview_items.xml
+File: presentation/src/res/layout/dashboard_cardview_items.xml
 ----------------------------------------
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
@@ -4389,7 +4482,7 @@ File: app/src/main/res/layout/dashboard_cardview_items.xml
 </com.google.android.material.card.MaterialCardView>
 ========================================
 
-File: app/src/main/res/layout/fragment_dashboard.xml
+File: presentation/src/res/layout/fragment_dashboard.xml
 ----------------------------------------
 <?xml version="1.0" encoding="utf-8"?>
 
@@ -4521,7 +4614,7 @@ File: app/src/main/res/layout/fragment_dashboard.xml
 </androidx.core.widget.NestedScrollView>
 ========================================
 
-File: app/src/main/res/values-v23/themes.xml
+File: presentation/src/res/values-v23/themes.xml
 ----------------------------------------
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
@@ -4541,25 +4634,25 @@ File: app/src/main/res/values-v23/themes.xml
 </resources>
 ========================================
 
-File: app/src/main/res/mipmap-xxxhdpi/app_icon.png
+File: presentation/src/res/mipmap-xxxhdpi/app_icon.png
 ----------------------------------------
 Error reading file: 'utf-8' codec can't decode byte 0x89 in position 0: invalid start byte
 
 ========================================
 
-File: app/src/main/res/mipmap-xxxhdpi/ic_launcher.webp
+File: presentation/src/res/mipmap-xxxhdpi/ic_launcher.webp
 ----------------------------------------
 Error reading file: 'utf-8' codec can't decode byte 0xfc in position 4: invalid start byte
 
 ========================================
 
-File: app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.webp
+File: presentation/src/res/mipmap-xxxhdpi/ic_launcher_round.webp
 ----------------------------------------
 Error reading file: 'utf-8' codec can't decode byte 0xbf in position 24: invalid start byte
 
 ========================================
 
-File: app/src/main/res/values-night/themes.xml
+File: presentation/src/res/values-night/themes.xml
 ----------------------------------------
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
@@ -4581,7 +4674,7 @@ File: app/src/main/res/values-night/themes.xml
 
 ========================================
 
-File: app/src/main/res/values/themes.xml
+File: presentation/src/res/values/themes.xml
 ----------------------------------------
 <resources>
     <!-- Base application theme. -->
@@ -4609,7 +4702,7 @@ File: app/src/main/res/values/themes.xml
 
 ========================================
 
-File: app/src/main/res/values/colors.xml
+File: presentation/src/res/values/colors.xml
 ----------------------------------------
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
@@ -4642,7 +4735,7 @@ File: app/src/main/res/values/colors.xml
 </resources>
 ========================================
 
-File: app/src/main/res/values/strings.xml
+File: presentation/src/res/values/strings.xml
 ----------------------------------------
 <resources>
     <string name="app_name">IELTS Tips &amp; Preparation</string>
@@ -4823,25 +4916,25 @@ File: app/src/main/res/values/strings.xml
 </resources>
 ========================================
 
-File: app/src/main/res/mipmap-mdpi/app_icon.png
+File: presentation/src/res/mipmap-mdpi/app_icon.png
 ----------------------------------------
 Error reading file: 'utf-8' codec can't decode byte 0x89 in position 0: invalid start byte
 
 ========================================
 
-File: app/src/main/res/mipmap-mdpi/ic_launcher.webp
+File: presentation/src/res/mipmap-mdpi/ic_launcher.webp
 ----------------------------------------
 Error reading file: 'utf-8' codec can't decode byte 0xce in position 4: invalid continuation byte
 
 ========================================
 
-File: app/src/main/res/mipmap-mdpi/ic_launcher_round.webp
+File: presentation/src/res/mipmap-mdpi/ic_launcher_round.webp
 ----------------------------------------
 Error reading file: 'utf-8' codec can't decode byte 0xe4 in position 4: invalid continuation byte
 
 ========================================
 
-File: app/src/main/res/navigation/navigation_graph.xml
+File: presentation/src/res/navigation/navigation_graph.xml
 ----------------------------------------
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
@@ -4852,46 +4945,86 @@ File: app/src/main/res/navigation/navigation_graph.xml
 
     <fragment
         android:id="@+id/dashboardFragment"
-        android:name="com.wolfbytetechnologies.ielts.ui.Fragment.DashboardFragment"
+        android:name="com.example.presentation.Fragment.DashboardFragment"
         android:label="fragment_dashboard"
         tools:layout="@layout/fragment_dashboard" >
     </fragment>
 </navigation>
 ========================================
 
-File: app/src/main/res/mipmap-xhdpi/app_icon.png
+File: presentation/src/res/mipmap-xhdpi/app_icon.png
 ----------------------------------------
 Error reading file: 'utf-8' codec can't decode byte 0x89 in position 0: invalid start byte
 
 ========================================
 
-File: app/src/main/res/mipmap-xhdpi/ic_launcher.webp
+File: presentation/src/res/mipmap-xhdpi/ic_launcher.webp
 ----------------------------------------
 Error reading file: 'utf-8' codec can't decode byte 0x80 in position 39: invalid start byte
 
 ========================================
 
-File: app/src/main/res/mipmap-xhdpi/ic_launcher_round.webp
+File: presentation/src/res/mipmap-xhdpi/ic_launcher_round.webp
 ----------------------------------------
 Error reading file: 'utf-8' codec can't decode byte 0x9d in position 34: invalid start byte
 
 ========================================
 
-File: app/src/main/res/mipmap-xxhdpi/app_icon.png
+File: presentation/src/res/mipmap-xxhdpi/app_icon.png
 ----------------------------------------
 Error reading file: 'utf-8' codec can't decode byte 0x89 in position 0: invalid start byte
 
 ========================================
 
-File: app/src/main/res/mipmap-xxhdpi/ic_launcher.webp
+File: presentation/src/res/mipmap-xxhdpi/ic_launcher.webp
 ----------------------------------------
 Error reading file: 'utf-8' codec can't decode byte 0x8f in position 24: invalid start byte
 
 ========================================
 
-File: app/src/main/res/mipmap-xxhdpi/ic_launcher_round.webp
+File: presentation/src/res/mipmap-xxhdpi/ic_launcher_round.webp
 ----------------------------------------
 Error reading file: 'utf-8' codec can't decode byte 0x8f in position 24: invalid start byte
+
+========================================
+
+File: presentation/DI/KoinModule.kt
+----------------------------------------
+import com.example.data.repo.Repository
+import com.example.data.repo.ResourceProviderImpl
+import com.example.presentation.viewModel.DashboardViewModel
+import com.example.domain.GetDashboardItemsUseCase
+import org.koin.android.ext.koin.androidContext
+import org.koin.dsl.module
+
+
+import org.koin.androidx.viewmodel.dsl.viewModel
+
+val appModule = module {
+    // ResourceProvider
+    single<com.example.data.repo.ResourceProvider> {
+        com.example.data.repo.ResourceProviderImpl(
+            androidContext()
+        )
+    }
+
+    // Repository: Singleton for shared instance
+    single { com.example.data.repo.Repository(get()) }
+
+    // UseCase: Factory ensures new instance for each ViewModel
+    factory { com.example.domain.GetDashboardItemsUseCase(get()) }
+
+    // ViewModel: Globally available
+    viewModel { com.example.presentation.viewModel.DashboardViewModel(get()) }
+}
+
+
+
+
+
+
+
+
 
 ========================================
 
