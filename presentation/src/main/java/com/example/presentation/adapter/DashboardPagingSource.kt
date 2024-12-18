@@ -3,7 +3,7 @@ package com.example.presentation.adapter
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.example.data.DashboardItems
-import com.example.data.repo.Repository
+import com.example.data.Repository
 
 class DashboardPagingSource(
     private val repository: Repository,
@@ -14,15 +14,15 @@ class DashboardPagingSource(
         val pageNumber = params.key ?: 0
         return try {
             val items = when (category) {
-                "READING" -> Repository.getReadingItems().getOrElse { emptyList<DashboardItems>() }
-                "LISTENING" -> Repository.getListeningItems().getOrElse { emptyList<DashboardItems>() }
-                "WRITING" -> Repository.getWritingItems().getOrElse { emptyList<DashboardItems>() }
-                "SPEAKING" -> Repository.getSpeakingItems().getOrElse { emptyList<DashboardItems>() }
+                "READING" -> repository.getReadingItems().getOrElse { emptyList<DashboardItems>() }
+                "LISTENING" -> repository.getListeningItems().getOrElse { emptyList<DashboardItems>() }
+                "WRITING" -> repository.getWritingItems().getOrElse { emptyList<DashboardItems>() }
+                "SPEAKING" -> repository.getSpeakingItems().getOrElse { emptyList<DashboardItems>() }
                 else -> emptyList<DashboardItems>()
             }
 
             LoadResult.Page(
-                data = items,
+                data = items, // No need for getOrNull() here
                 prevKey = if (pageNumber > 0) pageNumber - 1 else null,
                 nextKey = pageNumber + 1
             )

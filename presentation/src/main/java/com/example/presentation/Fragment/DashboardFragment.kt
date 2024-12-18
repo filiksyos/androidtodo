@@ -1,4 +1,3 @@
-// DashboardFragment.kt
 package com.example.presentation.Fragment
 
 import android.content.Intent
@@ -14,6 +13,7 @@ import androidx.paging.PagingData
 import androidx.recyclerview.widget.RecyclerView
 import com.example.data.DashboardItems
 import com.example.presentation.adapter.DashboardAdapter
+import com.example.presentation.databinding.FragmentDashboardBinding
 import com.example.presentation.viewModel.DashboardState
 import com.example.presentation.viewModel.DashboardViewModel
 import kotlinx.coroutines.flow.Flow
@@ -24,7 +24,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class DashboardFragment : Fragment() {
 
-    private lateinit var binding: databinding.FragmentDashboardBinding
+    private lateinit var binding: FragmentDashboardBinding
     private val dashboardViewModel: DashboardViewModel by viewModel()
 
     private lateinit var readingAdapter: DashboardAdapter
@@ -36,12 +36,8 @@ class DashboardFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = databinding.FragmentDashboardBinding.inflate(
-            inflater,
-            container,
-            false
-        )
-        return databinding.FragmentDashboardBinding.getRoot
+        binding = FragmentDashboardBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -54,25 +50,21 @@ class DashboardFragment : Fragment() {
     }
 
     private fun setupAdapters() {
-        readingAdapter =
-            DashboardAdapter { item -> navigateToYouTube(com.example.data.DashboardItems.query) }
-        listeningAdapter =
-            DashboardAdapter { item -> navigateToYouTube(com.example.data.DashboardItems.query) }
-        writingAdapter =
-            DashboardAdapter { item -> navigateToYouTube(com.example.data.DashboardItems.query) }
-        speakingAdapter =
-            DashboardAdapter { item -> navigateToYouTube(com.example.data.DashboardItems.query) }
+        readingAdapter = DashboardAdapter { item -> navigateToYouTube(item.query) }
+        listeningAdapter = DashboardAdapter { item -> navigateToYouTube(item.query) }
+        writingAdapter = DashboardAdapter { item -> navigateToYouTube(item.query) }
+        speakingAdapter = DashboardAdapter { item -> navigateToYouTube(item.query) }
     }
 
     private fun setupRecyclerViews() {
-        RecyclerViewHelper.setupRecyclerView(databinding.FragmentDashboardBinding.rvReading, readingAdapter, requireContext())
-        RecyclerView.scrollToPosition(Int.MAX_VALUE / 2) // Start in the middle for seamless looping
-        RecyclerViewHelper.setupRecyclerView(databinding.FragmentDashboardBinding.rvListening, listeningAdapter, requireContext())
-        RecyclerView.scrollToPosition(Int.MAX_VALUE / 2)
-        RecyclerViewHelper.setupRecyclerView(databinding.FragmentDashboardBinding.rvWriting, writingAdapter, requireContext())
-        RecyclerView.scrollToPosition(Int.MAX_VALUE / 2)
-        RecyclerViewHelper.setupRecyclerView(databinding.FragmentDashboardBinding.rvSpeaking, speakingAdapter, requireContext())
-        RecyclerView.scrollToPosition(Int.MAX_VALUE / 2)
+        RecyclerViewHelper.setupRecyclerView(binding.rvReading, readingAdapter, requireContext())
+        binding.rvReading.scrollToPosition(Int.MAX_VALUE / 2) // Start in the middle for seamless looping
+        RecyclerViewHelper.setupRecyclerView(binding.rvListening, listeningAdapter, requireContext())
+        binding.rvReading.scrollToPosition(Int.MAX_VALUE / 2)
+        RecyclerViewHelper.setupRecyclerView(binding.rvWriting, writingAdapter, requireContext())
+        binding.rvReading.scrollToPosition(Int.MAX_VALUE / 2)
+        RecyclerViewHelper.setupRecyclerView(binding.rvSpeaking, speakingAdapter, requireContext())
+        binding.rvReading.scrollToPosition(Int.MAX_VALUE / 2)
     }
 
     private fun observeViewModel() {
@@ -80,30 +72,30 @@ class DashboardFragment : Fragment() {
             pagingFlow = dashboardViewModel.readingPagingFlow,
             stateFlow = dashboardViewModel.readingState,
             adapter = readingAdapter,
-            recyclerView = databinding.FragmentDashboardBinding.rvReading
+            recyclerView = binding.rvReading
         )
         observeCategory(
             pagingFlow = dashboardViewModel.listeningPagingFlow,
             stateFlow = dashboardViewModel.listeningState,
             adapter = listeningAdapter,
-            recyclerView = databinding.FragmentDashboardBinding.rvListening
+            recyclerView = binding.rvListening
         )
         observeCategory(
             pagingFlow = dashboardViewModel.writingPagingFlow,
             stateFlow = dashboardViewModel.writingState,
             adapter = writingAdapter,
-            recyclerView = databinding.FragmentDashboardBinding.rvWriting
+            recyclerView = binding.rvWriting
         )
         observeCategory(
             pagingFlow = dashboardViewModel.speakingPagingFlow,
             stateFlow = dashboardViewModel.speakingState,
             adapter = speakingAdapter,
-            recyclerView = databinding.FragmentDashboardBinding.rvSpeaking
+            recyclerView = binding.rvSpeaking
         )
     }
 
     private fun observeCategory(
-        pagingFlow: Flow<PagingData<com.example.data.DashboardItems>>,
+        pagingFlow: Flow<PagingData<DashboardItems>>,
         stateFlow: StateFlow<DashboardState>,
         adapter: DashboardAdapter,
         recyclerView: RecyclerView
@@ -128,23 +120,23 @@ class DashboardFragment : Fragment() {
 
     private fun showLoading(recyclerView: RecyclerView) {
         recyclerView.visibility = View.GONE
-        View.setVisibility = View.VISIBLE
+        binding.progressBar.visibility = View.VISIBLE
     }
 
     private fun showRecyclerView(recyclerView: RecyclerView) {
         recyclerView.visibility = View.VISIBLE
-        View.setVisibility = View.GONE
+        binding.progressBar.visibility = View.GONE
     }
 
     private fun showEmptyState(recyclerView: RecyclerView) {
         recyclerView.visibility = View.GONE
-        View.setVisibility = View.GONE
+        binding.progressBar.visibility = View.GONE
         Toast.makeText(requireContext(), "No items found", Toast.LENGTH_SHORT).show()
     }
 
     private fun showError(recyclerView: RecyclerView, message: String) {
         recyclerView.visibility = View.GONE
-        View.setVisibility = View.GONE
+        binding.progressBar.visibility = View.GONE
         Toast.makeText(requireContext(), "Error: $message", Toast.LENGTH_LONG).show()
     }
 

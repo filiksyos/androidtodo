@@ -6,6 +6,8 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import com.example.data.DashboardItems
+import com.example.data.Repository
 import com.example.presentation.adapter.DashboardPagingSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +16,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-class DashboardViewModel(private val repository: com.example.data.repo.Repository) : ViewModel() {
+
+class DashboardViewModel(private val repository: Repository) : ViewModel() {
 
     // State flows for each category
     private val _readingState = MutableStateFlow<DashboardState>(DashboardState.Loading)
@@ -55,7 +58,7 @@ class DashboardViewModel(private val repository: com.example.data.repo.Repositor
     }
 
     private fun observePagingState(
-        pagingFlow: Flow<PagingData<com.example.data.DashboardItems>>,
+        pagingFlow: Flow<PagingData<DashboardItems>>,
         stateFlow: MutableStateFlow<DashboardState>
     ) {
         viewModelScope.launch {

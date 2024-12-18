@@ -1,10 +1,10 @@
 package com.example.domain
 
 import com.example.data.DashboardItems
-import com.example.data.repo.Repository
+import com.example.data.Repository
 
 sealed class DashboardResult {
-    data class Success(val data: Result<List<DashboardItems>>) : DashboardResult()
+    data class Success(val data: kotlin.Result<List<DashboardItems>>) : DashboardResult()
     data class Error(val exception: Throwable) : DashboardResult()
     object Loading : DashboardResult()
 }

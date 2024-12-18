@@ -1,11 +1,10 @@
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
-    id 'kotlin-kapt'
 }
 
 android {
-    namespace 'com.wolfbytetechnologies.presentation' // Update with the correct package
+    namespace 'com.example.presentation' // Update with the correct package
     compileSdk 34
 
     defaultConfig {
@@ -32,6 +31,7 @@ android {
 
 dependencies {
     implementation project(":domain") // Dependency on the domain layer
+    implementation project(":data")//Dependency on the data layer
     implementation "androidx.core:core-ktx:1.12.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2"
     implementation "androidx.paging:paging-runtime:3.2.1"
@@ -41,17 +41,14 @@ dependencies {
 
     implementation("androidx.databinding:databinding-runtime:8.1.0")
     implementation 'com.github.bumptech.glide:glide:4.15.1'
-    kapt("androidx.databinding:databinding-compiler:8.1.0")
 
-    implementation("com.github.bumptech.glide:glide:4.16.1")
-    kapt("com.github.bumptech.glide:compiler:4.16.1")
+    //glide
+    implementation("com.github.bumptech.glide:glide:4.15.1")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.15.1")
 
 
     // Koin for DI
     implementation 'io.insert-koin:koin-android:4.0.0'
-    implementation project(':data')
-    implementation project(":resources")
-    implementation project(":common")
 
 
 }
