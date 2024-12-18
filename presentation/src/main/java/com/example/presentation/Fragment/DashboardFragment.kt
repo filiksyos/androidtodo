@@ -24,7 +24,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class DashboardFragment : Fragment() {
 
-    private lateinit var binding: com.wolfbytetechnologies.ielts.databinding.FragmentDashboardBinding
+    private lateinit var binding: databinding.FragmentDashboardBinding
     private val dashboardViewModel: DashboardViewModel by viewModel()
 
     private lateinit var readingAdapter: DashboardAdapter
@@ -36,12 +36,12 @@ class DashboardFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = com.wolfbytetechnologies.ielts.databinding.FragmentDashboardBinding.inflate(
+        binding = databinding.FragmentDashboardBinding.inflate(
             inflater,
             container,
             false
         )
-        return com.wolfbytetechnologies.ielts.databinding.FragmentDashboardBinding.getRoot
+        return databinding.FragmentDashboardBinding.getRoot
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -65,13 +65,13 @@ class DashboardFragment : Fragment() {
     }
 
     private fun setupRecyclerViews() {
-        RecyclerViewHelper.setupRecyclerView(com.wolfbytetechnologies.ielts.databinding.FragmentDashboardBinding.rvReading, readingAdapter, requireContext())
+        RecyclerViewHelper.setupRecyclerView(databinding.FragmentDashboardBinding.rvReading, readingAdapter, requireContext())
         RecyclerView.scrollToPosition(Int.MAX_VALUE / 2) // Start in the middle for seamless looping
-        RecyclerViewHelper.setupRecyclerView(com.wolfbytetechnologies.ielts.databinding.FragmentDashboardBinding.rvListening, listeningAdapter, requireContext())
+        RecyclerViewHelper.setupRecyclerView(databinding.FragmentDashboardBinding.rvListening, listeningAdapter, requireContext())
         RecyclerView.scrollToPosition(Int.MAX_VALUE / 2)
-        RecyclerViewHelper.setupRecyclerView(com.wolfbytetechnologies.ielts.databinding.FragmentDashboardBinding.rvWriting, writingAdapter, requireContext())
+        RecyclerViewHelper.setupRecyclerView(databinding.FragmentDashboardBinding.rvWriting, writingAdapter, requireContext())
         RecyclerView.scrollToPosition(Int.MAX_VALUE / 2)
-        RecyclerViewHelper.setupRecyclerView(com.wolfbytetechnologies.ielts.databinding.FragmentDashboardBinding.rvSpeaking, speakingAdapter, requireContext())
+        RecyclerViewHelper.setupRecyclerView(databinding.FragmentDashboardBinding.rvSpeaking, speakingAdapter, requireContext())
         RecyclerView.scrollToPosition(Int.MAX_VALUE / 2)
     }
 
@@ -80,25 +80,25 @@ class DashboardFragment : Fragment() {
             pagingFlow = dashboardViewModel.readingPagingFlow,
             stateFlow = dashboardViewModel.readingState,
             adapter = readingAdapter,
-            recyclerView = com.wolfbytetechnologies.ielts.databinding.FragmentDashboardBinding.rvReading
+            recyclerView = databinding.FragmentDashboardBinding.rvReading
         )
         observeCategory(
             pagingFlow = dashboardViewModel.listeningPagingFlow,
             stateFlow = dashboardViewModel.listeningState,
             adapter = listeningAdapter,
-            recyclerView = com.wolfbytetechnologies.ielts.databinding.FragmentDashboardBinding.rvListening
+            recyclerView = databinding.FragmentDashboardBinding.rvListening
         )
         observeCategory(
             pagingFlow = dashboardViewModel.writingPagingFlow,
             stateFlow = dashboardViewModel.writingState,
             adapter = writingAdapter,
-            recyclerView = com.wolfbytetechnologies.ielts.databinding.FragmentDashboardBinding.rvWriting
+            recyclerView = databinding.FragmentDashboardBinding.rvWriting
         )
         observeCategory(
             pagingFlow = dashboardViewModel.speakingPagingFlow,
             stateFlow = dashboardViewModel.speakingState,
             adapter = speakingAdapter,
-            recyclerView = com.wolfbytetechnologies.ielts.databinding.FragmentDashboardBinding.rvSpeaking
+            recyclerView = databinding.FragmentDashboardBinding.rvSpeaking
         )
     }
 

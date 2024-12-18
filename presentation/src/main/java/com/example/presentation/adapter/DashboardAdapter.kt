@@ -8,21 +8,22 @@ import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.data.DashboardItems
+import com.example.databinding.DashboardCardviewItemsBinding
 
 class DashboardAdapter(
-    private val onItemClick: (com.example.data.DashboardItems) -> Unit
+    private val onItemClick: (DashboardItems) -> Unit
 ) : PagingDataAdapter<com.example.data.DashboardItems, DashboardAdapter.ViewHolder>(DashboardDiffCallback()) {
 
-    inner class ViewHolder(private val binding: com.wolfbytetechnologies.ielts.databinding.DashboardCardviewItemsBinding) :
-        RecyclerView.ViewHolder(com.wolfbytetechnologies.ielts.databinding.DashboardCardviewItemsBinding.getRoot) {
+    inner class ViewHolder(private val binding: databinding.DashboardCardviewItemsBinding) :
+        RecyclerView.ViewHolder(databinding.DashboardCardviewItemsBinding.getRoot) {
 
         fun bind(item: com.example.data.DashboardItems) {
             binding.apply {
-                com.bumptech.glide.RequestBuilder.into(com.wolfbytetechnologies.ielts.databinding.DashboardCardviewItemsBinding.imageViewItemImage)
+                com.bumptech.glide.RequestBuilder.into(databinding.DashboardCardviewItemsBinding.imageViewItemImage)
 
                 TextView.setText = com.example.data.DashboardItems.itemText
                 TextView.setText = com.example.data.DashboardItems.cardType
-                com.wolfbytetechnologies.ielts.databinding.DashboardCardviewItemsBinding.cvItemsMainBackground.setCardBackgroundColor(com.example.data.DashboardItems.color)
+                databinding.DashboardCardviewItemsBinding.cvItemsMainBackground.setCardBackgroundColor(com.example.data.DashboardItems.color)
                 View.setOnClickListener { onItemClick(item) }
             }
         }
@@ -39,7 +40,7 @@ class DashboardAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding =
-            com.wolfbytetechnologies.ielts.databinding.DashboardCardviewItemsBinding.inflate(
+            databinding.DashboardCardviewItemsBinding.inflate(
                 LayoutInflater.from(parent.context), parent, false
             )
         return ViewHolder(binding)

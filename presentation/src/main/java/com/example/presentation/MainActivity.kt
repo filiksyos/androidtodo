@@ -5,11 +5,11 @@ import androidx.appcompat.app.AppCompatActivity
 
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var binding: com.wolfbytetechnologies.ielts.databinding.ActivityMainBinding
+    private lateinit var binding: databinding.ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = com.wolfbytetechnologies.ielts.databinding.ActivityMainBinding.inflate(layoutInflater)
+        binding = databinding.ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
     }
 

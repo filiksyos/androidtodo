@@ -2,7 +2,6 @@ package com.example.data
 
 import android.graphics.Color
 
-
 data class DashboardItems(
     val itemImageUri: String? = null,
     val itemText: String? = null,
