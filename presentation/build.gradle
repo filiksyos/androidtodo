@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
 }
 
 android {
@@ -21,9 +22,11 @@ android {
         jvmTarget = '11'
     }
 
-    buildFeatures {
-        viewBinding true
-        dataBinding true // Enable data binding
+    viewBinding {
+        enabled = true
+    }
+    dataBinding {
+        enabled = true
     }
 }
 
@@ -35,9 +38,16 @@ dependencies {
     implementation 'androidx.navigation:navigation-fragment-ktx:2.7.6'
     implementation 'androidx.navigation:navigation-ui-ktx:2.7.6'
 
+
+    implementation("androidx.databinding:databinding-runtime:8.1.0") // Or latest version
+    kapt("androidx.databinding:databinding-compiler:8.1.0") // Or latest version
+
+
     // Koin for DI
     implementation 'io.insert-koin:koin-android:4.0.0'
     implementation project(':data')
     implementation project(":resources")
+    implementation project(":common")
+
 
 }
