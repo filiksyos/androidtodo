@@ -2,29 +2,33 @@ import os
 
 # Define paths
 ROOT_BUILD_FILE = "build.gradle"
-APP_DIR = "app"
-APP_EXCLUDE_DIR = "app/build"
+MODULE_DIRS = ["app", "data", "domain", "presentation"]  # Include all modules
+EXCLUDE_DIRS = ["app/build", "data/build", "domain/build", "presentation/build"]  # Exclude build directories
 SUMMARY_FILE = "summary.txt"
 
 def should_include_file(file_path):
-    # Exclude files in the app/build
-    return APP_EXCLUDE_DIR not in file_path
+    # Exclude files in the build directories
+    for exclude_dir in EXCLUDE_DIRS:
+        if exclude_dir in file_path:
+            return False
+    return True
 
 def get_files_to_include():
-    # Collect files from build.gradle, and app directory
+    # Collect files from build.gradle and module directories
     files_to_include = []
 
     # Add the root build.gradle file
     if os.path.isfile(ROOT_BUILD_FILE):
         files_to_include.append(ROOT_BUILD_FILE)
 
-    # Add all files in the app directory except app/build
-    for root, _, files in os.walk(APP_DIR):
-        for file in files:
-            file_path = os.path.join(root, file)
-            if should_include_file(file_path):
-                files_to_include.append(file_path)
-    
+    # Add all files in the module directories except build directories
+    for module_dir in MODULE_DIRS:
+        for root, _, files in os.walk(module_dir):
+            for file in files:
+                file_path = os.path.join(root, file)
+                if should_include_file(file_path):
+                    files_to_include.append(file_path)
+
     return files_to_include
 
 def write_summary_file(files_to_include):
@@ -46,4 +50,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
