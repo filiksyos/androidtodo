@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/dashboardFragment"
-        android:name="com.wolfbytetechnologies.ielts.ui.Fragment.DashboardFragment"
+        android:name="com.example.presentation.Fragment.DashboardFragment"
         android:label="fragment_dashboard"
         tools:layout="@layout/fragment_dashboard" >
     </fragment>
