@@ -3,11 +3,13 @@ package com.example.presentation.Fragment
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.domain.DashboardCategory
 import com.example.presentation.adapter.DashboardAdapter
 import com.example.presentation.databinding.FragmentDashboardBinding
@@ -50,6 +52,16 @@ class DashboardFragment : Fragment() {
     }
 
     private fun setupRecyclerViews() {
+        binding.rvReading.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        binding.rvListening.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        binding.rvWriting.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        binding.rvSpeaking.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+
+
         binding.rvReading.adapter = readingAdapter
         binding.rvListening.adapter = listeningAdapter
         binding.rvWriting.adapter = writingAdapter
@@ -59,6 +71,7 @@ class DashboardFragment : Fragment() {
     private fun observeViewModel() {
         dashboardViewModel.dashboardItems.observe(viewLifecycleOwner, Observer { itemsMap ->
             itemsMap[DashboardCategory.READING]?.let { readingAdapter.submitList(it) }
+            Log.d("DashboardFragment", "Observed items: $itemsMap")
             itemsMap[DashboardCategory.LISTENING]?.let { listeningAdapter.submitList(it) }
             itemsMap[DashboardCategory.WRITING]?.let { writingAdapter.submitList(it) }
             itemsMap[DashboardCategory.SPEAKING]?.let { speakingAdapter.submitList(it) }

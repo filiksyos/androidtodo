@@ -8,7 +8,10 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.data.DashboardItems
 import com.bumptech.glide.Glide
+import com.example.presentation.PlaceholderUtils
 import com.example.presentation.databinding.DashboardCardviewItemsBinding
+import com.example.presentation.R
+
 
 class DashboardAdapter(
     private val onItemClick: (DashboardItems) -> Unit
@@ -21,6 +24,8 @@ class DashboardAdapter(
             binding.apply {
                 Glide.with(binding.root.context)
                     .load(Uri.parse(item.itemImageUri))
+                    .placeholder(PlaceholderUtils.getPlaceholderForItem(item))
+                    .error(R.drawable.error_placeholder)
                     .into(imageViewItemImage)
 
                 tvItemName.text = item.itemText

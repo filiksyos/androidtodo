@@ -9,6 +9,7 @@ import com.example.data.DashboardItems
 import com.example.domain.DashboardCategory
 import com.example.domain.GetDashboardItemsUseCase
 import kotlinx.coroutines.launch
+import kotlin.invoke
 
 class DashboardViewModel(private val getDashboardItemsUseCase: GetDashboardItemsUseCase) : ViewModel() {
 
@@ -17,10 +18,10 @@ class DashboardViewModel(private val getDashboardItemsUseCase: GetDashboardItems
 
     fun loadDashboardItems() {
         viewModelScope.launch {
-            val itemsMap = DashboardCategory.values().associateWith { category ->
-                getDashboardItemsUseCase(category) // Invoke the use case directly
+            val itemsMap = DashboardCategory.entries.associateWith { category ->
+                getDashboardItemsUseCase.invoke(category) // Ensure invoke is called correctly
             }
-            _dashboardItems.value = itemsMap
+            _dashboardItems.postValue(itemsMap) // Use postValue for background threads
         }
     }
 }

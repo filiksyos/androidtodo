@@ -2,9 +2,9 @@ package com.example.data
 
 import com.example.data.Utils.YouTubeLink
 
-class Repository {
+class Repository : RepositoryInterface {
 
-     fun getReadingItems(): List<DashboardItems>{
+     override fun getReadingItems(): List<DashboardItems>{
          return listOf(
              DashboardItems(
                  "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_reading_lesson_card",
@@ -24,7 +24,7 @@ class Repository {
      }
 
 
-     fun getListeningItems(): List<DashboardItems>{
+     override fun getListeningItems(): List<DashboardItems>{
          return listOf(
              DashboardItems(
                  "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_listening_test",
@@ -43,7 +43,7 @@ class Repository {
          )
     }
 
-     fun getWritingItems(): List<DashboardItems>{
+     override fun getWritingItems(): List<DashboardItems>{
          return listOf(
              DashboardItems(
                  "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_test_card",
@@ -69,7 +69,7 @@ class Repository {
          )
     }
 
-     fun getSpeakingItems(): List<DashboardItems> {
+     override fun getSpeakingItems(): List<DashboardItems> {
          return listOf(
              DashboardItems(
                  "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_speaking_image_transparent_background",
