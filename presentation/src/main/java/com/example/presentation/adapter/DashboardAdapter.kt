@@ -3,8 +3,8 @@ package com.example.presentation.adapter
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.data.DashboardItems
 import com.bumptech.glide.Glide
@@ -12,7 +12,7 @@ import com.example.presentation.databinding.DashboardCardviewItemsBinding
 
 class DashboardAdapter(
     private val onItemClick: (DashboardItems) -> Unit
-) : PagingDataAdapter<DashboardItems, DashboardAdapter.ViewHolder>(DashboardDiffCallback()) {
+) : ListAdapter<DashboardItems, DashboardAdapter.ViewHolder>(DashboardDiffCallback()) {
 
     inner class ViewHolder(private val binding: DashboardCardviewItemsBinding) :
         RecyclerView.ViewHolder(binding.root) {
@@ -31,15 +31,6 @@ class DashboardAdapter(
         }
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val snapshot = snapshot() // Get the current snapshot of the data
-        if (snapshot.isNotEmpty()) {
-            val actualPosition = position % snapshot.size // Use snapshot size for modulo
-            val item = getItem(actualPosition) // Get item from the snapshot
-            item?.let { holder.bind(it) }
-        }
-    }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = DashboardCardviewItemsBinding.inflate(
             LayoutInflater.from(parent.context), parent, false
@@ -47,8 +38,9 @@ class DashboardAdapter(
         return ViewHolder(binding)
     }
 
-    override fun getItemCount(): Int {
-        return Int.MAX_VALUE // Simulate infinite scrolling
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val item = getItem(position)
+        item?.let { holder.bind(it) }
     }
 
     class DashboardDiffCallback : DiffUtil.ItemCallback<DashboardItems>() {

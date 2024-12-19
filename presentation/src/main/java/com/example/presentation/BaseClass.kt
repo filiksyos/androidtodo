@@ -10,11 +10,11 @@ class BaseClass : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        /*
+
         startKoin {
             androidContext(this@BaseClass) // Set the Android context
             modules(appModule) // Load the Koin module
         }
-*/
+
     }
 }
