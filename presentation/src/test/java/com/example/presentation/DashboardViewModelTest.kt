@@ -67,6 +67,7 @@ class DashboardViewModelTest {
             assertNotNull(dashboardItems)
             assertEquals(readingItems, dashboardItems[DashboardCategoryType.READING])
             assertEquals(listeningItems, dashboardItems[DashboardCategoryType.LISTENING])
+            assertEquals(emptyList<DashboardItems>(), dashboardItems[DashboardCategoryType.WRITING])
         }
     }
 }
