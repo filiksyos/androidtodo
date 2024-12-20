@@ -6,8 +6,8 @@ on:
       - '**'
 
 jobs:
-  android-ci:
-    name: Android CI
+  run-tests:
+    name: Run Tests
     runs-on: ubuntu-latest
 
     steps:
@@ -74,7 +74,7 @@ jobs:
 
   generate-summary:
     name: Generate Summary
-    needs: android-ci # Wait until the entire android-ci job completes
+    needs: run-tests # Ensure this runs only after the run-tests job completes
     runs-on: ubuntu-latest
 
     steps:
@@ -96,13 +96,10 @@ jobs:
 
       - name: Commit and push summary (if successful)
         run: |
-         git config --global user.name "github-actions[bot]"
-         git config --global user.email "github-actions[bot]@users.noreply.github.com"
-         git fetch origin CI
-         git rebase origin/CI || git merge origin/CI
-         git add summary.txt
-         git commit -m "Update summary.txt with test results" || echo "No changes to commit"
-         git push origin CI
-         env:
-         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add summary.txt
+          git commit -m "Update summary.txt with test results"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
