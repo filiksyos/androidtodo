@@ -1,11 +1,9 @@
 name: Generate Summary
 
 on:
-  workflow_run:
-    workflows:
-      - Android CI
-    types:
-      - completed
+  push:
+    paths:
+      - 'test-results/testresults.txt'
 
 jobs:
   build:
@@ -14,11 +12,6 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-
-    - name: Download test results artifact
-      uses: actions/download-artifact@v3
-      with:
-        name: test-results
 
     - name: Set up Python
       uses: actions/setup-python@v4
@@ -30,15 +23,17 @@ jobs:
 
     - name: Generate summary
       run: |
-        python file_summary.py
+        python file_summary.py || echo "Error: Script failed!"
         cat test-results/testresults.txt >> summary.txt
 
-    - name: Commit and push summary
+    - name: Commit and push summary (if successful)
       run: |
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git add summary.txt
-        git commit -m "Update summary.txt with test results"
-        git push
+        if [ $? -eq 0 ]; then
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add summary.txt
+          git commit -m "Update summary.txt with test results"
+          git push
+        fi
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
