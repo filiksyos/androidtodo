@@ -4691,8 +4691,8 @@ on:
       - '**'
 
 jobs:
-  android-ci:
-    name: Android CI
+  run-tests:
+    name: Run Tests
     runs-on: ubuntu-latest
 
     steps:
@@ -4759,7 +4759,7 @@ jobs:
 
   generate-summary:
     name: Generate Summary
-    needs: android-ci # Wait until the entire android-ci job completes
+    needs: run-tests # Ensure this runs only after the run-tests job completes
     runs-on: ubuntu-latest
 
     steps:
@@ -4817,15 +4817,15 @@ Starting a Gradle Daemon (subsequent builds will be faster)
 > Task :data:preDebugBuild UP-TO-DATE
 > Task :domain:preBuild UP-TO-DATE
 > Task :domain:preDebugBuild UP-TO-DATE
-> Task :data:writeDebugAarMetadata
 > Task :domain:writeDebugAarMetadata
 > Task :presentation:preBuild UP-TO-DATE
+> Task :data:writeDebugAarMetadata
 > Task :presentation:preDebugBuild UP-TO-DATE
-> Task :app:generateDebugResValues
 > Task :presentation:writeDebugAarMetadata
+> Task :app:generateDebugResValues
 > Task :data:generateDebugResValues
-> Task :data:generateDebugResources
 > Task :app:checkDebugAarMetadata
+> Task :data:generateDebugResources
 > Task :data:packageDebugResources
 > Task :domain:generateDebugResValues
 > Task :domain:generateDebugResources
@@ -4843,20 +4843,20 @@ Starting a Gradle Daemon (subsequent builds will be faster)
 > Task :domain:processDebugManifest
 > Task :presentation:extractDeepLinksDebug
 > Task :presentation:processDebugManifest
+> Task :app:mergeDebugResources
 > Task :app:processDebugMainManifest
+> Task :app:packageDebugResources
+> Task :app:parseDebugLocalResources
 > Task :app:processDebugManifest
 > Task :app:processDebugManifestForPackage
-> Task :app:mergeDebugResources
-> Task :app:packageDebugResources
-> Task :data:parseDebugLocalResources
-> Task :app:parseDebugLocalResources
 > Task :data:compileDebugLibraryResources
+> Task :data:parseDebugLocalResources
 > Task :domain:compileDebugLibraryResources
 > Task :domain:parseDebugLocalResources
-> Task :domain:generateDebugRFile
 > Task :data:generateDebugRFile
-> Task :presentation:parseDebugLocalResources
+> Task :domain:generateDebugRFile
 > Task :presentation:compileDebugLibraryResources
+> Task :presentation:parseDebugLocalResources
 > Task :presentation:generateDebugRFile
 > Task :app:processDebugResources
 > Task :data:javaPreCompileDebug
@@ -4920,7 +4920,7 @@ You can use '--warning-mode all' to show the individual deprecation warnings and
 
 For more on this, please refer to https://docs.gradle.org/8.9/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
 
-BUILD SUCCESSFUL in 57s
+BUILD SUCCESSFUL in 56s
 79 actionable tasks: 75 executed, 4 up-to-date
 
 ========================================
@@ -4946,15 +4946,15 @@ Starting a Gradle Daemon (subsequent builds will be faster)
 > Task :data:preDebugBuild UP-TO-DATE
 > Task :domain:preBuild UP-TO-DATE
 > Task :domain:preDebugBuild UP-TO-DATE
-> Task :data:writeDebugAarMetadata
 > Task :domain:writeDebugAarMetadata
 > Task :presentation:preBuild UP-TO-DATE
+> Task :data:writeDebugAarMetadata
 > Task :presentation:preDebugBuild UP-TO-DATE
-> Task :app:generateDebugResValues
 > Task :presentation:writeDebugAarMetadata
+> Task :app:generateDebugResValues
 > Task :data:generateDebugResValues
-> Task :data:generateDebugResources
 > Task :app:checkDebugAarMetadata
+> Task :data:generateDebugResources
 > Task :data:packageDebugResources
 > Task :domain:generateDebugResValues
 > Task :domain:generateDebugResources
@@ -4972,20 +4972,20 @@ Starting a Gradle Daemon (subsequent builds will be faster)
 > Task :domain:processDebugManifest
 > Task :presentation:extractDeepLinksDebug
 > Task :presentation:processDebugManifest
+> Task :app:mergeDebugResources
 > Task :app:processDebugMainManifest
+> Task :app:packageDebugResources
+> Task :app:parseDebugLocalResources
 > Task :app:processDebugManifest
 > Task :app:processDebugManifestForPackage
-> Task :app:mergeDebugResources
-> Task :app:packageDebugResources
-> Task :data:parseDebugLocalResources
-> Task :app:parseDebugLocalResources
 > Task :data:compileDebugLibraryResources
+> Task :data:parseDebugLocalResources
 > Task :domain:compileDebugLibraryResources
 > Task :domain:parseDebugLocalResources
-> Task :domain:generateDebugRFile
 > Task :data:generateDebugRFile
-> Task :presentation:parseDebugLocalResources
+> Task :domain:generateDebugRFile
 > Task :presentation:compileDebugLibraryResources
+> Task :presentation:parseDebugLocalResources
 > Task :presentation:generateDebugRFile
 > Task :app:processDebugResources
 > Task :data:javaPreCompileDebug
@@ -5049,5 +5049,5 @@ You can use '--warning-mode all' to show the individual deprecation warnings and
 
 For more on this, please refer to https://docs.gradle.org/8.9/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
 
-BUILD SUCCESSFUL in 57s
+BUILD SUCCESSFUL in 56s
 79 actionable tasks: 75 executed, 4 up-to-date
