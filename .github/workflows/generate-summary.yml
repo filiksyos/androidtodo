@@ -2,8 +2,8 @@ name: Generate Summary
 
 on:
   push:
-    paths:
-      - 'test-results/testresults.txt'
+    branches:
+      - '**' 
 
 
 jobs:
