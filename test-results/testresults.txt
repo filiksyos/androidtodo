@@ -19,10 +19,10 @@ Starting a Gradle Daemon (subsequent builds will be faster)
 > Task :data:preDebugBuild UP-TO-DATE
 > Task :domain:preBuild UP-TO-DATE
 > Task :domain:preDebugBuild UP-TO-DATE
-> Task :data:writeDebugAarMetadata
+> Task :domain:writeDebugAarMetadata
 > Task :presentation:preBuild UP-TO-DATE
 > Task :presentation:preDebugBuild UP-TO-DATE
-> Task :domain:writeDebugAarMetadata
+> Task :data:writeDebugAarMetadata
 > Task :presentation:writeDebugAarMetadata
 > Task :app:generateDebugResValues
 > Task :data:generateDebugResValues
@@ -81,8 +81,8 @@ Starting a Gradle Daemon (subsequent builds will be faster)
 > Task :presentation:javaPreCompileDebugUnitTest
 > Task :data:compileDebugKotlin
 > Task :data:compileDebugJavaWithJavac NO-SOURCE
-> Task :data:bundleLibCompileToJarDebug
 > Task :data:bundleLibRuntimeToJarDebug
+> Task :data:bundleLibCompileToJarDebug
 > Task :data:processDebugJavaRes
 > Task :data:compileDebugUnitTestKotlin NO-SOURCE
 > Task :data:compileDebugUnitTestJavaWithJavac NO-SOURCE
@@ -101,11 +101,11 @@ Starting a Gradle Daemon (subsequent builds will be faster)
 > Task :presentation:compileDebugJavaWithJavac
 > Task :presentation:bundleLibCompileToJarDebug
 > Task :app:compileDebugKotlin NO-SOURCE
-> Task :app:compileDebugJavaWithJavac NO-SOURCE
-> Task :app:bundleDebugClassesToRuntimeJar
-> Task :app:bundleDebugClassesToCompileJar
-> Task :app:processDebugJavaRes NO-SOURCE
 > Task :presentation:bundleLibRuntimeToJarDebug
+> Task :app:compileDebugJavaWithJavac NO-SOURCE
+> Task :app:bundleDebugClassesToCompileJar
+> Task :app:bundleDebugClassesToRuntimeJar
+> Task :app:processDebugJavaRes NO-SOURCE
 > Task :presentation:processDebugJavaRes
 > Task :app:compileDebugUnitTestKotlin
 > Task :app:compileDebugUnitTestJavaWithJavac NO-SOURCE
@@ -122,5 +122,5 @@ You can use '--warning-mode all' to show the individual deprecation warnings and
 
 For more on this, please refer to https://docs.gradle.org/8.9/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
 
-BUILD SUCCESSFUL in 1m 1s
+BUILD SUCCESSFUL in 53s
 79 actionable tasks: 75 executed, 4 up-to-date
