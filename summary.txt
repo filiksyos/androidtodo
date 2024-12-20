@@ -4799,7 +4799,9 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git stash push -u -m "Stash before pull" || echo "No changes to stash"
           git pull --rebase origin HEAD || echo "No remote changes to pull"
+          git stash pop || echo "No changes to pop"
           git add test-results/*
           git commit -m "Update test results [skip ci]" || echo "No changes to commit"
           git push origin HEAD
