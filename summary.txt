@@ -4738,7 +4738,7 @@ name: Android CI
 on:
   push:
     paths:
-      - '.github/workflows/android-tests.yml' # Trigger on workflow changes
+      - '.github/workflows/android-tests.yml'
   pull_request:
     paths:
       - '.github/workflows/android-tests.yml'
@@ -4753,7 +4753,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    # Step 2: Grant execution permissions for Gradle wrapper
+    # Step 2: Grant execute permissions for Gradle wrapper
     - name: Grant execute permissions for gradlew
       run: chmod +x ./gradlew
 
@@ -4796,16 +4796,27 @@ jobs:
         name: test-results
         path: test-results/
 
-    # Step 8: Commit and push test results
-    - name: Commit and push test results
-      if: always()
+    # Step 8: Check for changes and commit them
+    - name: Check for changes
+      id: check_changes
       run: |
-        git config user.name "github-actions[bot]"
-        git config user.email "github-actions[bot]@users.noreply.github.com"
-        git pull --rebase origin HEAD || echo "No remote changes to pull"
+        if [[ -n "$(git status --porcelain)" ]]; then
+          echo "changes_detected=true" >> $GITHUB_ENV
+        else
+          echo "changes_detected=false" >> $GITHUB_ENV
+        fi
+
+    # Step 9: Commit and push changes
+    - name: Commit and push changes
+      if: env.changes_detected == 'true'
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git add test-results/*
-        git commit -m "Update test results [skip ci]" || echo "No changes to commit"
-        git push origin HEAD
+        git commit -m "Update test results [skip ci]"
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 ========================================
 
