@@ -20,8 +20,8 @@ Starting a Gradle Daemon (subsequent builds will be faster)
 > Task :domain:preBuild UP-TO-DATE
 > Task :domain:preDebugBuild UP-TO-DATE
 > Task :domain:writeDebugAarMetadata
-> Task :data:writeDebugAarMetadata
 > Task :presentation:preBuild UP-TO-DATE
+> Task :data:writeDebugAarMetadata
 > Task :presentation:preDebugBuild UP-TO-DATE
 > Task :presentation:writeDebugAarMetadata
 > Task :app:generateDebugResValues
@@ -45,13 +45,13 @@ Starting a Gradle Daemon (subsequent builds will be faster)
 > Task :domain:processDebugManifest
 > Task :presentation:extractDeepLinksDebug
 > Task :presentation:processDebugManifest
-> Task :app:processDebugMainManifest
 > Task :app:mergeDebugResources
-> Task :app:processDebugManifest
+> Task :app:processDebugMainManifest
 > Task :app:packageDebugResources
+> Task :app:parseDebugLocalResources
+> Task :app:processDebugManifest
 > Task :app:processDebugManifestForPackage
 > Task :data:compileDebugLibraryResources
-> Task :app:parseDebugLocalResources
 > Task :data:parseDebugLocalResources
 > Task :domain:compileDebugLibraryResources
 > Task :domain:parseDebugLocalResources
@@ -99,14 +99,14 @@ Starting a Gradle Daemon (subsequent builds will be faster)
 > Task :domain:testDebugUnitTest NO-SOURCE
 > Task :presentation:compileDebugKotlin
 > Task :presentation:compileDebugJavaWithJavac
-> Task :presentation:bundleLibCompileToJarDebug
 > Task :presentation:bundleLibRuntimeToJarDebug
+> Task :presentation:bundleLibCompileToJarDebug
+> Task :presentation:processDebugJavaRes
 > Task :app:compileDebugKotlin NO-SOURCE
 > Task :app:compileDebugJavaWithJavac NO-SOURCE
+> Task :app:bundleDebugClassesToCompileJar
 > Task :app:bundleDebugClassesToRuntimeJar
 > Task :app:processDebugJavaRes NO-SOURCE
-> Task :app:bundleDebugClassesToCompileJar
-> Task :presentation:processDebugJavaRes
 > Task :app:compileDebugUnitTestKotlin
 > Task :app:compileDebugUnitTestJavaWithJavac NO-SOURCE
 > Task :app:processDebugUnitTestJavaRes
