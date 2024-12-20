@@ -2,8 +2,11 @@ name: Android CI
 
 on:
   push:
-    branches:
-      - '**'
+    paths:
+      - '.github/workflows/android-tests.yml'
+  pull_request:
+    paths:
+      - '.github/workflows/android-tests.yml'
 
 
 jobs:
