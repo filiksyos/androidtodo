@@ -4737,11 +4737,8 @@ name: Android CI
 
 on:
   push:
-    paths:
-      - '.github/workflows/android-tests.yml' # Trigger on workflow changes
-  pull_request:
-    paths:
-      - '.github/workflows/android-tests.yml'
+    branches:
+      - '**'
 
 jobs:
   run-tests:
