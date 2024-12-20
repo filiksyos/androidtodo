@@ -1,5 +1,3 @@
-Downloading https://services.gradle.org/distributions/gradle-8.9-bin.zip
-............10%.............20%.............30%.............40%.............50%.............60%.............70%.............80%.............90%.............100%
 
 Welcome to Gradle 8.9!
 
@@ -28,8 +26,8 @@ Starting a Gradle Daemon (subsequent builds will be faster)
 > Task :presentation:writeDebugAarMetadata
 > Task :app:generateDebugResValues
 > Task :data:generateDebugResValues
-> Task :data:generateDebugResources
 > Task :app:checkDebugAarMetadata
+> Task :data:generateDebugResources
 > Task :data:packageDebugResources
 > Task :domain:generateDebugResValues
 > Task :domain:generateDebugResources
@@ -47,20 +45,20 @@ Starting a Gradle Daemon (subsequent builds will be faster)
 > Task :domain:processDebugManifest
 > Task :presentation:extractDeepLinksDebug
 > Task :presentation:processDebugManifest
-> Task :app:processDebugMainManifest
 > Task :app:mergeDebugResources
-> Task :app:processDebugManifest
+> Task :app:processDebugMainManifest
 > Task :app:packageDebugResources
-> Task :app:processDebugManifestForPackage
 > Task :app:parseDebugLocalResources
+> Task :app:processDebugManifest
+> Task :app:processDebugManifestForPackage
 > Task :data:compileDebugLibraryResources
 > Task :data:parseDebugLocalResources
 > Task :domain:compileDebugLibraryResources
 > Task :domain:parseDebugLocalResources
 > Task :domain:generateDebugRFile
 > Task :data:generateDebugRFile
-> Task :presentation:parseDebugLocalResources
 > Task :presentation:compileDebugLibraryResources
+> Task :presentation:parseDebugLocalResources
 > Task :presentation:generateDebugRFile
 > Task :app:processDebugResources
 > Task :data:javaPreCompileDebug
@@ -73,41 +71,41 @@ Starting a Gradle Daemon (subsequent builds will be faster)
 > Task :app:preDebugUnitTestBuild UP-TO-DATE
 > Task :app:javaPreCompileDebugUnitTest
 > Task :data:preDebugUnitTestBuild UP-TO-DATE
-> Task :data:compileDebugKotlin
-> Task :data:compileDebugJavaWithJavac NO-SOURCE
-> Task :data:bundleLibCompileToJarDebug
 > Task :data:generateDebugUnitTestStubRFile
-> Task :data:bundleLibRuntimeToJarDebug
-> Task :data:processDebugJavaRes
-> Task :data:compileDebugUnitTestKotlin NO-SOURCE
 > Task :data:javaPreCompileDebugUnitTest
-> Task :data:compileDebugUnitTestJavaWithJavac NO-SOURCE
-> Task :data:processDebugUnitTestJavaRes NO-SOURCE
-> Task :data:testDebugUnitTest NO-SOURCE
 > Task :domain:preDebugUnitTestBuild UP-TO-DATE
 > Task :domain:generateDebugUnitTestStubRFile
 > Task :domain:javaPreCompileDebugUnitTest
 > Task :presentation:preDebugUnitTestBuild UP-TO-DATE
+> Task :presentation:generateDebugUnitTestStubRFile
+> Task :presentation:javaPreCompileDebugUnitTest
+> Task :data:compileDebugKotlin
+> Task :data:compileDebugJavaWithJavac NO-SOURCE
+> Task :data:bundleLibCompileToJarDebug
+> Task :data:bundleLibRuntimeToJarDebug
+> Task :data:processDebugJavaRes
+> Task :data:compileDebugUnitTestKotlin NO-SOURCE
+> Task :data:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :data:processDebugUnitTestJavaRes NO-SOURCE
+> Task :data:testDebugUnitTest NO-SOURCE
 > Task :domain:compileDebugKotlin
 > Task :domain:compileDebugJavaWithJavac NO-SOURCE
 > Task :domain:bundleLibCompileToJarDebug
-> Task :presentation:generateDebugUnitTestStubRFile
 > Task :domain:bundleLibRuntimeToJarDebug
 > Task :domain:processDebugJavaRes
 > Task :domain:compileDebugUnitTestKotlin NO-SOURCE
 > Task :domain:compileDebugUnitTestJavaWithJavac NO-SOURCE
 > Task :domain:processDebugUnitTestJavaRes NO-SOURCE
 > Task :domain:testDebugUnitTest NO-SOURCE
-> Task :presentation:javaPreCompileDebugUnitTest
 > Task :presentation:compileDebugKotlin
 > Task :presentation:compileDebugJavaWithJavac
-> Task :presentation:bundleLibRuntimeToJarDebug
 > Task :presentation:bundleLibCompileToJarDebug
 > Task :app:compileDebugKotlin NO-SOURCE
 > Task :app:compileDebugJavaWithJavac NO-SOURCE
-> Task :app:bundleDebugClassesToCompileJar
 > Task :app:bundleDebugClassesToRuntimeJar
+> Task :app:bundleDebugClassesToCompileJar
 > Task :app:processDebugJavaRes NO-SOURCE
+> Task :presentation:bundleLibRuntimeToJarDebug
 > Task :presentation:processDebugJavaRes
 > Task :app:compileDebugUnitTestKotlin
 > Task :app:compileDebugUnitTestJavaWithJavac NO-SOURCE
@@ -124,5 +122,5 @@ You can use '--warning-mode all' to show the individual deprecation warnings and
 
 For more on this, please refer to https://docs.gradle.org/8.9/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
 
-BUILD SUCCESSFUL in 2m 45s
+BUILD SUCCESSFUL in 1m 1s
 79 actionable tasks: 75 executed, 4 up-to-date
