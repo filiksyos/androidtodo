@@ -4796,25 +4796,17 @@ jobs:
         name: test-results
         path: test-results/
 
-    # Step 8: Check for changes and commit them
-    - name: Check for changes
-      id: check_changes
+    # Step 8: Commit and push test results
+    - name: Commit and push test results
+      if: always()
       run: |
-        if [[ -n "$(git status --porcelain)" ]]; then
-          echo "changes_detected=true" >> $GITHUB_ENV
-        else
-          echo "changes_detected=false" >> $GITHUB_ENV
-        fi
-
-    # Step 9: Commit and push changes
-    - name: Commit and push changes
-      if: env.changes_detected == 'true'
-      run: |
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git fetch origin CI  # Fetch the latest changes from the remote branch
+        git rebase origin/CI || git merge origin/CI  # Rebase or merge if conflicts arise
         git add test-results/*
-        git commit -m "Update test results [skip ci]"
-        git push
+        git commit -m "Update test results [skip ci]" || echo "No changes to commit"
+        git push origin CI
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
