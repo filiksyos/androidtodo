@@ -109,27 +109,45 @@ File: app/src/main/AndroidManifest.xml
 ----------------------------------------
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.app">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <application>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID"/>
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/app_icon"
+        android:name="com.example.presentation.BaseClass"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/app_icon"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.IELTS_PREPARATION_APP"
+        >
+        <profileable android:shell="true" />
+
+        <activity
+            android:name="com.example.presentation.splash.SplashScreenActivity"
+            android:exported="true"
+            android:theme="@style/Theme.IELTS_PREPARATION_APP.Starting"
+            tools:ignore="LockedOrientationActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name="com.example.presentation.MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.IELTS_PREPARATION_APP"
+            tools:ignore="LockedOrientationActivity">
+        </activity>
 
 
     </application>
-    <!-- ... activities and other components -->
 
 </manifest>
-
-========================================
-
-File: app/src/main/MyApplication.kt
-----------------------------------------
-package com.example.app
-
-import android.app.Application
-
-class MyApplication : Application() {
-    // ... application initialization code
-}
 ========================================
 
 File: data/.gitignore
@@ -137,19 +155,32 @@ File: data/.gitignore
 /build
 ========================================
 
+File: data/src/main/java/com/example/data/DashboardCategory.kt
+----------------------------------------
+package com.example.data
+
+enum class DashboardCategory(val title: String, val color: Int, val iconUri: String) {
+    READING("Reading", 0xFF2196F3.toInt(), "android.resource://com.example.app/drawable/ic_reading"),
+    LISTENING("Listening", 0xFFF44336.toInt(), "android.resource://com.example.app/drawable/ic_listening"),
+    WRITING("Writing", 0xFF9C27B0.toInt(), "android.resource://com.example.app/drawable/ic_writing"),
+    SPEAKING("Speaking", 0xFF4CAF50.toInt(), "android.resource://com.example.app/drawable/ic_speaking");
+}
+
+========================================
+
 File: data/src/main/java/com/example/data/DashboardItems.kt
 ----------------------------------------
 package com.example.data
 
 import android.graphics.Color
-import com.example.data.Utils.YouTubeLink
+import com.example.data.Utils.YouTubeLink.BASE_URL
 
 data class DashboardItems(
     val itemImageUri: String? = null,
     val itemText: String? = null,
     val cardType: String? = null,
     val color: Int = Color.GRAY,
-    val query: String = YouTubeLink.link
+    val query: String = BASE_URL
 )
 
 ========================================
@@ -159,117 +190,24 @@ File: data/src/main/java/com/example/data/Repository.kt
 package com.example.data
 
 import com.example.data.Utils.YouTubeLink
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
-class Repository {
-
-    suspend fun getReadingItems(): Result<List<DashboardItems>> = withContext(Dispatchers.IO) {
-        return@withContext try {
-            Result.success(
-                listOf(
-                    DashboardItems(
-                        "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_reading_lesson_card",
-                        "Reading",  // Hardcoded string
-                        "Lesson",   // Hardcoded string
-                        0xFF2196F3.toInt(), // Hardcoded color (blue_500)
-                        YouTubeLink.ReadingLessonLink
-                    ),
-                    DashboardItems(
-                        "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_test_card",
-                        "Reading",  // Hardcoded string
-                        "Test",     // Hardcoded string
-                        0xFFFF9800.toInt(), // Hardcoded color (orange_800)
-                        YouTubeLink.ReadingTestLink
-                    )
-                )
-            )
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+class Repository : RepositoryInterface {
+    override fun getDashboardItems(category: DashboardCategory): List<DashboardItems> {
+        return listOf(
+            DashboardItems(category.iconUri, category.title, "Lesson", category.color, YouTubeLink.getLink(category.title + " Lesson")),
+            DashboardItems(category.iconUri, category.title, "Test", category.color, YouTubeLink.getLink(category.title + " Test"))
+        )
     }
+}
 
-    suspend fun getListeningItems(): Result<List<DashboardItems>> = withContext(Dispatchers.IO) {
-        return@withContext try {
-            Result.success(
-                listOf(
-                    DashboardItems(
-                        "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_listening_test",
-                        "Listening",  // Hardcoded string
-                        "Lesson",     // Hardcoded string
-                        0xFFF44336.toInt(), // Hardcoded color (red_500)
-                        YouTubeLink.ListeningLessonLink
-                    ),
-                    DashboardItems(
-                        "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_listening_test",
-                        "Listening",  // Hardcoded string
-                        "Test",       // Hardcoded string
-                        0xFFFFC0CB.toInt(), // Hardcoded color (pink_400)
-                        YouTubeLink.ListeningTestLink
-                    )
-                )
-            )
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
+========================================
 
-    suspend fun getWritingItems(): Result<List<DashboardItems>> = withContext(Dispatchers.IO) {
-        return@withContext try {
-            Result.success(
-                listOf(
-                    DashboardItems(
-                        "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_test_card",
-                        "Writing",    // Hardcoded string
-                        "Lesson",     // Hardcoded string
-                        0xFF9C27B0.toInt(), // Hardcoded color (purple_400)
-                        YouTubeLink.WritingLessonLink
-                    ),
-                    DashboardItems(
-                        "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_test_card",
-                        "Writing",    // Hardcoded string
-                        "Task 1",     // Hardcoded string
-                        0xFFFF9800.toInt(), // Hardcoded color (orange_800)
-                        YouTubeLink.WritingTask1Link
-                    ),
-                    DashboardItems(
-                        "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_test_card",
-                        "Writing",    // Hardcoded string
-                        "Task 2",     // Hardcoded string
-                        0xFFFF9800.toInt(), // Hardcoded color (orange_800)
-                        YouTubeLink.WritingTask2Link
-                    )
-                )
-            )
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
+File: data/src/main/java/com/example/data/RepositoryInterface.kt
+----------------------------------------
+package com.example.data
 
-    suspend fun getSpeakingItems(): Result<List<DashboardItems>> = withContext(Dispatchers.IO) {
-        return@withContext try {
-            Result.success(
-                listOf(
-                    DashboardItems(
-                        "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_speaking_image_transparent_background",
-                        "Speaking",   // Hardcoded string
-                        "Lesson",     // Hardcoded string
-                        0xFF4CAF50.toInt(), // Hardcoded color (green_400)
-                        YouTubeLink.SpeakingLessonLink
-                    ),
-                    DashboardItems(
-                        "android.resource://com.wolfbytetechnologies.ielts/drawable/ic_listening_image_transparent_background",
-                        "Speaking",   // Hardcoded string
-                        "Test",       // Hardcoded string
-                        0xFF2196F3.toInt(), // Hardcoded color (blue_500)
-                        YouTubeLink.SpeakingTestLink
-                    )
-                )
-            )
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
+interface RepositoryInterface {
+    fun getDashboardItems(category: DashboardCategory): List<DashboardItems>
 }
 
 ========================================
@@ -280,52 +218,10 @@ package com.example.data.Utils
 
 object YouTubeLink {
 
-    const val link = "https://www.youtube.com/results?search_query="
-    const val ReadingLessonLink = link + "Reading+Lesson"
-    const val ReadingTestLink = link + "Reading+Test"
-    const val ListeningLessonLink = link + "Listening+Lesson"
-    const val ListeningTestLink = link + "Listening+Test"
-    const val WritingLessonLink = link + "Writing+Lesson"
-    const val WritingTask1Link = link + "Writing+Task+1"
-    const val WritingTask2Link = link + "Writing+Task+2"
-    const val SpeakingLessonLink = link + "Speaking+Lesson"
-    const val SpeakingTestLink = link + "Speaking+Test"
-
+    const val BASE_URL = "https://www.youtube.com/results?search_query="
 
     fun getLink(query: String): String {
-        return query
-    }
-
-
-}
-========================================
-
-File: data/src/main/java/com/example/data/Utils/Result.kt
-----------------------------------------
-package com.example.data.Utils
-
-sealed class Result<out T> {
-    data class Success<out T>(val data: T) : Result<T>()
-    data class Failure(val exception: Throwable) : Result<Nothing>()
-}
-========================================
-
-File: data/src/main/java/com/example/data/Utils/Logger.kt
-----------------------------------------
-package com.example.data.Utils
-
-import android.util.Log
-
-object Logger {
-
-    private val ENABLE_LOGS = true
-
-    fun logDebug(tag: String, message: String) {
-        if (ENABLE_LOGS) Log.d(tag, message)
-    }
-
-    fun logError(tag: String, message: String) {
-        if (ENABLE_LOGS) Log.e(tag, message)
+        return "$BASE_URL$query"
     }
 }
 
@@ -340,42 +236,32 @@ File: domain/src/main/java/com/example/domain/GetDashboardItemsUseCase.kt
 ----------------------------------------
 package com.example.domain
 
+import com.example.data.DashboardCategory
+import com.example.data.RepositoryInterface
 import com.example.data.DashboardItems
-import com.example.data.Repository
 
-sealed class DashboardResult {
-    data class Success(val data: kotlin.Result<List<DashboardItems>>) : DashboardResult()
-    data class Error(val exception: Throwable) : DashboardResult()
-    object Loading : DashboardResult()
-}
-
-class GetDashboardItemsUseCase(private val repository: Repository) {
-    suspend fun execute(category: DashboardCategory): DashboardResult {
-        return try {
-            val items = when (category) {
-                DashboardCategory.READING -> repository.getReadingItems()
-                DashboardCategory.LISTENING -> repository.getListeningItems()
-                DashboardCategory.WRITING -> repository.getWritingItems()
-                DashboardCategory.SPEAKING -> repository.getSpeakingItems()
-            }
-            DashboardResult.Success(items)
-        } catch (e: Exception) {
-            DashboardResult.Error(e)
+class GetDashboardItemsUseCase(private val repository: RepositoryInterface) {
+    fun invoke(categoryType: DashboardCategoryType): List<DashboardItems> {
+        val category = when (categoryType) {
+            DashboardCategoryType.READING -> DashboardCategory.READING
+            DashboardCategoryType.LISTENING -> DashboardCategory.LISTENING
+            DashboardCategoryType.WRITING -> DashboardCategory.WRITING
+            DashboardCategoryType.SPEAKING -> DashboardCategory.SPEAKING
         }
+        return repository.getDashboardItems(category)
     }
 }
 
-
-
 ========================================
 
-File: domain/src/main/java/com/example/domain/DashboardCategory.kt
+File: domain/src/main/java/com/example/domain/DashboardCategoryType.kt
 ----------------------------------------
 package com.example.domain
 
-enum class DashboardCategory {
+enum class DashboardCategoryType {
     READING, LISTENING, WRITING, SPEAKING
 }
+
 
 ========================================
 
@@ -412,6 +298,178 @@ File: presentation/proguard-rules.pro
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+========================================
+
+File: presentation/src/test/java/com/example/presentation/KoinTest.kt
+----------------------------------------
+package com.example.presentation
+
+import com.example.presentation.DI.appModule
+import org.koin.test.check.checkModules
+import kotlin.test.Test
+
+class koinTest{
+
+    @Test
+    fun `verify Koin module configuration`() {
+        checkModules {
+            modules(appModule)
+        }
+    }
+
+}
+
+
+========================================
+
+File: presentation/src/test/java/com/example/presentation/GetDashboardItemsUseCaseTest.kt
+----------------------------------------
+package com.example.domain
+
+import com.example.data.DashboardCategory
+import com.example.data.DashboardItems
+import com.example.data.Repository
+import io.mockk.every
+import io.mockk.mockk
+import org.junit.Assert.assertEquals
+import org.junit.Test
+
+class GetDashboardItemsUseCaseTest {
+
+    private val repository = mockk<Repository>()
+    private val useCase = GetDashboardItemsUseCase(repository)
+
+    @Test
+    fun `invoke returns correct items for each category`() {
+        // Arrange
+        val readingItems = listOf(
+            DashboardItems("uri1", "Reading", "Lesson"),
+            DashboardItems("uri2", "Reading", "Test")
+        )
+        val listeningItems = listOf(
+            DashboardItems("uri3", "Listening", "Lesson"),
+            DashboardItems("uri4", "Listening", "Test")
+        )
+        every { repository.getDashboardItems(DashboardCategory.READING) } returns readingItems
+        every { repository.getDashboardItems(DashboardCategory.LISTENING) } returns listeningItems
+
+        // Act & Assert
+        assertEquals(readingItems, useCase.invoke(DashboardCategoryType.READING))
+        assertEquals(listeningItems, useCase.invoke(DashboardCategoryType.LISTENING))
+    }
+}
+
+========================================
+
+File: presentation/src/test/java/com/example/presentation/Repository.kt
+----------------------------------------
+package com.example.data
+
+import org.junit.Assert.assertEquals
+import org.junit.Test
+
+class RepositoryTest {
+
+    private val repository = Repository()
+
+    @Test
+    fun `getDashboardItems returns correct data for READING`() {
+        // Act
+        val result = repository.getDashboardItems(DashboardCategory.READING)
+
+        // Assert
+        assertEquals("Reading", result[0].itemText)
+        assertEquals("Lesson", result[0].cardType)
+    }
+
+    @Test
+    fun `getDashboardItems returns correct data for LISTENING`() {
+        // Act
+        val result = repository.getDashboardItems(DashboardCategory.LISTENING)
+
+        // Assert
+        assertEquals("Listening", result[0].itemText)
+        assertEquals("Lesson", result[0].cardType)
+    }
+}
+
+========================================
+
+File: presentation/src/test/java/com/example/presentation/DashboardViewModelTest.kt
+----------------------------------------
+package com.example.presentation
+
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.example.data.DashboardCategory
+import com.example.data.DashboardItems
+import com.example.data.Repository
+import com.example.domain.DashboardCategoryType
+import com.example.domain.GetDashboardItemsUseCase
+import com.example.presentation.viewModel.DashboardViewModel
+import io.mockk.every
+import io.mockk.mockk
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import org.junit.After
+import org.junit.Assert.*
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+
+@OptIn(ExperimentalCoroutinesApi::class)
+class DashboardViewModelTest {
+
+    @get:Rule
+    val instantTaskExecutorRule = InstantTaskExecutorRule()
+
+    private lateinit var viewModel: DashboardViewModel
+    private val repository = mockk<Repository>()
+    private val useCase = GetDashboardItemsUseCase(repository)
+    private val testDispatcher = StandardTestDispatcher()
+
+    @Before
+    fun setUp() {
+        Dispatchers.setMain(testDispatcher)
+        viewModel = DashboardViewModel(useCase)
+    }
+
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
+    }
+
+    @Test
+    fun `loadDashboardItems updates LiveData correctly`() = runTest(testDispatcher) {
+        // Arrange
+        val readingItems = listOf(
+            DashboardItems("uri1", "Reading", "Lesson"),
+            DashboardItems("uri2", "Reading", "Test")
+        )
+        val listeningItems = listOf(
+            DashboardItems("uri3", "Listening", "Lesson"),
+            DashboardItems("uri4", "Listening", "Test")
+        )
+        every { repository.getDashboardItems(DashboardCategory.READING) } returns readingItems
+        every { repository.getDashboardItems(DashboardCategory.LISTENING) } returns listeningItems
+        every { repository.getDashboardItems(DashboardCategory.WRITING) } returns emptyList()
+        every { repository.getDashboardItems(DashboardCategory.SPEAKING) } returns emptyList()
+
+        // Act
+        viewModel.loadDashboardItems()
+
+        // Assert
+        viewModel.dashboardItems.observeForever { dashboardItems ->
+            assertNotNull(dashboardItems)
+            assertEquals(readingItems, dashboardItems[DashboardCategoryType.READING])
+            assertEquals(listeningItems, dashboardItems[DashboardCategoryType.LISTENING])
+        }
+    }
+}
+
 ========================================
 
 File: presentation/src/main/AndroidManifest.xml
@@ -466,19 +524,21 @@ package com.example.presentation
 import android.app.Application
 import com.example.presentation.DI.appModule
 import org.koin.android.ext.koin.androidContext
+import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
+import org.koin.core.logger.Level
 
 class BaseClass : Application() {
 
     override fun onCreate() {
         super.onCreate()
 
-        /*
         startKoin {
             androidContext(this@BaseClass) // Set the Android context
+            androidLogger(Level.DEBUG) // Add logging
             modules(appModule) // Load the Koin module
         }
-*/
+
     }
 }
 
@@ -505,6 +565,27 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
     }
 }
+========================================
+
+File: presentation/src/main/java/com/example/presentation/PlaceholderUtils.kt
+----------------------------------------
+package com.example.presentation
+
+import com.example.data.DashboardItems
+import com.example.presentation.R
+
+object PlaceholderUtils {
+    fun getPlaceholderForItem(item: DashboardItems): Int {
+        return when (item.itemText) {
+            "Reading" -> R.drawable.ic_reading_lesson_card
+            "Listening" -> R.drawable.ic_listening_test
+            "Writing" -> R.drawable.ic_test_card
+            "Speaking" -> R.drawable.ic_speaking_image_transparent_background
+            else -> R.drawable.placeholder
+        }
+    }
+}
+
 ========================================
 
 File: presentation/src/main/java/com/example/presentation/splash/SplashScreenActivity.kt
@@ -536,16 +617,19 @@ package com.example.presentation.adapter
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.data.DashboardItems
 import com.bumptech.glide.Glide
+import com.example.presentation.PlaceholderUtils
 import com.example.presentation.databinding.DashboardCardviewItemsBinding
+import com.example.presentation.R
+
 
 class DashboardAdapter(
     private val onItemClick: (DashboardItems) -> Unit
-) : PagingDataAdapter<DashboardItems, DashboardAdapter.ViewHolder>(DashboardDiffCallback()) {
+) : ListAdapter<DashboardItems, DashboardAdapter.ViewHolder>(DashboardDiffCallback()) {
 
     inner class ViewHolder(private val binding: DashboardCardviewItemsBinding) :
         RecyclerView.ViewHolder(binding.root) {
@@ -554,6 +638,7 @@ class DashboardAdapter(
             binding.apply {
                 Glide.with(binding.root.context)
                     .load(Uri.parse(item.itemImageUri))
+                    .error(PlaceholderUtils.getPlaceholderForItem(item))
                     .into(imageViewItemImage)
 
                 tvItemName.text = item.itemText
@@ -564,15 +649,6 @@ class DashboardAdapter(
         }
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val snapshot = snapshot() // Get the current snapshot of the data
-        if (snapshot.isNotEmpty()) {
-            val actualPosition = position % snapshot.size // Use snapshot size for modulo
-            val item = getItem(actualPosition) // Get item from the snapshot
-            item?.let { holder.bind(it) }
-        }
-    }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = DashboardCardviewItemsBinding.inflate(
             LayoutInflater.from(parent.context), parent, false
@@ -580,8 +656,9 @@ class DashboardAdapter(
         return ViewHolder(binding)
     }
 
-    override fun getItemCount(): Int {
-        return Int.MAX_VALUE // Simulate infinite scrolling
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val item = getItem(position)
+        item?.let { holder.bind(it) }
     }
 
     class DashboardDiffCallback : DiffUtil.ItemCallback<DashboardItems>() {
@@ -594,124 +671,6 @@ class DashboardAdapter(
         }
     }
 }
-========================================
-
-File: presentation/src/main/java/com/example/presentation/adapter/DashboardPagingSource.kt
-----------------------------------------
-package com.example.presentation.adapter
-
-import androidx.paging.PagingSource
-import androidx.paging.PagingState
-import com.example.data.DashboardItems
-import com.example.data.Repository
-
-class DashboardPagingSource(
-    private val repository: Repository,
-    private val category: String
-) : PagingSource<Int, DashboardItems>() {
-
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, DashboardItems> {
-        val pageNumber = params.key ?: 0
-        return try {
-            val items = when (category) {
-                "READING" -> repository.getReadingItems().getOrElse { emptyList<DashboardItems>() }
-                "LISTENING" -> repository.getListeningItems().getOrElse { emptyList<DashboardItems>() }
-                "WRITING" -> repository.getWritingItems().getOrElse { emptyList<DashboardItems>() }
-                "SPEAKING" -> repository.getSpeakingItems().getOrElse { emptyList<DashboardItems>() }
-                else -> emptyList<DashboardItems>()
-            }
-
-            LoadResult.Page(
-                data = items, // No need for getOrNull() here
-                prevKey = if (pageNumber > 0) pageNumber - 1 else null,
-                nextKey = pageNumber + 1
-            )
-        } catch (e: Exception) {
-            LoadResult.Error(e)
-        }
-    }
-    override fun getRefreshKey(state: PagingState<Int, DashboardItems>): Int? {
-        return state.anchorPosition?.let { anchor ->
-            state.closestPageToPosition(anchor)?.prevKey?.plus(1)
-                ?: state.closestPageToPosition(anchor)?.nextKey?.minus(1)
-        }
-    }
-}
-========================================
-
-File: presentation/src/main/java/com/example/presentation/adapter/DashboardDiffCallback.kt
-----------------------------------------
-package com.example.presentation.adapter
-
-import androidx.recyclerview.widget.DiffUtil
-import com.example.data.DashboardItems
-
-class DashboardDiffCallback : DiffUtil.ItemCallback<DashboardItems>() {
-    override fun areItemsTheSame(oldItem: DashboardItems, newItem: DashboardItems): Boolean {
-        return oldItem.itemText == newItem.itemText && oldItem.cardType == newItem.cardType
-    }
-
-    override fun areContentsTheSame(oldItem: DashboardItems, newItem: DashboardItems): Boolean {
-        return oldItem == newItem
-    }
-}
-
-========================================
-
-File: presentation/src/main/java/com/example/presentation/Fragment/RecyclerViewHelper.kt
-----------------------------------------
-package com.example.presentation.Fragment
-
-import android.content.Context
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-
-object RecyclerViewHelper {
-
-    fun setupRecyclerView(
-        recyclerView: RecyclerView,
-        adapter: RecyclerView.Adapter<*>,
-        context: Context,
-        isHorizontal: Boolean = true
-    ) {
-        recyclerView.apply {
-            layoutManager = InfiniteLinearLayoutManager(
-                context,
-                if (isHorizontal) LinearLayoutManager.HORIZONTAL else LinearLayoutManager.VERTICAL,
-                false
-            )
-            this.adapter = adapter
-        }
-    }
-}
-
-========================================
-
-File: presentation/src/main/java/com/example/presentation/Fragment/InfiniteLinearLayoutManager.kt
-----------------------------------------
-package com.example.presentation.Fragment
-
-import android.content.Context
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-
-class InfiniteLinearLayoutManager(
-    context: Context,
-    orientation: Int,
-    reverseLayout: Boolean
-) : LinearLayoutManager(context, orientation, reverseLayout) {
-
-    override fun onAttachedToWindow(view: RecyclerView?) {
-        super.onAttachedToWindow(view)
-        // Set the initial position to the middle before the RecyclerView renders
-        view?.scrollToPosition(Int.MAX_VALUE / 2)
-    }
-
-    override fun supportsPredictiveItemAnimations(): Boolean {
-        return false // Disable predictive animations to avoid flicker
-    }
-}
-
 
 ========================================
 
@@ -722,23 +681,17 @@ package com.example.presentation.Fragment
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
-import androidx.paging.PagingData
-import androidx.recyclerview.widget.RecyclerView
-import com.example.data.DashboardItems
+import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.domain.DashboardCategoryType
 import com.example.presentation.adapter.DashboardAdapter
 import com.example.presentation.databinding.FragmentDashboardBinding
-import com.example.presentation.viewModel.DashboardState
 import com.example.presentation.viewModel.DashboardViewModel
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class DashboardFragment : Fragment() {
@@ -765,7 +718,8 @@ class DashboardFragment : Fragment() {
         setupAdapters()
         setupRecyclerViews()
         observeViewModel()
-        //dashboardViewModel.loadDashboardItems()
+
+        dashboardViewModel.loadDashboardItems()
     }
 
     private fun setupAdapters() {
@@ -776,220 +730,92 @@ class DashboardFragment : Fragment() {
     }
 
     private fun setupRecyclerViews() {
-        RecyclerViewHelper.setupRecyclerView(binding.rvReading, readingAdapter, requireContext())
-        binding.rvReading.scrollToPosition(Int.MAX_VALUE / 2) // Start in the middle for seamless looping
-        RecyclerViewHelper.setupRecyclerView(binding.rvListening, listeningAdapter, requireContext())
-        binding.rvReading.scrollToPosition(Int.MAX_VALUE / 2)
-        RecyclerViewHelper.setupRecyclerView(binding.rvWriting, writingAdapter, requireContext())
-        binding.rvReading.scrollToPosition(Int.MAX_VALUE / 2)
-        RecyclerViewHelper.setupRecyclerView(binding.rvSpeaking, speakingAdapter, requireContext())
-        binding.rvReading.scrollToPosition(Int.MAX_VALUE / 2)
+        binding.rvReading.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        binding.rvListening.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        binding.rvWriting.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        binding.rvSpeaking.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+
+
+        binding.rvReading.adapter = readingAdapter
+        binding.rvListening.adapter = listeningAdapter
+        binding.rvWriting.adapter = writingAdapter
+        binding.rvSpeaking.adapter = speakingAdapter
     }
 
     private fun observeViewModel() {
-        observeCategory(
-            pagingFlow = dashboardViewModel.readingPagingFlow,
-            stateFlow = dashboardViewModel.readingState,
-            adapter = readingAdapter,
-            recyclerView = binding.rvReading
-        )
-        observeCategory(
-            pagingFlow = dashboardViewModel.listeningPagingFlow,
-            stateFlow = dashboardViewModel.listeningState,
-            adapter = listeningAdapter,
-            recyclerView = binding.rvListening
-        )
-        observeCategory(
-            pagingFlow = dashboardViewModel.writingPagingFlow,
-            stateFlow = dashboardViewModel.writingState,
-            adapter = writingAdapter,
-            recyclerView = binding.rvWriting
-        )
-        observeCategory(
-            pagingFlow = dashboardViewModel.speakingPagingFlow,
-            stateFlow = dashboardViewModel.speakingState,
-            adapter = speakingAdapter,
-            recyclerView = binding.rvSpeaking
-        )
+        dashboardViewModel.dashboardItems.observe(viewLifecycleOwner, Observer { itemsMap ->
+            itemsMap[DashboardCategoryType.READING]?.let { readingAdapter.submitList(it) }
+            Log.d("DashboardFragment", "Observed items: $itemsMap")
+            itemsMap[DashboardCategoryType.LISTENING]?.let { listeningAdapter.submitList(it) }
+            itemsMap[DashboardCategoryType.WRITING]?.let { writingAdapter.submitList(it) }
+            itemsMap[DashboardCategoryType.SPEAKING]?.let { speakingAdapter.submitList(it) }
+        })
     }
-
-    private fun observeCategory(
-        pagingFlow: Flow<PagingData<DashboardItems>>,
-        stateFlow: StateFlow<DashboardState>,
-        adapter: DashboardAdapter,
-        recyclerView: RecyclerView
-    ) {
-        lifecycleScope.launch {
-            pagingFlow.collectLatest { pagingData ->
-                adapter.submitData(pagingData)
-            }
-        }
-
-        lifecycleScope.launch {
-            stateFlow.collect { state ->
-                when (state) {
-                    is DashboardState.Loading -> showLoading(recyclerView)
-                    is DashboardState.Success -> showRecyclerView(recyclerView)
-                    is DashboardState.Empty -> showEmptyState(recyclerView)
-                    is DashboardState.Error -> showError(recyclerView, state.message)
-                }
-            }
-        }
-    }
-
-    private fun showLoading(recyclerView: RecyclerView) {
-        recyclerView.visibility = View.GONE
-        binding.progressBar.visibility = View.VISIBLE
-    }
-
-    private fun showRecyclerView(recyclerView: RecyclerView) {
-        recyclerView.visibility = View.VISIBLE
-        binding.progressBar.visibility = View.GONE
-    }
-
-    private fun showEmptyState(recyclerView: RecyclerView) {
-        recyclerView.visibility = View.GONE
-        binding.progressBar.visibility = View.GONE
-        Toast.makeText(requireContext(), "No items found", Toast.LENGTH_SHORT).show()
-    }
-
-    private fun showError(recyclerView: RecyclerView, message: String) {
-        recyclerView.visibility = View.GONE
-        binding.progressBar.visibility = View.GONE
-        Toast.makeText(requireContext(), "Error: $message", Toast.LENGTH_LONG).show()
-    }
-
 
     private fun navigateToYouTube(query: String) {
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(query))
         startActivity(intent)
     }
 }
+
 ========================================
 
 File: presentation/src/main/java/com/example/presentation/viewModel/DashboardViewModel.kt
 ----------------------------------------
 package com.example.presentation.viewModel
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
-import androidx.paging.PagingData
-import androidx.paging.cachedIn
 import com.example.data.DashboardItems
-import com.example.data.Repository
-import com.example.presentation.adapter.DashboardPagingSource
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
+import com.example.domain.DashboardCategoryType
+import com.example.domain.GetDashboardItemsUseCase
 import kotlinx.coroutines.launch
 
+class DashboardViewModel(private val getDashboardItemsUseCase: GetDashboardItemsUseCase) : ViewModel() {
 
-class DashboardViewModel(private val repository: Repository) : ViewModel() {
+    private val _dashboardItems = MutableLiveData<Map<DashboardCategoryType, List<DashboardItems>>>()
+    val dashboardItems: LiveData<Map<DashboardCategoryType, List<DashboardItems>>> get() = _dashboardItems
 
-    // State flows for each category
-    private val _readingState = MutableStateFlow<DashboardState>(DashboardState.Loading)
-    val readingState: StateFlow<DashboardState> = _readingState.asStateFlow()
-
-    private val _listeningState = MutableStateFlow<DashboardState>(DashboardState.Loading)
-    val listeningState: StateFlow<DashboardState> = _listeningState.asStateFlow()
-
-    private val _writingState = MutableStateFlow<DashboardState>(DashboardState.Loading)
-    val writingState: StateFlow<DashboardState> = _writingState.asStateFlow()
-
-    private val _speakingState = MutableStateFlow<DashboardState>(DashboardState.Loading)
-    val speakingState: StateFlow<DashboardState> = _speakingState.asStateFlow()
-
-    // Flows for PagingData
-    val readingPagingFlow = Pager(PagingConfig(pageSize = 10)) {
-        DashboardPagingSource(repository, "READING")
-    }.flow.cachedIn(viewModelScope)
-
-    val listeningPagingFlow = Pager(PagingConfig(pageSize = 10)) {
-        DashboardPagingSource(repository, "LISTENING")
-    }.flow.cachedIn(viewModelScope)
-
-    val writingPagingFlow = Pager(PagingConfig(pageSize = 10)) {
-        DashboardPagingSource(repository, "WRITING")
-    }.flow.cachedIn(viewModelScope)
-
-    val speakingPagingFlow = Pager(PagingConfig(pageSize = 10)) {
-        DashboardPagingSource(repository, "SPEAKING")
-    }.flow.cachedIn(viewModelScope)
-
-    // Initialize states for observing PagingData load states
-    init {
-        observePagingState(readingPagingFlow, _readingState)
-        observePagingState(listeningPagingFlow, _listeningState)
-        observePagingState(writingPagingFlow, _writingState)
-        observePagingState(speakingPagingFlow, _speakingState)
-    }
-
-    private fun observePagingState(
-        pagingFlow: Flow<PagingData<DashboardItems>>,
-        stateFlow: MutableStateFlow<DashboardState>
-    ) {
+    fun loadDashboardItems() {
         viewModelScope.launch {
-            pagingFlow.collectLatest { pagingData ->
-                stateFlow.value = DashboardState.Success(pagingData)
+            val itemsMap = DashboardCategoryType.entries.associateWith { categoryType ->
+                getDashboardItemsUseCase.invoke(categoryType)
             }
+            _dashboardItems.postValue(itemsMap)
         }
     }
 }
 
 ========================================
 
-File: presentation/src/main/java/com/example/presentation/viewModel/DashboardState.kt
-----------------------------------------
-package com.example.presentation.viewModel
-
-import androidx.paging.PagingData
-import com.example.data.DashboardItems
-
-sealed class DashboardState {
-    object Loading : DashboardState()
-    object Empty : DashboardState()
-    data class Success(val data: PagingData<DashboardItems>) : DashboardState()
-    data class Error(val message: String) : DashboardState()
-}
-
-
-
-========================================
-
-File: presentation/src/main/java/com/example/presentation/DI/KoinModule.kt
+File: presentation/src/main/java/com/example/presentation/DI/PresentationModule.kt
 ----------------------------------------
 package com.example.presentation.DI
 
 import com.example.data.Repository
-import com.example.presentation.viewModel.DashboardViewModel
+import com.example.data.RepositoryInterface
 import com.example.domain.GetDashboardItemsUseCase
+import com.example.presentation.viewModel.DashboardViewModel
 import org.koin.dsl.module
-
-
 import org.koin.androidx.viewmodel.dsl.viewModel
 
 val appModule = module {
 
-    // Repository: Singleton for shared instance
-    single { Repository() }
+    // Repository binding
+    single<RepositoryInterface> { Repository() }
 
-    // UseCase: Factory ensures new instance for each ViewModel
+    // UseCase
     factory { GetDashboardItemsUseCase(get()) }
 
-    // ViewModel: Globally available
+    // ViewModel binding
     viewModel { DashboardViewModel(get()) }
 }
-
-
-
-
-
-
-
 
 
 ========================================
