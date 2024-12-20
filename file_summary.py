@@ -2,7 +2,7 @@ import os
 
 # Define paths
 ROOT_BUILD_FILE = "build.gradle"
-MODULE_DIRS = ["app", "data", "domain", "presentation"]  # Include all modules
+MODULE_DIRS = ["app", "data", "domain", "presentation", ".github"]  # Include all modules
 EXCLUDE_DIRS = ["app/build", "data/build", "domain/build", "presentation/build"]  # Exclude build directories
 SUMMARY_FILE = "summary.txt"
 
