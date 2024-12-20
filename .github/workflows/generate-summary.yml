@@ -1,9 +1,11 @@
 name: Generate Summary
 
 on:
-  push:
-    branches:
-      - '**'
+  workflow_run:
+    workflows:
+      - Android CI
+    types:
+      - completed
 
 jobs:
   build:
