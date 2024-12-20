@@ -24,8 +24,7 @@ class DashboardAdapter(
             binding.apply {
                 Glide.with(binding.root.context)
                     .load(Uri.parse(item.itemImageUri))
-                    .placeholder(PlaceholderUtils.getPlaceholderForItem(item))
-                    .error(R.drawable.error_placeholder)
+                    .error(PlaceholderUtils.getPlaceholderForItem(item))
                     .into(imageViewItemImage)
 
                 tvItemName.text = item.itemText

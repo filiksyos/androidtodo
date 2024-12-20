@@ -10,7 +10,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.domain.DashboardCategory
+import com.example.domain.DashboardCategoryType
 import com.example.presentation.adapter.DashboardAdapter
 import com.example.presentation.databinding.FragmentDashboardBinding
 import com.example.presentation.viewModel.DashboardViewModel
@@ -70,11 +70,11 @@ class DashboardFragment : Fragment() {
 
     private fun observeViewModel() {
         dashboardViewModel.dashboardItems.observe(viewLifecycleOwner, Observer { itemsMap ->
-            itemsMap[DashboardCategory.READING]?.let { readingAdapter.submitList(it) }
+            itemsMap[DashboardCategoryType.READING]?.let { readingAdapter.submitList(it) }
             Log.d("DashboardFragment", "Observed items: $itemsMap")
-            itemsMap[DashboardCategory.LISTENING]?.let { listeningAdapter.submitList(it) }
-            itemsMap[DashboardCategory.WRITING]?.let { writingAdapter.submitList(it) }
-            itemsMap[DashboardCategory.SPEAKING]?.let { speakingAdapter.submitList(it) }
+            itemsMap[DashboardCategoryType.LISTENING]?.let { listeningAdapter.submitList(it) }
+            itemsMap[DashboardCategoryType.WRITING]?.let { writingAdapter.submitList(it) }
+            itemsMap[DashboardCategoryType.SPEAKING]?.let { speakingAdapter.submitList(it) }
         })
     }
 

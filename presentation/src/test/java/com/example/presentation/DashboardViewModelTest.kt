@@ -1,10 +1,11 @@
 package com.example.presentation
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.example.data.DashboardCategory
 import com.example.data.DashboardItems
 import com.example.data.Repository
+import com.example.domain.DashboardCategoryType
 import com.example.domain.GetDashboardItemsUseCase
-import com.example.domain.DashboardCategory
 import com.example.presentation.viewModel.DashboardViewModel
 import io.mockk.every
 import io.mockk.mockk
@@ -19,7 +20,6 @@ import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import kotlin.text.get
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class DashboardViewModelTest {
@@ -40,7 +40,7 @@ class DashboardViewModelTest {
 
     @After
     fun tearDown() {
-        Dispatchers.resetMain() // Reset the main dispatcher after the test
+        Dispatchers.resetMain()
     }
 
     @Test
@@ -50,19 +50,23 @@ class DashboardViewModelTest {
             DashboardItems("uri1", "Reading", "Lesson"),
             DashboardItems("uri2", "Reading", "Test")
         )
-        every { repository.getReadingItems() } returns readingItems
-        every { repository.getListeningItems() } returns emptyList()
-        every { repository.getWritingItems() } returns emptyList()
-        every { repository.getSpeakingItems() } returns emptyList()
+        val listeningItems = listOf(
+            DashboardItems("uri3", "Listening", "Lesson"),
+            DashboardItems("uri4", "Listening", "Test")
+        )
+        every { repository.getDashboardItems(DashboardCategory.READING) } returns readingItems
+        every { repository.getDashboardItems(DashboardCategory.LISTENING) } returns listeningItems
+        every { repository.getDashboardItems(DashboardCategory.WRITING) } returns emptyList()
+        every { repository.getDashboardItems(DashboardCategory.SPEAKING) } returns emptyList()
 
         // Act
         viewModel.loadDashboardItems()
 
         // Assert
-        // Assert
         viewModel.dashboardItems.observeForever { dashboardItems ->
             assertNotNull(dashboardItems)
-            assertEquals(readingItems, dashboardItems[DashboardCategory.READING])
+            assertEquals(readingItems, dashboardItems[DashboardCategoryType.READING])
+            assertEquals(listeningItems, dashboardItems[DashboardCategoryType.LISTENING])
         }
     }
 }

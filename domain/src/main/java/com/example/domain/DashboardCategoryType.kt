@@ -1,5 +1,6 @@
 package com.example.domain
 
-enum class DashboardCategory {
+enum class DashboardCategoryType {
     READING, LISTENING, WRITING, SPEAKING
 }
+

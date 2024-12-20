@@ -1,9 +1,8 @@
-package com.example.presentation
+package com.example.domain
 
+import com.example.data.DashboardCategory
 import com.example.data.DashboardItems
 import com.example.data.Repository
-import com.example.domain.DashboardCategory
-import com.example.domain.GetDashboardItemsUseCase
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.Assert.assertEquals
@@ -15,18 +14,21 @@ class GetDashboardItemsUseCaseTest {
     private val useCase = GetDashboardItemsUseCase(repository)
 
     @Test
-    fun `invoke returns correct items for READING`() {
+    fun `invoke returns correct items for each category`() {
         // Arrange
         val readingItems = listOf(
             DashboardItems("uri1", "Reading", "Lesson"),
             DashboardItems("uri2", "Reading", "Test")
         )
-        every { repository.getReadingItems() } returns readingItems
+        val listeningItems = listOf(
+            DashboardItems("uri3", "Listening", "Lesson"),
+            DashboardItems("uri4", "Listening", "Test")
+        )
+        every { repository.getDashboardItems(DashboardCategory.READING) } returns readingItems
+        every { repository.getDashboardItems(DashboardCategory.LISTENING) } returns listeningItems
 
-        // Act
-        val result = useCase.invoke(DashboardCategory.READING)
-
-        // Assert
-        assertEquals(readingItems, result)
+        // Act & Assert
+        assertEquals(readingItems, useCase.invoke(DashboardCategoryType.READING))
+        assertEquals(listeningItems, useCase.invoke(DashboardCategoryType.LISTENING))
     }
 }
