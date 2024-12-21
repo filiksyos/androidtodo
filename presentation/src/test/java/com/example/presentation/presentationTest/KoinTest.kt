@@ -1,4 +1,4 @@
-package com.example.presentation
+package com.example.presentation.presentationTest
 
 import com.example.presentation.DI.appModule
 import org.koin.test.check.checkModules

@@ -13,10 +13,11 @@ class BaseClass : Application() {
         super.onCreate()
 
         startKoin {
-            androidContext(this@BaseClass) // Set the Android context
-            androidLogger(Level.DEBUG) // Add logging
-            modules(appModule) // Load the Koin module
+            androidContext(this@BaseClass)
+            androidLogger(Level.DEBUG)
+            modules(appModule)
         }
+
 
     }
 }

@@ -15,6 +15,10 @@ class GetDashboardItemsUseCaseTest {
 
     @Test
     fun `invoke returns correct items for each category`() {
+        // Observation: The use case fetches dashboard items from the repository.
+        // Question: Does it return correct data for each category?
+        // Hypothesis: Each category should return the corresponding data.
+
         // Arrange
         val readingItems = listOf(
             DashboardItems("uri1", "Reading", "Lesson"),
@@ -32,3 +36,4 @@ class GetDashboardItemsUseCaseTest {
         assertEquals(listeningItems, useCase.invoke(DashboardCategoryType.LISTENING))
     }
 }
+

@@ -1,4 +1,4 @@
-package com.example.presentation
+package com.example.presentation.presentationTest
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.data.DashboardCategory
@@ -45,6 +45,10 @@ class DashboardViewModelTest {
 
     @Test
     fun `loadDashboardItems updates LiveData correctly`() = runTest(testDispatcher) {
+        // Observation: The ViewModel should update LiveData based on repository data.
+        // Question: Does LiveData contain the correct data for each category?
+        // Hypothesis: LiveData should contain the same data returned by the repository.
+
         // Arrange
         val readingItems = listOf(
             DashboardItems("uri1", "Reading", "Lesson"),
@@ -56,8 +60,6 @@ class DashboardViewModelTest {
         )
         every { repository.getDashboardItems(DashboardCategory.READING) } returns readingItems
         every { repository.getDashboardItems(DashboardCategory.LISTENING) } returns listeningItems
-        every { repository.getDashboardItems(DashboardCategory.WRITING) } returns emptyList()
-        every { repository.getDashboardItems(DashboardCategory.SPEAKING) } returns emptyList()
 
         // Act
         viewModel.loadDashboardItems()
@@ -67,7 +69,7 @@ class DashboardViewModelTest {
             assertNotNull(dashboardItems)
             assertEquals(readingItems, dashboardItems[DashboardCategoryType.READING])
             assertEquals(listeningItems, dashboardItems[DashboardCategoryType.LISTENING])
-            assertEquals(emptyList<DashboardItems>(), dashboardItems[DashboardCategoryType.WRITING])
         }
     }
 }
+

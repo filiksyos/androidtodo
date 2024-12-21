@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.domain.DashboardCategoryType
 import com.example.presentation.adapter.DashboardAdapter
 import com.example.presentation.databinding.FragmentDashboardBinding
+import com.example.presentation.utils.RecyclerViewHelper
 import com.example.presentation.viewModel.DashboardViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -52,21 +53,12 @@ class DashboardFragment : Fragment() {
     }
 
     private fun setupRecyclerViews() {
-        binding.rvReading.layoutManager =
-            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        binding.rvListening.layoutManager =
-            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        binding.rvWriting.layoutManager =
-            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        binding.rvSpeaking.layoutManager =
-            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-
-
-        binding.rvReading.adapter = readingAdapter
-        binding.rvListening.adapter = listeningAdapter
-        binding.rvWriting.adapter = writingAdapter
-        binding.rvSpeaking.adapter = speakingAdapter
+        RecyclerViewHelper.setupRecyclerView(binding.rvReading, requireContext(), readingAdapter)
+        RecyclerViewHelper.setupRecyclerView(binding.rvListening, requireContext(), listeningAdapter)
+        RecyclerViewHelper.setupRecyclerView(binding.rvWriting, requireContext(), writingAdapter)
+        RecyclerViewHelper.setupRecyclerView(binding.rvSpeaking, requireContext(), speakingAdapter)
     }
+
 
     private fun observeViewModel() {
         dashboardViewModel.dashboardItems.observe(viewLifecycleOwner, Observer { itemsMap ->

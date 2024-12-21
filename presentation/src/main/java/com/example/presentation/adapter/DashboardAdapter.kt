@@ -17,7 +17,7 @@ class DashboardAdapter(
     private val onItemClick: (DashboardItems) -> Unit
 ) : ListAdapter<DashboardItems, DashboardAdapter.ViewHolder>(DashboardDiffCallback()) {
 
-    inner class ViewHolder(private val binding: DashboardCardviewItemsBinding) :
+    inner class ViewHolder(val binding: DashboardCardviewItemsBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: DashboardItems) {
