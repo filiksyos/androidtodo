@@ -11,22 +11,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Step 2: Grant execute permissions for Gradle wrapper
       - name: Grant execute permissions for gradlew
         run: chmod +x ./gradlew
 
-      # Step 3: Set up JDK (use Java 17)
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           java-version: 17
           distribution: temurin
 
-      # Step 4: Cache Gradle dependencies and build
       - name: Cache Gradle dependencies and build
         uses: actions/cache@v3
         with:
@@ -38,21 +34,18 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle
 
-      # Step 5: Set up Android SDK
       - name: Set up Android SDK
         uses: android-actions/setup-android@v2
         with:
           api-level: 33
           build-tools: 33.0.0
 
-      # Step 6: Run tests and save results
       - name: Run tests and save results
         run: |
           mkdir -p test-results
           ./gradlew cleanTest testDebugUnitTest || true
         continue-on-error: true
 
-      # Step 7: Upload test results as artifacts
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v3
@@ -60,7 +53,6 @@ jobs:
           name: test-results
           path: test-results/testresults.txt
 
-      # Step 8: Commit and push test results
       - name: Commit and push test results
         if: always()
         run: |
@@ -74,11 +66,11 @@ jobs:
           # Stash any remaining unstaged changes to clean the workspace
           git stash --include-untracked || echo "Nothing to stash"
 
-          # Attempt to merge instead of rebase to avoid rewriting history
+          # Attempt to merge with --allow-unrelated-histories flag
           git fetch origin CI
-          git merge origin/CI || (
+          git merge --allow-unrelated-histories origin/CI || (
             echo "Merge conflict detected. Aborting merge."
-            git merge --abort
+            git merge --abort || echo "No merge to abort."
             exit 1
           )
 
@@ -120,12 +112,12 @@ jobs:
           git add summary.txt
           git commit -m "Update summary.txt with test results [skip ci]" || echo "No changes to commit"
 
-          # Attempt to merge instead of rebase to avoid rewriting history
+          # Attempt to merge with --allow-unrelated-histories flag
           git stash --include-untracked || echo "Nothing to stash"
           git fetch origin CI
-          git merge origin/CI || (
+          git merge --allow-unrelated-histories origin/CI || (
             echo "Merge conflict detected. Aborting merge."
-            git merge --abort
+            git merge --abort || echo "No merge to abort."
             exit 1
           )
 
