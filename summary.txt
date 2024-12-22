@@ -4990,12 +4990,12 @@ Starting a Gradle Daemon (subsequent builds will be faster)
 > Task :data:preDebugBuild UP-TO-DATE
 > Task :domain:preBuild UP-TO-DATE
 > Task :domain:preDebugBuild UP-TO-DATE
-> Task :data:writeDebugAarMetadata
-> Task :presentation:preBuild UP-TO-DATE
 > Task :domain:writeDebugAarMetadata
+> Task :presentation:preBuild UP-TO-DATE
 > Task :presentation:preDebugBuild UP-TO-DATE
-> Task :app:generateDebugResValues
+> Task :data:writeDebugAarMetadata
 > Task :presentation:writeDebugAarMetadata
+> Task :app:generateDebugResValues
 > Task :data:generateDebugResValues
 > Task :data:generateDebugResources
 > Task :app:checkDebugAarMetadata
@@ -5016,20 +5016,20 @@ Starting a Gradle Daemon (subsequent builds will be faster)
 > Task :domain:processDebugManifest
 > Task :presentation:extractDeepLinksDebug
 > Task :presentation:processDebugManifest
-> Task :app:processDebugMainManifest
 > Task :app:mergeDebugResources
-> Task :app:processDebugManifest
+> Task :app:processDebugMainManifest
 > Task :app:packageDebugResources
+> Task :app:parseDebugLocalResources
+> Task :app:processDebugManifest
 > Task :app:processDebugManifestForPackage
 > Task :data:compileDebugLibraryResources
-> Task :app:parseDebugLocalResources
 > Task :domain:compileDebugLibraryResources
 > Task :data:parseDebugLocalResources
 > Task :domain:parseDebugLocalResources
 > Task :data:generateDebugRFile
 > Task :domain:generateDebugRFile
-> Task :presentation:compileDebugLibraryResources
 > Task :presentation:parseDebugLocalResources
+> Task :presentation:compileDebugLibraryResources
 > Task :presentation:generateDebugRFile
 > Task :app:processDebugResources
 > Task :data:javaPreCompileDebug
@@ -5050,10 +5050,13 @@ Starting a Gradle Daemon (subsequent builds will be faster)
 > Task :presentation:preDebugUnitTestBuild UP-TO-DATE
 > Task :presentation:generateDebugUnitTestStubRFile
 > Task :presentation:javaPreCompileDebugUnitTest
+
 > Task :data:compileDebugKotlin
+w: file:///home/runner/work/IELTS-preparation/IELTS-preparation/data/src/main/java/com/example/data/Utils/Link.kt:8:34 Elvis operator (?:) always returns the left operand of non-nullable type String
+
 > Task :data:compileDebugJavaWithJavac NO-SOURCE
-> Task :data:bundleLibCompileToJarDebug
 > Task :data:bundleLibRuntimeToJarDebug
+> Task :data:bundleLibCompileToJarDebug
 > Task :data:processDebugJavaRes
 > Task :data:compileDebugUnitTestKotlin NO-SOURCE
 > Task :data:compileDebugUnitTestJavaWithJavac NO-SOURCE
@@ -5076,8 +5079,8 @@ Starting a Gradle Daemon (subsequent builds will be faster)
 > Task :app:compileDebugKotlin NO-SOURCE
 > Task :app:compileDebugJavaWithJavac NO-SOURCE
 > Task :app:bundleDebugClassesToRuntimeJar
-> Task :app:bundleDebugClassesToCompileJar
 > Task :app:processDebugJavaRes NO-SOURCE
+> Task :app:bundleDebugClassesToCompileJar
 > Task :app:compileDebugUnitTestKotlin
 > Task :app:compileDebugUnitTestJavaWithJavac NO-SOURCE
 > Task :app:processDebugUnitTestJavaRes
@@ -5085,15 +5088,19 @@ Starting a Gradle Daemon (subsequent builds will be faster)
 > Task :app:testDebugUnitTest
 > Task :presentation:compileDebugUnitTestJavaWithJavac NO-SOURCE
 > Task :presentation:processDebugUnitTestJavaRes
+
 > Task :presentation:testDebugUnitTest
+
+DashboardViewModelTest > loadDashboardItems updates LiveData correctly FAILED
+    io.mockk.MockKException at DashboardViewModelTest.kt:47
+
+> Task :presentation:testDebugUnitTest FAILED
 
 Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
 
 You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
 
 For more on this, please refer to https://docs.gradle.org/8.9/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
-
-BUILD SUCCESSFUL in 57s
 79 actionable tasks: 75 executed, 4 up-to-date
 
 ========================================
@@ -5119,12 +5126,12 @@ Starting a Gradle Daemon (subsequent builds will be faster)
 > Task :data:preDebugBuild UP-TO-DATE
 > Task :domain:preBuild UP-TO-DATE
 > Task :domain:preDebugBuild UP-TO-DATE
-> Task :data:writeDebugAarMetadata
-> Task :presentation:preBuild UP-TO-DATE
 > Task :domain:writeDebugAarMetadata
+> Task :presentation:preBuild UP-TO-DATE
 > Task :presentation:preDebugBuild UP-TO-DATE
-> Task :app:generateDebugResValues
+> Task :data:writeDebugAarMetadata
 > Task :presentation:writeDebugAarMetadata
+> Task :app:generateDebugResValues
 > Task :data:generateDebugResValues
 > Task :data:generateDebugResources
 > Task :app:checkDebugAarMetadata
@@ -5145,20 +5152,20 @@ Starting a Gradle Daemon (subsequent builds will be faster)
 > Task :domain:processDebugManifest
 > Task :presentation:extractDeepLinksDebug
 > Task :presentation:processDebugManifest
-> Task :app:processDebugMainManifest
 > Task :app:mergeDebugResources
-> Task :app:processDebugManifest
+> Task :app:processDebugMainManifest
 > Task :app:packageDebugResources
+> Task :app:parseDebugLocalResources
+> Task :app:processDebugManifest
 > Task :app:processDebugManifestForPackage
 > Task :data:compileDebugLibraryResources
-> Task :app:parseDebugLocalResources
 > Task :domain:compileDebugLibraryResources
 > Task :data:parseDebugLocalResources
 > Task :domain:parseDebugLocalResources
 > Task :data:generateDebugRFile
 > Task :domain:generateDebugRFile
-> Task :presentation:compileDebugLibraryResources
 > Task :presentation:parseDebugLocalResources
+> Task :presentation:compileDebugLibraryResources
 > Task :presentation:generateDebugRFile
 > Task :app:processDebugResources
 > Task :data:javaPreCompileDebug
@@ -5179,10 +5186,13 @@ Starting a Gradle Daemon (subsequent builds will be faster)
 > Task :presentation:preDebugUnitTestBuild UP-TO-DATE
 > Task :presentation:generateDebugUnitTestStubRFile
 > Task :presentation:javaPreCompileDebugUnitTest
+
 > Task :data:compileDebugKotlin
+w: file:///home/runner/work/IELTS-preparation/IELTS-preparation/data/src/main/java/com/example/data/Utils/Link.kt:8:34 Elvis operator (?:) always returns the left operand of non-nullable type String
+
 > Task :data:compileDebugJavaWithJavac NO-SOURCE
-> Task :data:bundleLibCompileToJarDebug
 > Task :data:bundleLibRuntimeToJarDebug
+> Task :data:bundleLibCompileToJarDebug
 > Task :data:processDebugJavaRes
 > Task :data:compileDebugUnitTestKotlin NO-SOURCE
 > Task :data:compileDebugUnitTestJavaWithJavac NO-SOURCE
@@ -5205,8 +5215,8 @@ Starting a Gradle Daemon (subsequent builds will be faster)
 > Task :app:compileDebugKotlin NO-SOURCE
 > Task :app:compileDebugJavaWithJavac NO-SOURCE
 > Task :app:bundleDebugClassesToRuntimeJar
-> Task :app:bundleDebugClassesToCompileJar
 > Task :app:processDebugJavaRes NO-SOURCE
+> Task :app:bundleDebugClassesToCompileJar
 > Task :app:compileDebugUnitTestKotlin
 > Task :app:compileDebugUnitTestJavaWithJavac NO-SOURCE
 > Task :app:processDebugUnitTestJavaRes
@@ -5214,13 +5224,17 @@ Starting a Gradle Daemon (subsequent builds will be faster)
 > Task :app:testDebugUnitTest
 > Task :presentation:compileDebugUnitTestJavaWithJavac NO-SOURCE
 > Task :presentation:processDebugUnitTestJavaRes
+
 > Task :presentation:testDebugUnitTest
+
+DashboardViewModelTest > loadDashboardItems updates LiveData correctly FAILED
+    io.mockk.MockKException at DashboardViewModelTest.kt:47
+
+> Task :presentation:testDebugUnitTest FAILED
 
 Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
 
 You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
 
 For more on this, please refer to https://docs.gradle.org/8.9/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
-
-BUILD SUCCESSFUL in 57s
 79 actionable tasks: 75 executed, 4 up-to-date
