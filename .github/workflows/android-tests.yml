@@ -70,13 +70,17 @@ jobs:
           # Stage changes only in test-results/ folder
           git add test-results/*
           git commit -m "Update test results [skip ci]" || echo "No changes to commit"
-          
+
           # Stash any remaining unstaged changes to clean the workspace
           git stash --include-untracked || echo "Nothing to stash"
-          
-          # Pull changes and reapply stashed changes if necessary
-          git pull --rebase origin CI || git merge origin/CI
-          git stash pop || echo "No stashed changes to apply"
+
+          # Attempt to merge instead of rebase to avoid rewriting history
+          git fetch origin CI
+          git merge origin/CI || (
+            echo "Merge conflict detected. Aborting merge."
+            git merge --abort
+            exit 1
+          )
 
           # Push the results to the CI branch
           git push origin CI
@@ -111,15 +115,19 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          
+
           # Add and commit the summary file
           git add summary.txt
           git commit -m "Update summary.txt with test results [skip ci]" || echo "No changes to commit"
-          
-          # Stash and pull changes to avoid conflicts
+
+          # Attempt to merge instead of rebase to avoid rewriting history
           git stash --include-untracked || echo "Nothing to stash"
-          git pull --rebase origin CI || git merge origin/CI
-          git stash pop || echo "No stashed changes to apply"
+          git fetch origin CI
+          git merge origin/CI || (
+            echo "Merge conflict detected. Aborting merge."
+            git merge --abort
+            exit 1
+          )
 
           # Push the summary file
           git push origin CI
