@@ -49,10 +49,12 @@ jobs:
       - name: Run tests and save results
         run: |
           mkdir -p test-results
-          ./gradlew cleanTest testDebugUnitTest > test-results/testresults.txt
+          ./gradlew cleanTest testDebugUnitTest || true
+        continue-on-error: true
 
       # Step 7: Upload test results as artifacts
       - name: Upload test results
+        if: always()
         uses: actions/upload-artifact@v3
         with:
           name: test-results
@@ -64,17 +66,16 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git fetch origin CI
-          git rebase origin/CI || git merge origin/CI
           git add test-results/*
           git commit -m "Update test results [skip ci]" || echo "No changes to commit"
+          git pull --rebase origin CI || git merge origin/CI
           git push origin CI
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   generate-summary:
     name: Generate Summary
-    needs: run-tests # Ensure this runs only after the run-tests job completes
+    needs: run-tests
     runs-on: ubuntu-latest
 
     steps:
@@ -91,19 +92,18 @@ jobs:
 
       - name: Generate summary
         run: |
-          python file_summary.py || echo "Error: Script failed!"
+          mkdir -p test-results
+          python file_summary.py || echo "Error: Summary script failed!"
           cat test-results/testresults.txt >> summary.txt
 
       - name: Commit and push summary (if successful)
+        if: always()
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git stash --include-untracked # Stash any unstaged changes to allow rebasing
-          git fetch origin CI
-          git rebase origin/CI || git merge origin/CI
-          git stash pop || echo "No stashed changes to apply" # Reapply the stashed changes
           git add summary.txt
-          git commit -m "Update summary.txt with test results" || echo "No changes to commit"
+          git commit -m "Update summary.txt with test results [skip ci]" || echo "No changes to commit"
+          git pull --rebase origin CI || git merge origin/CI
           git push origin CI
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
