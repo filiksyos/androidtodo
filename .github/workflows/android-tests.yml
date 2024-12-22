@@ -81,7 +81,7 @@ jobs:
 
   generate-summary:
     name: Generate Summary
-    needs: run-tests
+    needs: run-tests  # Ensure this job starts only after the run-tests job completes
     runs-on: ubuntu-latest
 
     steps:
