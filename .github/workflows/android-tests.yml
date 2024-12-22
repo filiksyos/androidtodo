@@ -58,19 +58,25 @@ jobs:
           echo "Generating summary..." > summary.txt
           cat test-results/testresults.txt >> summary.txt
 
-      # Step 8: Commit and push test results and summary
+      # Step 8: Commit and push updates
       - name: Commit and push updates
         if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Stage only test-results.txt and summary.txt
+          # Stage only the relevant files
           git add test-results/testresults.txt summary.txt
           git commit -m "Update test results and summary [skip ci]" || echo "No changes to commit"
 
-          # Pull latest changes and push updates
-          git pull --rebase origin $(git rev-parse --abbrev-ref HEAD)
+          # Stash any remaining changes to clean the workspace
+          git stash --include-untracked || echo "Nothing to stash"
+
+          # Pull latest changes and reapply stashed changes if necessary
+          git pull --rebase origin $(git rev-parse --abbrev-ref HEAD) || echo "Rebase failed, attempting merge"
+          git stash pop || echo "No stashed changes to apply"
+
+          # Push the updates
           git push origin $(git rev-parse --abbrev-ref HEAD)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
