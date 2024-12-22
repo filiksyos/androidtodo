@@ -17,6 +17,7 @@ def get_files_to_include():
     # Collect files from build.gradle and module directories
     files_to_include = []
 
+
     # Add the root build.gradle file
     if os.path.isfile(ROOT_BUILD_FILE):
         files_to_include.append(ROOT_BUILD_FILE)
