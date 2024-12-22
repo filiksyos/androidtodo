@@ -1,4 +1,4 @@
-name: Update Test Results and Summary
+name: Android CI with Summary Generation
 
 on:
   push:
@@ -6,8 +6,8 @@ on:
       - '**'
 
 jobs:
-  run-tests-and-update-summary:
-    name: Run Tests and Update Summary
+  run-tests:
+    name: Run Tests
     runs-on: ubuntu-latest
 
     steps:
@@ -52,31 +52,76 @@ jobs:
           ./gradlew cleanTest testDebugUnitTest || true
         continue-on-error: true
 
-      # Step 7: Generate Summary
-      - name: Generate Summary
-        run: |
-          echo "Generating summary..." > summary.txt
-          cat test-results/testresults.txt >> summary.txt
+      # Step 7: Upload test results as artifacts
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: test-results/testresults.txt
 
-      # Step 8: Commit and push updates
-      - name: Commit and push updates
+      # Step 8: Commit and push test results
+      - name: Commit and push test results
         if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          # Stage only the relevant files
-          git add test-results/testresults.txt summary.txt
-          git commit -m "Update test results and summary [skip ci]" || echo "No changes to commit"
-
-          # Stash any remaining changes to clean the workspace
+          
+          # Stage changes only in test-results/ folder
+          git add test-results/*
+          git commit -m "Update test results [skip ci]" || echo "No changes to commit"
+          
+          # Stash any remaining unstaged changes to clean the workspace
           git stash --include-untracked || echo "Nothing to stash"
-
-          # Pull latest changes and reapply stashed changes if necessary
-          git pull --rebase origin $(git rev-parse --abbrev-ref HEAD) || echo "Rebase failed, attempting merge"
+          
+          # Pull changes and reapply stashed changes if necessary
+          git pull --rebase origin CI || git merge origin/CI
           git stash pop || echo "No stashed changes to apply"
 
-          # Push the updates
-          git push origin $(git rev-parse --abbrev-ref HEAD)
+          # Push the results to the CI branch
+          git push origin CI
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  generate-summary:
+    name: Generate Summary
+    needs: run-tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip
+
+      - name: Generate summary
+        run: |
+          mkdir -p test-results
+          python file_summary.py || echo "Error: Summary script failed!"
+          cat test-results/testresults.txt >> summary.txt
+
+      - name: Commit and push summary (if successful)
+        if: always()
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Add and commit the summary file
+          git add summary.txt
+          git commit -m "Update summary.txt with test results [skip ci]" || echo "No changes to commit"
+          
+          # Stash and pull changes to avoid conflicts
+          git stash --include-untracked || echo "Nothing to stash"
+          git pull --rebase origin CI || git merge origin/CI
+          git stash pop || echo "No stashed changes to apply"
+
+          # Push the summary file
+          git push origin CI
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
