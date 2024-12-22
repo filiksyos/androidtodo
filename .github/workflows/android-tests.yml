@@ -14,7 +14,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Grant execute permissions for gradlew
+      - name: Grant execute permissions for Gradlew
         run: chmod +x ./gradlew
 
       - name: Set up JDK 17
@@ -43,7 +43,8 @@ jobs:
       - name: Run tests and save results
         run: |
           mkdir -p test-results
-          ./gradlew cleanTest testDebugUnitTest || true
+          # Save test output to testresults.txt, overwriting if it exists
+          ./gradlew cleanTest testDebugUnitTest > test-results/testresults.txt || true
         continue-on-error: true
 
       - name: Upload test results
@@ -62,8 +63,8 @@ jobs:
           # Detect current branch dynamically
           CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
-          # Stage changes only in test-results/ folder
-          git add test-results/*
+          # Overwrite the existing testresults.txt file completely
+          git add -f test-results/testresults.txt
           git commit -m "Update test results [skip ci]" || echo "No changes to commit"
 
           # Stash any remaining unstaged changes to clean the workspace
@@ -98,6 +99,7 @@ jobs:
       - name: Generate summary
         run: |
           mkdir -p test-results
+          # Append test results to the summary file
           python file_summary.py || echo "Error: Summary script failed!"
           cat test-results/testresults.txt >> summary.txt
 
