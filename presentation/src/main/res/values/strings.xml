@@ -163,15 +163,13 @@
     <string name="settings">Setting</string>
     <string name="enable_wifi">Enable Wifi and Try Again!</string>
     <string name="please_wait">Please Wait</string>
-
-
-
     <string name="no_app_available">no_app_available</string>
-
-
-
-
-
-
-
+    <string name="add_todo">Add Todo</string>
+    <string name="edit_todo">Edit Todo</string>
+    <string name="delete_todo">Delete Todo</string>
+    <string name="todo_title">Title</string>
+    <string name="todo_description">Description</string>
+    <string name="todo_due_date">Due Date</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
 </resources>

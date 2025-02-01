@@ -1,7 +1,7 @@
 package com.example.presentation
 
 import android.app.Application
-import com.example.presentation.DI.appModule
+import com.example.presentation.di.presentationModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -15,7 +15,7 @@ class BaseClass : Application() {
         startKoin {
             androidContext(this@BaseClass)
             androidLogger(Level.DEBUG)
-            modules(appModule)
+            modules(presentationModule)
         }
 
 

@@ -3,12 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/navigation_graph"
-    app:startDestination="@id/dashboardFragment">
+    app:startDestination="@id/todoListFragment">
 
     <fragment
-        android:id="@+id/dashboardFragment"
-        android:name="com.example.presentation.Fragment.DashboardFragment"
-        android:label="fragment_dashboard"
-        tools:layout="@layout/fragment_dashboard" >
+        android:id="@+id/todoListFragment"
+        android:name="com.example.presentation.fragment.TodoListFragment"
+        android:label="Todo List"
+        tools:layout="@layout/fragment_todo_list">
+        <!-- Add dialog actions here later for create/edit todo -->
     </fragment>
 </navigation>
