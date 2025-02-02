@@ -9,8 +9,8 @@ android {
 
     defaultConfig {
         minSdk 21
+        targetSdk 34
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
     }
 
@@ -20,6 +20,23 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    
+    packagingOptions {
+        resources {
+            excludes += [
+                'META-INF/DEPENDENCIES',
+                'META-INF/LICENSE',
+                'META-INF/LICENSE.txt',
+                'META-INF/license.txt',
+                'META-INF/NOTICE',
+                'META-INF/NOTICE.txt',
+                'META-INF/notice.txt',
+                'META-INF/ASL2.0',
+                'META-INF/*.kotlin_module'
+            ]
+        }
+    }
+    
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
@@ -29,15 +46,61 @@ android {
     }
 }
 
+repositories {
+    maven { url 'https://jitpack.io' }
+}
+
+configurations.all {
+    resolutionStrategy {
+        // Force all BouncyCastle dependencies to use the same version
+        force 'org.bouncycastle:bcprov-jdk18on:1.78.1'
+        // Exclude older version
+        exclude group: 'org.bouncycastle', module: 'bcprov-jdk15on'
+        
+        // Exclude JAXB and Jakarta activation dependencies
+        exclude group: 'jakarta.xml.bind', module: 'jakarta.xml.bind-api'
+        exclude group: 'org.glassfish.jaxb', module: 'jaxb-core'
+        exclude group: 'org.glassfish.jaxb', module: 'jaxb-impl'
+        exclude group: 'org.eclipse.angus', module: 'angus-activation'
+        exclude group: 'jakarta.activation', module: 'jakarta.activation-api'
+    }
+}
+
 dependencies {
+    //implementation project(":domain")
 
     implementation 'androidx.core:core-ktx:1.15.0'
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'com.google.android.material:material:1.12.0'
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
 
+    // Chromia dependencies with exclusions
+    implementation('net.postchain.client:postchain-client:3.23.1') {
+        exclude group: 'org.bouncycastle', module: 'bcprov-jdk15on'
+        exclude group: 'jakarta.xml.bind', module: 'jakarta.xml.bind-api'
+        exclude group: 'org.glassfish.jaxb', module: 'jaxb-core'
+        exclude group: 'org.glassfish.jaxb', module: 'jaxb-impl'
+        exclude group: 'org.eclipse.angus', module: 'angus-activation'
+        exclude group: 'jakarta.activation', module: 'jakarta.activation-api'
+    }
+    implementation('net.postchain.client:chromia-client:3.23.1') {
+        exclude group: 'org.bouncycastle', module: 'bcprov-jdk15on'
+        exclude group: 'jakarta.xml.bind', module: 'jakarta.xml.bind-api'
+        exclude group: 'org.glassfish.jaxb', module: 'jaxb-core'
+        exclude group: 'org.glassfish.jaxb', module: 'jaxb-impl'
+        exclude group: 'org.eclipse.angus', module: 'angus-activation'
+        exclude group: 'jakarta.activation', module: 'jakarta.activation-api'
+    }
+    
+    // Required dependencies
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.8.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
+    implementation 'com.google.code.gson:gson:2.8.9'
+    
+    // Use the newer version of BouncyCastle
+    implementation 'org.bouncycastle:bcprov-jdk18on:1.78.1'
+    
     // Koin for DI
     implementation 'io.insert-koin:koin-android:3.5.0'
 }

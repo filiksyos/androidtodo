@@ -1,0 +1,47 @@
+module;
+
+import lib.ft4.core;
+import lib.ft4.account;
+
+entity todo {
+    key id: text;
+    key owner: text;
+    mutable title: text;
+    mutable description: text;
+    mutable due_date: text;
+    mutable completed: boolean;
+    created_at: text;
+}
+
+operation create_todo(id: text, title: text, description: text = "", due_date: text = "") {
+    require(account.exists(op_context.auth_descriptor.id));
+    create todo(
+        id = id,
+        owner = op_context.auth_descriptor.id,
+        title = title,
+        description = description,
+        due_date = due_date,
+        completed = false,
+        created_at = op_context.last_block_time.to_text()
+    );
+}
+
+operation update_todo(id: text, title: text?, description: text?, due_date: text?, completed: boolean?) {
+    val todo = todo @ { id };
+    require(todo.owner == op_context.auth_descriptor.id);
+    
+    if (title?) todo.title = title;
+    if (description?) todo.description = description;
+    if (due_date?) todo.due_date = due_date;
+    if (completed?) todo.completed = completed;
+}
+
+query get_todos() = todo @* {} ( 
+    .id, 
+    .owner,
+    .title,
+    .description,
+    .due_date,
+    .completed,
+    .created_at
+); 
