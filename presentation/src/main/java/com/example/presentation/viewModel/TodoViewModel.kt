@@ -1,5 +1,8 @@
 package com.example.presentation.viewModel
 
+import android.content.Context
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -12,7 +15,6 @@ import com.example.domain.UpdateTodoUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import net.postchain.crypto.KeyPair
 import java.util.UUID
 
 class TodoViewModel(
@@ -38,10 +40,11 @@ class TodoViewModel(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
 
-    fun initializeChromia(nodeUrl: String, brid: String, keyPair: KeyPair) {
+    @RequiresApi(Build.VERSION_CODES.M)
+    fun initializeChromia(context: Context) {
         viewModelScope.launch {
             try {
-                chromiaRepository.initialize(nodeUrl, brid, keyPair)
+                chromiaRepository.initialize(context)
                 loadAccounts()
                 _error.value = null
             } catch (e: Exception) {
@@ -50,10 +53,27 @@ class TodoViewModel(
         }
     }
     
+    @RequiresApi(Build.VERSION_CODES.M)
+    fun generateKeyPair() {
+        viewModelScope.launch {
+            try {
+                chromiaRepository.generateAndStoreKeyPair()
+                loadAccounts()
+                _error.value = null
+            } catch (e: Exception) {
+                _error.value = e.message ?: "Failed to generate keypair"
+            }
+        }
+    }
+    
     private fun loadAccounts() {
         viewModelScope.launch {
             try {
                 _accounts.value = chromiaRepository.getAccounts()
+                if (_accounts.value.isNotEmpty()) {
+                    // Automatically create session for the first account
+                    createSession(_accounts.value.first())
+                }
                 _error.value = null
             } catch (e: Exception) {
                 _error.value = e.message ?: "Failed to load accounts"

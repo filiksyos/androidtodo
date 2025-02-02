@@ -54,6 +54,7 @@ configurations.all {
     resolutionStrategy {
         // Force all BouncyCastle dependencies to use the same version
         force 'org.bouncycastle:bcprov-jdk18on:1.78.1'
+        
         // Exclude older version
         exclude group: 'org.bouncycastle', module: 'bcprov-jdk15on'
         
@@ -63,6 +64,13 @@ configurations.all {
         exclude group: 'org.glassfish.jaxb', module: 'jaxb-impl'
         exclude group: 'org.eclipse.angus', module: 'angus-activation'
         exclude group: 'jakarta.activation', module: 'jakarta.activation-api'
+        
+        // Force all Commons IO to use the same version
+        eachDependency { DependencyResolveDetails details ->
+            if (details.requested.group == 'commons-io' && details.requested.name == 'commons-io') {
+                details.useVersion '2.17.0'
+            }
+        }
     }
 }
 

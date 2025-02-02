@@ -1,7 +1,7 @@
 package com.example.presentation.di
 
+import com.example.data.ChromiaRepository
 import com.example.data.TodoRepository
-import com.example.data.impl.TodoRepositoryImpl
 import com.example.domain.CreateTodoUseCase
 import com.example.domain.GetTodosUseCase
 import com.example.domain.UpdateTodoUseCase
@@ -11,7 +11,7 @@ import org.koin.dsl.module
 
 val presentationModule = module {
     // Repository binding
-    single<TodoRepository> { TodoRepositoryImpl() }
+    single<TodoRepository> { ChromiaRepository.getInstance() }
 
     // Use Cases
     factory { GetTodosUseCase(get()) }
