@@ -9,6 +9,51 @@ function () = auth.add_auth_handler(
     flags = ["T", "0"]
 );
 
+// ==========================================
+// Account Management
+// ==========================================
+
+// Operation to get accounts (replacing query)
+operation get_accounts(): list<text> {
+    val owner = auth.authenticate();
+    return account @* {} ( .id.to_hex() );
+}
+
+// ==========================================
+// Session Management
+// ==========================================
+
+entity session {
+    key id: text;
+    account;
+    created_at: text;
+}
+
+operation create_session(account_id: byte_array) {
+    val acc = account @ { .id == account_id };
+    val session_id = chain_context.blockchain_rid.to_hex();
+    create session(
+        .id = session_id,
+        .account = acc,
+        .created_at = op_context.last_block_time.to_text()
+    );
+    return session_id;
+}
+
+// Operation to get session (replacing query)
+operation get_session(session_id: text): text? {
+    val owner = auth.authenticate();
+    val sess = session @? { .id == session_id };
+    return when (sess) {
+        null -> null;
+        else -> sess.account.id.to_hex();
+    };
+}
+
+// ==========================================
+// Todo Management
+// ==========================================
+
 entity todo {
     key id: text, owner: account;
     mutable title: text;
@@ -16,6 +61,14 @@ entity todo {
     mutable due_date: text = "";
     mutable completed: boolean = false;
     created_at: text;
+}
+
+// Operation to get todos (replacing query)
+operation get_todos(): list<(text, text, text, text, boolean, text)> {
+    val owner = auth.authenticate();
+    return todo @* { .owner == owner } (
+        (.id, .title, .description, .due_date, .completed, .created_at)
+    );
 }
 
 operation create_todo(
@@ -34,6 +87,7 @@ operation create_todo(
         .completed = false,
         .created_at = op_context.last_block_time.to_text()
     );
+    return id;
 }
 
 operation update_todo(
@@ -50,11 +104,6 @@ operation update_todo(
     if (description != "") task.description = description;
     if (due_date != "") task.due_date = due_date;
     if (completed != task.completed) task.completed = completed;
-}
-
-query get_todos(account_id: byte_array): list<(text, text, text, text, boolean, text)> {
-    val acc = account @ { .id == account_id };
-    return todo @* { .owner == acc } (
-        (.id, .title, .description, .due_date, .completed, .created_at)
-    );
+    
+    return true;
 } 

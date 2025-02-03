@@ -9,6 +9,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.presentation.R
 import com.example.presentation.databinding.FragmentAccountBinding
+import com.example.presentation.viewModel.AccountCreationState
 import com.example.presentation.viewModel.TodoViewModel
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.collectLatest
@@ -32,37 +33,34 @@ class AccountFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Only show the create account button initially
+        binding.accountsList.visibility = View.GONE
+        binding.noAccountsText.visibility = View.VISIBLE
+
         binding.buttonCreateAccount.setOnClickListener {
+            binding.buttonCreateAccount.isEnabled = false
+            binding.progressBar.visibility = View.VISIBLE
             viewModel.generateKeyPair()
         }
 
+        // Only observe account creation result
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.accounts.collectLatest { accounts ->
-                if (accounts.isNotEmpty()) {
-                    binding.accountsList.visibility = View.VISIBLE
-                    binding.noAccountsText.visibility = View.GONE
-                    // Update account list UI
-                    // TODO: Add RecyclerView adapter for accounts
-                } else {
-                    binding.accountsList.visibility = View.GONE
-                    binding.noAccountsText.visibility = View.VISIBLE
-                }
-            }
-        }
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.error.collectLatest { error ->
-                error?.let {
-                    Snackbar.make(view, it, Snackbar.LENGTH_LONG).show()
-                }
-            }
-        }
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.currentSession.collectLatest { session ->
-                session?.let {
-                    // Navigate to TodoListFragment when session is created
-                    findNavController().navigate(R.id.action_accountFragment_to_todoListFragment)
+            viewModel.accountCreationState.collectLatest { state ->
+                when (state) {
+                    is AccountCreationState.Success -> {
+                        binding.progressBar.visibility = View.GONE
+                        // Navigate to TodoListFragment when account is created
+                        findNavController().navigate(R.id.action_accountFragment_to_todoListFragment)
+                    }
+                    is AccountCreationState.Error -> {
+                        binding.progressBar.visibility = View.GONE
+                        binding.buttonCreateAccount.isEnabled = true
+                        Snackbar.make(view, state.message, Snackbar.LENGTH_LONG).show()
+                    }
+                    is AccountCreationState.Initial -> {
+                        binding.progressBar.visibility = View.GONE
+                        binding.buttonCreateAccount.isEnabled = true
+                    }
                 }
             }
         }

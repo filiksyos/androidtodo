@@ -14,8 +14,15 @@ import com.example.domain.GetTodosUseCase
 import com.example.domain.UpdateTodoUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.util.UUID
+import timber.log.Timber
+
+sealed class AccountCreationState {
+    object Initial : AccountCreationState()
+    object Success : AccountCreationState()
+    data class Error(val message: String) : AccountCreationState()
+}
 
 class TodoViewModel(
     private val getTodosUseCase: GetTodosUseCase,
@@ -40,15 +47,22 @@ class TodoViewModel(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
 
+    private val _accountCreationState = MutableStateFlow<AccountCreationState>(AccountCreationState.Initial)
+    val accountCreationState: StateFlow<AccountCreationState> = _accountCreationState.asStateFlow()
+
     @RequiresApi(Build.VERSION_CODES.M)
     fun initializeChromia(context: Context) {
         viewModelScope.launch {
             try {
+                Timber.d("Initializing Chromia...")
                 chromiaRepository.initialize(context)
-                loadAccounts()
                 _error.value = null
+                Timber.d("Chromia initialized successfully")
             } catch (e: Exception) {
-                _error.value = e.message ?: "Failed to initialize Chromia"
+                val errorMsg = "Failed to initialize Chromia: ${e.message}"
+                Timber.e(e, errorMsg)
+                _error.value = errorMsg
+                _accountCreationState.value = AccountCreationState.Error(errorMsg)
             }
         }
     }
@@ -57,11 +71,19 @@ class TodoViewModel(
     fun generateKeyPair() {
         viewModelScope.launch {
             try {
+                Timber.d("Generating key pair...")
                 chromiaRepository.generateAndStoreKeyPair()
-                loadAccounts()
                 _error.value = null
+                _accountCreationState.value = AccountCreationState.Success
+                Timber.d("Key pair generated successfully")
+                
+                // Only try to load accounts after successful account creation
+                loadAccounts()
             } catch (e: Exception) {
-                _error.value = e.message ?: "Failed to generate keypair"
+                val errorMsg = "Failed to generate key pair: ${e.message}"
+                Timber.e(e, errorMsg)
+                _error.value = errorMsg
+                _accountCreationState.value = AccountCreationState.Error(errorMsg)
             }
         }
     }
@@ -69,26 +91,36 @@ class TodoViewModel(
     private fun loadAccounts() {
         viewModelScope.launch {
             try {
+                Timber.d("Loading accounts...")
                 _accounts.value = chromiaRepository.getAccounts()
                 if (_accounts.value.isNotEmpty()) {
-                    // Automatically create session for the first account
+                    Timber.d("Found ${_accounts.value.size} accounts")
+                    // Only create session if we actually have accounts
                     createSession(_accounts.value.first())
+                } else {
+                    Timber.d("No accounts found")
                 }
                 _error.value = null
             } catch (e: Exception) {
-                _error.value = e.message ?: "Failed to load accounts"
+                val errorMsg = "Failed to load accounts: ${e.message}"
+                Timber.e(e, errorMsg)
+                _error.value = errorMsg
             }
         }
     }
     
-    fun createSession(account: String) {
+    private fun createSession(account: String) {
         viewModelScope.launch {
             try {
+                Timber.d("Creating session for account: $account")
                 val sessionId = chromiaRepository.createSession(account)
                 _currentSession.value = sessionId
+                Timber.d("Session created successfully: $sessionId")
                 _error.value = null
             } catch (e: Exception) {
-                _error.value = e.message ?: "Failed to create session"
+                val errorMsg = "Failed to create session: ${e.message}"
+                Timber.e(e, errorMsg)
+                _error.value = errorMsg
             }
         }
     }
@@ -97,10 +129,14 @@ class TodoViewModel(
         viewModelScope.launch {
             _loading.value = true
             try {
+                Timber.d("Loading todos...")
                 _todos.value = getTodosUseCase()
+                Timber.d("Loaded ${_todos.value?.size ?: 0} todos")
                 _error.value = null
             } catch (e: Exception) {
-                _error.value = e.message ?: "Failed to load todos"
+                val errorMsg = "Failed to load todos: ${e.message}"
+                Timber.e(e, errorMsg)
+                _error.value = errorMsg
             } finally {
                 _loading.value = false
             }
@@ -110,11 +146,15 @@ class TodoViewModel(
     fun createTodo(todo: TodoItem) {
         viewModelScope.launch {
             try {
+                Timber.d("Creating todo: ${todo.title}")
                 createTodoUseCase(todo)
                 loadTodos()
+                Timber.d("Todo created successfully")
                 _error.value = null
             } catch (e: Exception) {
-                _error.value = e.message ?: "Failed to create todo"
+                val errorMsg = "Failed to create todo: ${e.message}"
+                Timber.e(e, errorMsg)
+                _error.value = errorMsg
             }
         }
     }
@@ -122,11 +162,15 @@ class TodoViewModel(
     fun updateTodo(todo: TodoItem) {
         viewModelScope.launch {
             try {
+                Timber.d("Updating todo: ${todo.id}")
                 updateTodoUseCase(todo)
                 loadTodos()
+                Timber.d("Todo updated successfully")
                 _error.value = null
             } catch (e: Exception) {
-                _error.value = e.message ?: "Failed to update todo"
+                val errorMsg = "Failed to update todo: ${e.message}"
+                Timber.e(e, errorMsg)
+                _error.value = errorMsg
             }
         }
     }

@@ -111,4 +111,7 @@ dependencies {
     
     // Koin for DI
     implementation 'io.insert-koin:koin-android:3.5.0'
+
+    // Timber for logging
+    implementation 'com.jakewharton.timber:timber:5.0.1'
 }
