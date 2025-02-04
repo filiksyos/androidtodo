@@ -122,6 +122,53 @@ graph TD
 
 [Screenshots of dependency tree](TODO: Add screenshots)
 
+### Library Best Practices Violations
+
+The Postchain client library violates several critical library development best practices:
+
+```mermaid
+graph TD
+    subgraph "Dependency Management Violations"
+        A[Incorrect Shading] -->|Violates| B[Transparent Dependencies]
+        C[Silent Failures] -->|Violates| D[Proper Error Handling]
+        E[Method Stripping] -->|Violates| F[API Stability]
+    end
+
+    subgraph "Impact"
+        B --> G[Dependency Hell]
+        D --> H[Debug Difficulty]
+        F --> I[Integration Issues]
+    end
+
+    style A fill:#ff9999
+    style C fill:#ff9999
+    style E fill:#ff9999
+```
+
+#### 1. Dependency Handling
+- ❌ Improper dependency shading without relocating packages
+- ❌ No documentation about shaded dependencies
+- ❌ No way to exclude or replace shaded dependencies
+- ✓ Should use proper dependency management with clear documentation
+
+#### 2. API Design
+- ❌ Silent failures instead of proper error propagation
+- ❌ Undocumented internal dependency modifications
+- ❌ Breaking changes in internal dependencies
+- ✓ Should maintain backward compatibility and proper error handling
+
+#### 3. Library Packaging
+- ❌ Strips essential methods from dependencies
+- ❌ No proper versioning of shaded dependencies
+- ❌ Lacks proper manifest entries for repackaged libraries
+- ✓ Should preserve full functionality of repackaged dependencies
+
+#### 4. Integration Support
+- ❌ No configuration options for dependency conflicts
+- ❌ No documentation for troubleshooting common issues
+- ❌ No way to override internal implementations
+- ✓ Should provide clear integration guidelines and configuration options
+
 ### Conclusion
 
 This issue is fundamentally unsolvable without modifications to the Kotlin Postchain client itself. The root cause lies in their dependency shading implementation, which:
