@@ -9,9 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.data.ChromiaRepository
 import com.example.data.TodoItem
-import com.example.domain.CreateTodoUseCase
-import com.example.domain.GetTodosUseCase
-import com.example.domain.UpdateTodoUseCase
+import com.example.domain.usecase.todo.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -20,7 +18,9 @@ import java.util.UUID
 class TodoViewModel(
     private val getTodosUseCase: GetTodosUseCase,
     private val createTodoUseCase: CreateTodoUseCase,
-    private val updateTodoUseCase: UpdateTodoUseCase
+    private val updateTodoUseCase: UpdateTodoUseCase,
+    private val deleteTodoUseCase: DeleteTodoUseCase,
+    private val toggleTodoUseCase: ToggleTodoUseCase
 ) : ViewModel() {
 
     private val chromiaRepository = ChromiaRepository.getInstance()
@@ -31,8 +31,8 @@ class TodoViewModel(
     private val _currentSession = MutableStateFlow<String?>(null)
     val currentSession: StateFlow<String?> = _currentSession
     
-    private val _todos = MutableLiveData<List<TodoItem>?>()
-    val todos: LiveData<List<TodoItem>> get() = _todos as LiveData<List<TodoItem>>
+    private val _todos = MutableLiveData<List<TodoItem>>()
+    val todos: LiveData<List<TodoItem>> = _todos
 
     private val _loading = MutableStateFlow(false)
     val loading: StateFlow<Boolean> = _loading
@@ -97,60 +97,66 @@ class TodoViewModel(
 
     fun loadTodos() {
         executeWithLoading {
-            try {
-                _todos.value = getTodosUseCase()
-                _error.value = null
-            } catch (e: Exception) {
-                _error.value = e.message ?: "Failed to load todos"
-            }
+            getTodosUseCase()
+                .onSuccess { todos ->
+                    _todos.value = todos
+                    _error.value = null
+                }
+                .onFailure { e ->
+                    _error.value = e.message ?: "Failed to load todos"
+                }
         }
     }
 
     fun createTodo(todo: TodoItem) {
         executeWithLoading {
-            try {
-                createTodoUseCase(todo)
-                loadTodos()
-                _error.value = null
-            } catch (e: Exception) {
-                _error.value = e.message ?: "Failed to create todo"
-            }
+            createTodoUseCase(todo)
+                .onSuccess {
+                    loadTodos()
+                    _error.value = null
+                }
+                .onFailure { e ->
+                    _error.value = e.message ?: "Failed to create todo"
+                }
         }
     }
 
     fun updateTodo(todo: TodoItem) {
         executeWithLoading {
-            try {
-                updateTodoUseCase(todo)
-                loadTodos()
-                _error.value = null
-            } catch (e: Exception) {
-                _error.value = e.message ?: "Failed to update todo"
-            }
+            updateTodoUseCase(todo)
+                .onSuccess {
+                    loadTodos()
+                    _error.value = null
+                }
+                .onFailure { e ->
+                    _error.value = e.message ?: "Failed to update todo"
+                }
         }
     }
 
     fun deleteTodo(id: String) {
         executeWithLoading {
-            try {
-                chromiaRepository.deleteTodo(id)
-                loadTodos()
-                _error.value = null
-            } catch (e: Exception) {
-                _error.value = e.message ?: "Failed to delete todo"
-            }
+            deleteTodoUseCase(id)
+                .onSuccess {
+                    loadTodos()
+                    _error.value = null
+                }
+                .onFailure { e ->
+                    _error.value = e.message ?: "Failed to delete todo"
+                }
         }
     }
 
     fun toggleTodo(id: String) {
         executeWithLoading {
-            try {
-                chromiaRepository.toggleTodo(id)
-                loadTodos()
-                _error.value = null
-            } catch (e: Exception) {
-                _error.value = e.message ?: "Failed to toggle todo"
-            }
+            toggleTodoUseCase(id)
+                .onSuccess {
+                    loadTodos()
+                    _error.value = null
+                }
+                .onFailure { e ->
+                    _error.value = e.message ?: "Failed to toggle todo"
+                }
         }
     }
 

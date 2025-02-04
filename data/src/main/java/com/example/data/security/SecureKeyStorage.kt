@@ -23,19 +23,16 @@ class SecureKeyStorage private constructor(private val context: Context) {
     @RequiresApi(Build.VERSION_CODES.M)
     fun generateAndStoreKeyPair(): KeyPair {
         val keyPair = cryptoSystem.generateKeyPair()
-        storeKeyPair(keyPair)
+        storeKeyPair()
         return keyPair
     }
     
     @RequiresApi(Build.VERSION_CODES.M)
     fun getStoredKeyPair(): KeyPair? {
-        val base64KeyPair = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .getString(KEY_KEYPAIR, null) ?: return null
-            
+
         return try {
             // Simple storage - just store the keypair as a base64 string
             // This is a simplified version - in production you'd need proper serialization
-            val keyPairBytes = Base64.decode(base64KeyPair, Base64.DEFAULT)
             // Assume the keypair can be reconstructed from bytes
             // This is a simplified version - in production you'd need proper serialization
             cryptoSystem.generateKeyPair() // Placeholder - replace with actual keypair reconstruction
@@ -45,7 +42,7 @@ class SecureKeyStorage private constructor(private val context: Context) {
     }
     
     @RequiresApi(Build.VERSION_CODES.M)
-    private fun storeKeyPair(keyPair: KeyPair) {
+    private fun storeKeyPair() {
         // Simple storage - just store the keypair as a base64 string
         // This is a simplified version - in production you'd need proper serialization
         val keyPairBytes = ByteArray(32) // Placeholder - replace with actual keypair serialization

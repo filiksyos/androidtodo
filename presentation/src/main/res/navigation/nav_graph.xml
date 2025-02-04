@@ -10,14 +10,16 @@
         android:label="Account">
         <action
             android:id="@+id/action_accountFragment_to_todoListFragment"
-            app:destination="@id/todoListFragment"
-            app:popUpTo="@id/accountFragment"
-            app:popUpToInclusive="true" />
+            app:destination="@id/todoListFragment" />
     </fragment>
 
     <fragment
         android:id="@+id/todoListFragment"
         android:name="com.example.presentation.fragment.TodoListFragment"
-        android:label="Todo List" />
+        android:label="Todo List">
+        <action
+            android:id="@+id/action_todoListFragment_to_accountFragment"
+            app:destination="@id/accountFragment" />
+    </fragment>
 
 </navigation> 

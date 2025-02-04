@@ -66,6 +66,10 @@ class AccountFragment : Fragment() {
             showLoading("Generating new account...")
             viewModel.generateKeyPair()
         }
+
+        binding.todoListButton.setOnClickListener {
+            findNavController().navigate(R.id.action_accountFragment_to_todoListFragment)
+        }
     }
 
     private fun observeViewModel() {

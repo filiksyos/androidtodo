@@ -44,11 +44,11 @@ class ChromiaRepository private constructor() : TodoRepository {
     @RequiresApi(Build.VERSION_CODES.M)
     suspend fun initialize(context: Context) = withContext(Dispatchers.IO) {
         try {
-            this@ChromiaRepository.context = context.applicationContext
-            val config = ChromiaConfig.loadConfig(context)
-            val keyPair = secureKeyStorage.getStoredKeyPair() ?: secureKeyStorage.generateAndStoreKeyPair()
-            
-            postchainClient = PostchainClientImpl(config.copy(signers = listOf(keyPair)))
+        this@ChromiaRepository.context = context.applicationContext
+        val config = ChromiaConfig.loadConfig(context)
+        val keyPair = secureKeyStorage.getStoredKeyPair() ?: secureKeyStorage.generateAndStoreKeyPair()
+        
+        postchainClient = PostchainClientImpl(config.copy(signers = listOf(keyPair)))
             
             // Generate a simple account identifier
             val accountId = generateAccountId()
