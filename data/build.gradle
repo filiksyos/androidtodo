@@ -16,6 +16,11 @@ android {
 
     buildTypes {
         release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            debuggable true
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
@@ -34,6 +39,9 @@ android {
                 'META-INF/ASL2.0',
                 'META-INF/*.kotlin_module'
             ]
+        }
+        jniLibs {
+            useLegacyPackaging = true
         }
     }
     
@@ -66,15 +74,60 @@ configurations.all {
         exclude group: 'jakarta.activation', module: 'jakarta.activation-api'
         
         // Force all Commons IO to use the same version
-        eachDependency { DependencyResolveDetails details ->
+        eachDependency { details ->
             if (details.requested.group == 'commons-io' && details.requested.name == 'commons-io') {
-                details.useVersion '2.17.0'
+                println("Requested commons-io version: ${details.requested.version}")
             }
         }
     }
 }
 
+// Add task to print commons-io information
+tasks.register('printCommonsIoVersion') {
+    doLast {
+        println "\n=== Commons-IO Resolution Analysis ==="
+        configurations.forEach { config ->
+            try {
+                // Try first level dependencies
+                def commonsIo = config.resolvedConfiguration.firstLevelModuleDependencies.find { 
+                    it.module.id.group == 'commons-io' && it.module.id.name == 'commons-io'
+                }
+                if (commonsIo) {
+                    println "Direct dependency in '${config.name}':"
+                    println "  - Version: ${commonsIo.moduleVersion}"
+                    println "  - From: ${commonsIo.module.id}"
+                }
+                
+                // Try resolved artifacts
+                config.resolvedConfiguration.resolvedArtifacts.each { artifact ->
+                    if (artifact.moduleVersion.id.group == 'commons-io' && 
+                        artifact.moduleVersion.id.name == 'commons-io') {
+                        println "Transitive dependency in '${config.name}':"
+                        println "  - Version: ${artifact.moduleVersion.id.version}"
+                        println "  - From: ${artifact.file}"
+                    }
+                }
+            } catch (Exception e) {
+                println "Could not resolve configuration '${config.name}': ${e.message}"
+            }
+        }
+        println "=== End Commons-IO Analysis ===\n"
+    }
+}
+
+// Hook into build process
+tasks.whenTaskAdded { task ->
+    if (task.name == 'assembleDebug' || task.name == 'assembleRelease') {
+        task.dependsOn 'printCommonsIoVersion'
+    }
+}
+
 dependencies {
+
+    implementation('commons-io:commons-io:2.17.0') {
+        exclude group: 'org.apache.commons', module: 'commons-parent'
+    }
+
     //implementation project(":domain")
 
     implementation 'androidx.core:core-ktx:1.15.0'

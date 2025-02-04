@@ -34,15 +34,17 @@ class TodoViewModel(
     private val _todos = MutableLiveData<List<TodoItem>?>()
     val todos: LiveData<List<TodoItem>> get() = _todos as LiveData<List<TodoItem>>
 
-    private val _loading = MutableLiveData<Boolean>()
-    val loading: LiveData<Boolean> get() = _loading
+    private val _loading = MutableStateFlow(false)
+    val loading: StateFlow<Boolean> = _loading
 
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
 
+    private var lastOperation: (() -> Unit)? = null
+
     @RequiresApi(Build.VERSION_CODES.M)
     fun initializeChromia(context: Context) {
-        viewModelScope.launch {
+        executeWithLoading {
             try {
                 chromiaRepository.initialize(context)
                 loadAccounts()
@@ -55,7 +57,7 @@ class TodoViewModel(
     
     @RequiresApi(Build.VERSION_CODES.M)
     fun generateKeyPair() {
-        viewModelScope.launch {
+        executeWithLoading {
             try {
                 chromiaRepository.generateAndStoreKeyPair()
                 loadAccounts()
@@ -67,7 +69,7 @@ class TodoViewModel(
     }
     
     private fun loadAccounts() {
-        viewModelScope.launch {
+        executeWithLoading {
             try {
                 _accounts.value = chromiaRepository.getAccounts()
                 if (_accounts.value.isNotEmpty()) {
@@ -82,7 +84,7 @@ class TodoViewModel(
     }
     
     fun createSession(account: String) {
-        viewModelScope.launch {
+        executeWithLoading {
             try {
                 val sessionId = chromiaRepository.createSession(account)
                 _currentSession.value = sessionId
@@ -94,21 +96,18 @@ class TodoViewModel(
     }
 
     fun loadTodos() {
-        viewModelScope.launch {
-            _loading.value = true
+        executeWithLoading {
             try {
                 _todos.value = getTodosUseCase()
                 _error.value = null
             } catch (e: Exception) {
                 _error.value = e.message ?: "Failed to load todos"
-            } finally {
-                _loading.value = false
             }
         }
     }
 
     fun createTodo(todo: TodoItem) {
-        viewModelScope.launch {
+        executeWithLoading {
             try {
                 createTodoUseCase(todo)
                 loadTodos()
@@ -120,13 +119,54 @@ class TodoViewModel(
     }
 
     fun updateTodo(todo: TodoItem) {
-        viewModelScope.launch {
+        executeWithLoading {
             try {
                 updateTodoUseCase(todo)
                 loadTodos()
                 _error.value = null
             } catch (e: Exception) {
                 _error.value = e.message ?: "Failed to update todo"
+            }
+        }
+    }
+
+    fun deleteTodo(id: String) {
+        executeWithLoading {
+            try {
+                chromiaRepository.deleteTodo(id)
+                loadTodos()
+                _error.value = null
+            } catch (e: Exception) {
+                _error.value = e.message ?: "Failed to delete todo"
+            }
+        }
+    }
+
+    fun toggleTodo(id: String) {
+        executeWithLoading {
+            try {
+                chromiaRepository.toggleTodo(id)
+                loadTodos()
+                _error.value = null
+            } catch (e: Exception) {
+                _error.value = e.message ?: "Failed to toggle todo"
+            }
+        }
+    }
+
+    fun retry() {
+        lastOperation?.invoke()
+    }
+
+    private fun executeWithLoading(operation: suspend () -> Unit) {
+        lastOperation = { executeWithLoading(operation) }
+        viewModelScope.launch {
+            try {
+                _loading.value = true
+                _error.value = null
+                operation()
+            } finally {
+                _loading.value = false
             }
         }
     }
