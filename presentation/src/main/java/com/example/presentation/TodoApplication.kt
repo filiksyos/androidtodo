@@ -26,6 +26,25 @@ class TodoApplication : Application() {
         // Initialize Timber for logging
         Timber.plant(Timber.DebugTree())
         
+        // Quick test of native IO methods
+        Timber.i("=== Testing Native IO Methods ===")
+        try {
+            // Create test data
+            val testString = "Hello, World!"
+            val inputStream = testString.byteInputStream()
+            
+            // Test native readBytes()
+            val bytes = inputStream.readBytes()
+            val resultString = String(bytes)
+            
+            Timber.i("Native IO Test - Input: $testString")
+            Timber.i("Native IO Test - Output: $resultString")
+            Timber.i("Native IO Test - Success: ${testString == resultString}")
+            
+        } catch (e: Exception) {
+            Timber.e("Native IO Test Failed: ${e.message}")
+        }
+        
         // Comprehensive Commons IO Diagnostics
         Timber.i("=== Starting Commons IO Diagnostics ===")
         

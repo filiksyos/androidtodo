@@ -5,6 +5,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import com.example.data.config.ChromiaConfig
 import com.example.data.security.SecureKeyStorage
+import com.example.data.client.SafePostchainClient
 import net.postchain.client.core.PostchainClient
 import net.postchain.client.impl.PostchainClientImpl
 import net.postchain.gtv.Gtv
@@ -12,6 +13,7 @@ import net.postchain.gtv.GtvFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
+import timber.log.Timber
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.time.Duration.Companion.seconds
 
@@ -44,50 +46,80 @@ class ChromiaRepository private constructor() : TodoRepository {
     @RequiresApi(Build.VERSION_CODES.M)
     suspend fun initialize(context: Context) = withContext(Dispatchers.IO) {
         try {
-        this@ChromiaRepository.context = context.applicationContext
-        val config = ChromiaConfig.loadConfig(context)
-        val keyPair = secureKeyStorage.getStoredKeyPair() ?: secureKeyStorage.generateAndStoreKeyPair()
-        
-        postchainClient = PostchainClientImpl(config.copy(signers = listOf(keyPair)))
+            Timber.d("Initializing ChromiaRepository")
+            this@ChromiaRepository.context = context.applicationContext
+            val config = ChromiaConfig.loadConfig(context)
+            val keyPair = secureKeyStorage.getStoredKeyPair() ?: secureKeyStorage.generateAndStoreKeyPair()
+            
+            // Wrap the PostchainClient with our safe version
+            postchainClient = SafePostchainClient.wrap(
+                PostchainClientImpl(config.copy(signers = listOf(keyPair)))
+            )
             
             // Generate a simple account identifier
             val accountId = generateAccountId()
             storeCurrentAccount(accountId)
+            Timber.d("ChromiaRepository initialized successfully with account: $accountId")
         } catch (e: Exception) {
+            Timber.e(e, "Failed to initialize ChromiaRepository")
             throw IllegalStateException("Failed to initialize Chromia", e)
         }
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
     suspend fun generateAndStoreKeyPair() = withContext(Dispatchers.IO) {
-        val keyPair = secureKeyStorage.generateAndStoreKeyPair()
-        // Reinitialize PostchainClient with the new keypair
-        val config = ChromiaConfig.loadConfig(context)
-        postchainClient = PostchainClientImpl(config.copy(signers = listOf(keyPair)))
-        
-        // Generate a new account identifier
-        val accountId = generateAccountId()
-        storeCurrentAccount(accountId)
+        try {
+            Timber.d("Generating new KeyPair and reinitializing PostchainClient")
+            val keyPair = secureKeyStorage.generateAndStoreKeyPair()
+            // Reinitialize PostchainClient with the new keypair
+            val config = ChromiaConfig.loadConfig(context)
+            postchainClient = PostchainClientImpl(config.copy(signers = listOf(keyPair)))
+            
+            // Generate a new account identifier
+            val accountId = generateAccountId()
+            storeCurrentAccount(accountId)
+            Timber.d("Successfully generated new KeyPair and account: $accountId")
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to generate and store KeyPair")
+            throw e
+        }
     }
     
     override suspend fun getAccounts(): List<String> = withContext(Dispatchers.IO) {
+        Timber.d("Retrieving accounts")
         val currentAccount = getCurrentAccount()
-        return@withContext if (currentAccount != null) listOf(currentAccount) else emptyList()
+        return@withContext if (currentAccount != null) {
+            Timber.d("Found current account: $currentAccount")
+            listOf(currentAccount)
+        } else {
+            Timber.d("No accounts found")
+            emptyList()
+        }
     }
     
     override suspend fun createSession(account: String): String = withContext(Dispatchers.IO) {
+        Timber.d("Creating session for account: $account")
         val currentAccount = getCurrentAccount()
         if (currentAccount == account) {
             val sessionId = generateSessionId()
             storeCurrentSession(sessionId)
+            Timber.d("Session created successfully: $sessionId")
             return@withContext sessionId
         }
+        Timber.e("Account not found: $account")
         throw IllegalStateException("Account not found")
     }
     
     override suspend fun getSession(sessionId: String): String? = withContext(Dispatchers.IO) {
+        Timber.d("Retrieving session: $sessionId")
         val currentSession = getCurrentSession()
-        return@withContext if (sessionId == currentSession) currentSession else null
+        return@withContext if (sessionId == currentSession) {
+            Timber.d("Session found")
+            currentSession
+        } else {
+            Timber.d("Session not found")
+            null
+        }
     }
 
     private fun generateAccountId(): String {
@@ -99,6 +131,7 @@ class ChromiaRepository private constructor() : TodoRepository {
     }
 
     private fun storeCurrentAccount(accountId: String) {
+        Timber.d("Storing current account: $accountId")
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
             .putString(KEY_CURRENT_ACCOUNT, accountId)
@@ -111,6 +144,7 @@ class ChromiaRepository private constructor() : TodoRepository {
     }
 
     private fun storeCurrentSession(sessionId: String) {
+        Timber.d("Storing current session: $sessionId")
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
             .putString(KEY_CURRENT_SESSION, sessionId)
