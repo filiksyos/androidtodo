@@ -122,6 +122,49 @@ If you just want to run the app without development setup, you can use Bluestack
    - Disable antivirus temporarily
    - Clear temporary files
 
+## Path 3: Direct Installation on Android Phone
+
+The simplest way to run the app if you have an Android phone:
+
+### 1. Download APK
+- Download our pre-built APK: [todo-app.apk](releases/todo-app.apk)
+- Or scan this QR code:
+
+![APK QR Code](screenshots/apk-qr.png)
+*Scan to download the APK*
+
+### 2. Install on Phone
+1. **Enable Unknown Sources**
+   - Go to Settings > Security
+   - Enable "Install from Unknown Sources" or "Install Unknown Apps"
+   - If prompted, allow your browser/file manager to install apps
+
+2. **Install APK**
+   - Find the downloaded APK in your Downloads folder
+   - Tap the APK file
+   - Tap "Install"
+   - Wait for installation to complete
+   - Tap "Open" when done
+
+![Phone Installation](screenshots/phone-install.gif)
+*Installing on Android phone*
+
+### Phone Requirements
+- Android 11 (API 30) or higher
+- 50MB free storage
+- Internet connection for blockchain features
+
+### Troubleshooting
+1. **"App not installed" error**
+   - Check if you have enough storage space
+   - Try downloading the APK again
+   - Make sure you enabled unknown sources
+
+2. **App crashes on launch**
+   - Check if your Android version is supported
+   - Clear app data and cache
+   - Try reinstalling the app
+
 ## Troubleshooting
 
 ### Common Issues
