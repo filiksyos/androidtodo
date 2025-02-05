@@ -4,35 +4,6 @@
 
 <img src="screenshots/app-demo.gif" width="200" height="auto" alt="App Demo"/>
 
-## Table of Contents
-- [Overview](#overview)
-- [Features](#features)
-  - [Current Features](#current-features)
-  - [Limited Features](#limited-features)
-- [Architecture](#architecture)
-  - [Blockchain Integration](#blockchain-integration)
-  - [Security Model](#security-model)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation Steps](#installation-steps)
-  - [Configuration](#configuration)
-- [Usage Guide](#usage-guide)
-  - [First Launch](#first-launch)
-  - [Account Management](#account-management)
-  - [Task Management](#task-management)
-  - [UI Features](#ui-features)
-- [Technical Documentation](#technical-documentation)
-  - [Project Structure](#project-structure)
-  - [Core Technologies](#core-technologies)
-  - [Development Environment](#development-environment)
-- [Known Issues](#known-issues)
-  - [Postchain Client Limitations](#postchain-client-limitations)
-  - [Current Workarounds](#current-workarounds)
-- [Development Notes](#development-notes)
-  - [Resolved Issues](#resolved-issues)
-  - [Best Practices](#best-practices)
-- [Author](#author)
-
 ## Overview
 
 A multi-user todo list application built on the Chromia blockchain, allowing users to manage their tasks securely and efficiently through blockchain technology.
