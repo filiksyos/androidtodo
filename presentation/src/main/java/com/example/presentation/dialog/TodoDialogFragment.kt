@@ -1,6 +1,5 @@
 package com.example.presentation.dialog
 
-import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,15 +9,14 @@ import com.example.data.TodoItem
 import com.example.presentation.databinding.DialogTodoBinding
 import com.example.presentation.viewModel.TodoViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import java.text.SimpleDateFormat
 import java.util.*
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class TodoDialogFragment : DialogFragment() {
     private var _binding: DialogTodoBinding? = null
     private val binding get() = _binding!!
     private val viewModel: TodoViewModel by viewModel()
     private var todoItem: TodoItem? = null
-    private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
     companion object {
         private const val ARG_TODO = "todo"
@@ -62,15 +60,12 @@ class TodoDialogFragment : DialogFragment() {
         todoItem?.let { todo ->
             binding.titleInput.setText(todo.title)
             binding.descriptionInput.setText(todo.description)
-            binding.dueDateInput.setText(todo.dueDate)
+            binding.dialogTitle.text = "Edit Task"
+            binding.saveButton.text = "Save Changes"
         }
     }
 
     private fun setupClickListeners() {
-        binding.dueDateInput.setOnClickListener {
-            showDatePicker()
-        }
-
         binding.cancelButton.setOnClickListener {
             dismiss()
         }
@@ -80,28 +75,6 @@ class TodoDialogFragment : DialogFragment() {
         }
     }
 
-    private fun showDatePicker() {
-        val calendar = Calendar.getInstance()
-        todoItem?.dueDate?.let {
-            try {
-                calendar.time = dateFormat.parse(it) ?: Date()
-            } catch (e: Exception) {
-                // Use current date if parsing fails
-            }
-        }
-
-        DatePickerDialog(
-            requireContext(),
-            { _, year, month, day ->
-                calendar.set(year, month, day)
-                binding.dueDateInput.setText(dateFormat.format(calendar.time))
-            },
-            calendar.get(Calendar.YEAR),
-            calendar.get(Calendar.MONTH),
-            calendar.get(Calendar.DAY_OF_MONTH)
-        ).show()
-    }
-
     private fun saveTodo() {
         val title = binding.titleInput.text.toString().trim()
         if (title.isEmpty()) {
@@ -109,23 +82,33 @@ class TodoDialogFragment : DialogFragment() {
             return
         }
 
+        val description = binding.descriptionInput.text.toString().trim()
+        
         val todo = TodoItem(
             id = todoItem?.id ?: UUID.randomUUID().toString(),
-            owner = "current_user", // This should come from session
+            owner = "current_user", // This should come from your session/auth system
             title = title,
-            description = binding.descriptionInput.text.toString().trim(),
-            dueDate = binding.dueDateInput.text.toString(),
+            description = description,
             completed = todoItem?.completed ?: false,
             createdAt = todoItem?.createdAt ?: System.currentTimeMillis().toString()
         )
 
-        if (todoItem == null) {
-            viewModel.createTodo(todo)
-        } else {
-            viewModel.updateTodo(todo)
+        try {
+            if (todoItem == null) {
+                viewModel.createTodo(todo)
+            } else {
+                viewModel.updateTodo(todo)
+            }
+            dismiss()
+        } catch (e: Exception) {
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Error")
+                .setMessage("Oops! We encountered a compatibility issue with the Chromia Postchain client.\n\n" +
+                          "The current version of the Kotlin Postchain client doesn't fully support some Android API levels. " +
+                          "We're working with the Chromia team to update the client.")
+                .setPositiveButton("OK", null)
+                .show()
         }
-
-        dismiss()
     }
 
     override fun onDestroyView() {

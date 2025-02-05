@@ -3,26 +3,31 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:background="@color/surface"
+    android:padding="24dp">
 
     <TextView
         android:id="@+id/titleText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Welcome to Todo App"
-        android:textSize="24sp"
+        android:textColor="@color/primary_text"
+        android:textSize="28sp"
         android:textStyle="bold"
+        android:layout_marginTop="32dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/noAccountsText"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="No accounts found. Create one to get started!"
         android:textAlignment="center"
+        android:textColor="@color/secondary_text"
+        android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/titleText" />
@@ -31,39 +36,51 @@
         android:id="@+id/accountsList"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="24dp"
         android:visibility="gone"
+        android:clipToPadding="false"
+        android:paddingVertical="8dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintBottom_toTopOf="@id/buttonCreateAccount"
-        app:layout_constraintTop_toBottomOf="@id/titleText" />
+        app:layout_constraintBottom_toTopOf="@id/buttonContainer"
+        app:layout_constraintTop_toBottomOf="@id/noAccountsText" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/buttonCreateAccount"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/buttonContainer"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:text="Create New Account"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_marginBottom="32dp"
+        app:layout_constraintBottom_toBottomOf="parent">
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/generateKeyPairButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Generate Key Pair"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/generateKeyPairButton"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="Generate Key Pair"
+            android:textSize="16sp"
+            app:cornerRadius="12dp"
+            android:layout_marginHorizontal="16dp"
+            android:backgroundTint="@color/primary"
+            app:rippleColor="@color/ripple_color"
+            style="@style/Widget.MaterialComponents.Button" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/todoListButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Todo List"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/generateKeyPairButton" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/todoListButton"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="16dp"
+            android:text="Todo List"
+            android:textSize="16sp"
+            android:visibility="gone"
+            app:cornerRadius="12dp"
+            android:layout_marginHorizontal="16dp"
+            app:strokeColor="@color/primary"
+            android:textColor="@color/primary"
+            app:rippleColor="@color/primary_light"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout> 

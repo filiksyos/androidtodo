@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -62,7 +63,7 @@ class AccountFragment : Fragment() {
 
     @RequiresApi(Build.VERSION_CODES.M)
     private fun setupClickListeners() {
-        binding.buttonCreateAccount.setOnClickListener {
+        binding.generateKeyPairButton.setOnClickListener {
             showLoading("Generating new account...")
             viewModel.generateKeyPair()
         }
@@ -80,9 +81,11 @@ class AccountFragment : Fragment() {
                     binding.accountsList.visibility = View.VISIBLE
                     binding.noAccountsText.visibility = View.GONE
                     accountAdapter.submitList(accounts)
+                    binding.generateKeyPairButton.text = "Generate New Key Pair"
                 } else {
                     binding.accountsList.visibility = View.GONE
                     binding.noAccountsText.visibility = View.VISIBLE
+                    binding.generateKeyPairButton.text = "Generate Key Pair"
                 }
             }
         }
@@ -98,9 +101,16 @@ class AccountFragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.currentSession.collectLatest { session ->
+                hideLoading()
                 session?.let {
-                    hideLoading()
-                    findNavController().navigate(R.id.action_accountFragment_to_todoListFragment)
+                    binding.todoListButton.visibility = View.VISIBLE
+                    Toast.makeText(
+                        requireContext(),
+                        "Account ready! You can now access your Todo List.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                } ?: run {
+                    binding.todoListButton.visibility = View.GONE
                 }
             }
         }

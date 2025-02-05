@@ -58,7 +58,7 @@ class TodoListFragment : Fragment() {
     }
 
     private fun setupClickListeners() {
-        binding.addTodoButton.setOnClickListener {
+        binding.addTaskButton.setOnClickListener {
             showCreateTodoDialog()
         }
     }
@@ -111,9 +111,24 @@ class TodoListFragment : Fragment() {
     private fun showError(message: String) {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle("Error")
-            .setMessage(message)
+            .setMessage(formatErrorMessage(message))
             .setPositiveButton("OK", null)
+            .setNegativeButton("Try Again") { _, _ ->
+                viewModel.loadTodos()
+            }
             .show()
+    }
+
+    private fun formatErrorMessage(originalError: String): String {
+        return when {
+            originalError.contains("readAllBytes") || originalError.contains("NoSuchMethodError") -> {
+                "Oops! We encountered a compatibility issue with the Chromia Postchain client.\n\n" +
+                "The current version of the Kotlin Postchain client doesn't fully support some Android API levels. " +
+                "We're working with the Chromia team to update the client.\n\n" +
+                "You can try again, or if the problem persists, please check for client updates in our documentation."
+            }
+            else -> originalError
+        }
     }
 
     override fun onDestroyView() {
