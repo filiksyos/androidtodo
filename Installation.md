@@ -1,37 +1,12 @@
-# Installation Guide for Todo App
+# Android Setup Guide
 
-## Prerequisites
+This guide provides instructions for setting up the Todo App development environment on your system. Choose the appropriate path based on whether you already have Android Studio installed.
 
-1. **Java Development Kit (JDK)**
-   - Install JDK 11 or higher
-   - Set JAVA_HOME environment variable
+## Path 1: For Users with Android Studio Installed
 
-2. **Android Studio**
-   - Download and install [Android Studio](https://developer.android.com/studio)
-   - Minimum version: Arctic Fox (2020.3.1) or higher
+If you already have Android Studio installed, follow these steps:
 
-## Setting Up Android Virtual Device (AVD)
-
-1. **Open Android Studio**
-   ```bash
-   # Launch Android Studio and wait for initial setup to complete
-   ```
-
-2. **Create New Virtual Device**
-   - Go to Tools > Device Manager
-   - Click "Create Virtual Device"
-   - Select Phone category
-   - Choose "Pixel 2" (or any other device)
-   - Click "Next"
-
-3. **Select System Image**
-   - Choose "API 30" (Android 11.0)
-   - If not downloaded, click "Download" next to the system image
-   - Click "Next"
-   - Click "Finish"
-
-## Project Setup
-
+### 1. Project Setup
 1. **Clone the Repository**
    ```bash
    git clone <repository-url>
@@ -50,24 +25,59 @@
    - Ensure all dependencies are properly synced
    - Click "Sync Now" if prompted
 
-## Running the App
-
-1. **Start the AVD**
-   - In Device Manager, click the play button (▶️) next to your virtual device
-   - Wait for the emulator to fully boot up
+### 2. Run the App
+1. **Start AVD**
+   - Go to Tools > Device Manager
+   - Click the play button (▶️) next to your existing virtual device
+   - Wait for the emulator to boot up
 
 2. **Build and Run**
+   - Click the "Run" button (green play button) or press Shift + F10
+
+## Path 2: For Users Without Android Studio
+
+If you don't have Android Studio installed, you can set up just the Android Virtual Device (AVD):
+
+### 1. Install Command Line Tools
+1. **Download Android Command Line Tools**
+   - Visit [Android Studio Downloads](https://developer.android.com/studio#command-tools)
+   - Download "Command line tools only"
+   - Extract the downloaded zip file
+
+2. **Set Up Environment Variables**
    ```bash
-   # In Android Studio
-   Click the "Run" button (green play button) or press Shift + F10
+   # Add these to your system environment variables
+   ANDROID_HOME=<path-to-android-sdk>
+   PATH=%ANDROID_HOME%\cmdline-tools\latest\bin;%PATH%
    ```
 
-3. **Alternative: Command Line Build**
-   ```bash
-   # From the android directory
-   ./gradlew assembleDebug
-   ./gradlew installDebug
-   ```
+### 2. Install Required Components
+```bash
+# Install basic Android SDK components
+sdkmanager "platform-tools" "platforms;android-30" "build-tools;30.0.3"
+
+# Install system images for emulator
+sdkmanager "system-images;android-30;google_apis;x86_64"
+
+# Install emulator package
+sdkmanager "emulator"
+```
+
+### 3. Create and Start AVD
+```bash
+# Create AVD
+avdmanager create avd -n TodoApp -k "system-images;android-30;google_apis;x86_64"
+
+# Start emulator
+emulator -avd TodoApp
+```
+
+### 4. Build and Run Project
+```bash
+# From the android directory
+./gradlew assembleDebug
+./gradlew installDebug
+```
 
 ## Expected Behavior
 
@@ -86,29 +96,25 @@
 
 ## Troubleshooting
 
-1. **Gradle Build Issues**
+### Common Issues
+1. **AVD Won't Start**
+   - Ensure virtualization is enabled in BIOS
+   - Check if Hyper-V is disabled (Windows)
+   - Verify system has enough RAM (4GB minimum)
+
+2. **Build Failures**
    ```bash
    # Clean and rebuild
    ./gradlew clean
    ./gradlew build
    ```
 
-2. **AVD Won't Start**
-   - Ensure virtualization is enabled in BIOS
-   - Check if Hyper-V is disabled (Windows)
-   - Verify system has enough RAM (4GB minimum recommended)
-
-3. **App Crashes on Launch**
-   - Check logcat for detailed error messages
-   - Ensure all dependencies are properly synced
-   - Verify Android SDK version matches project requirements
-
-4. **Performance Issues**
-   - Increase AVD memory in Device Manager settings
+3. **Performance Issues**
+   - Increase AVD memory in emulator settings
    - Close unnecessary background applications
-   - Consider using a hardware accelerator (HAXM for Intel processors)
+   - Use hardware acceleration when possible
 
-## System Requirements
+### System Requirements
 
 - **Operating System**: Windows 10/11, macOS 10.14+, or Linux
 - **RAM**: Minimum 8GB (16GB recommended)
@@ -118,6 +124,7 @@
 
 ## Additional Resources
 
-- [Android Studio User Guide](https://developer.android.com/studio/intro)
-- [AVD Manager Guide](https://developer.android.com/studio/run/managing-avds)
+- [Android Command Line Tools Guide](https://developer.android.com/studio/command-line)
+- [AVD Command Line Guide](https://developer.android.com/studio/run/managing-avds-cmdline)
 - [Gradle Build Tool](https://gradle.org/)
+- [Android SDK Platform Tools](https://developer.android.com/studio/releases/platform-tools)
