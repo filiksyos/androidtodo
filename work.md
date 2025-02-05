@@ -6,6 +6,43 @@ This document explains how the Todo app was designed to work with the Chromia bl
 
 ## How It Should Work
 
+### Blockchain Configuration
+```mermaid
+graph LR
+    subgraph App Assets
+        Config[chromia_config.properties]
+    end
+
+    subgraph Configuration
+        BRID[Blockchain RID]
+        URL[Node URL]
+    end
+
+    subgraph Environment
+        Dev[Development: localhost:7740]
+        Prod[Production: remote node]
+    end
+
+    Config --> BRID
+    Config --> URL
+    URL --> Dev
+    URL --> Prod
+```
+
+The app uses a configuration file (`chromia_config.properties`) to manage blockchain connectivity:
+```properties
+# Development setup
+blockchain.rid=F8D6FA48C1F1483726E490BCEBC62A2EBC9850CDFA15FAAC8BBA76F64B9B7B6B
+node.url=http://10.0.2.2:7740
+
+```
+
+- BRID (Blockchain RID) uniquely identifies the blockchain
+- Node URL points to blockchain node:
+  - Development: `10.0.2.2:7740` (localhost from emulator)
+  - Production: Would use actual Chromia node
+- Configuration can be switched between development/production
+
 ### Key Pair Authentication
 ```mermaid
 sequenceDiagram

@@ -8,19 +8,19 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/app_icon"
+        android:icon="@mipmap/ic_launcher"
         android:name="com.example.presentation.BaseClass"
-        android:label="@string/app_name"
-        android:roundIcon="@mipmap/app_icon"
+        android:label="TODO app"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.IELTS_PREPARATION_APP"
+        android:theme="@style/Theme.TodoApp"
         >
         <profileable android:shell="true" />
 
         <activity
             android:name="com.example.presentation.splash.SplashScreenActivity"
             android:exported="true"
-            android:theme="@style/Theme.IELTS_PREPARATION_APP.Starting"
+            android:theme="@style/Theme.TodoApp.Starting"
             tools:ignore="LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -31,10 +31,9 @@
         <activity
             android:name="com.example.presentation.MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.IELTS_PREPARATION_APP"
+            android:theme="@style/Theme.TodoApp"
             tools:ignore="LockedOrientationActivity">
         </activity>
-
 
     </application>
 
