@@ -601,38 +601,6 @@ dependencies {
 }
 ```
 
-### Best Practices
-
-1. **Dependency Management**
-   - Always specify explicit versions for critical dependencies
-   - Document version compatibility requirements
-   - Use dependency exclusions to prevent conflicts
-   - Maintain clean dependency trees
-
-2. **Build Configuration**
-   - Handle resource conflicts through proper packaging options
-   - Implement appropriate ProGuard/R8 rules
-   - Configure test environments appropriately
-   - Document build customizations
-
-3. **Security Considerations**
-   - Use latest stable security provider versions
-   - Implement proper key pair generation and storage
-   - Handle cryptographic operations safely
-   - Document security-related configurations
-
-4. **Testing Strategy**
-   - Focus on unit tests when instrumentation tests are limited
-   - Implement UI tests in separate modules when possible
-   - Use mocked clients for blockchain testing
-   - Document testing limitations and workarounds
-
-5. **Error Handling**
-   - Provide user-friendly error messages
-   - Implement proper error recovery
-   - Log errors appropriately for debugging
-   - Document known issues and solutions
-
 ## Author
 
 - Name: Filiksyos Destaw
