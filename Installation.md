@@ -2,8 +2,6 @@
 
 This guide provides instructions for setting up the Todo App development environment on your system. Choose the path that works best for you.
 
-[video: setup-options.mp4]
-*Overview of setup options*
 
 ## Path 1: Using Android Studio (For Developers)
 
@@ -35,19 +33,12 @@ This guide provides instructions for setting up the Todo App development environ
    - Click "OK"
    - Wait for Gradle sync to complete
 
-   [image: open-project.png]
-   *Opening the project in Android Studio*
-
-   [video: gradle-sync.mp4]
-   *Gradle sync process*
 
 3. **Configure Gradle**
    - Open `android/build.gradle`
    - Ensure all dependencies are properly synced
    - Click "Sync Now" if prompted
 
-   [image: gradle-config.png]
-   *Gradle configuration screen*
 
 ### 3. Run the App
 1. **Create Virtual Device**
@@ -135,5 +126,3 @@ Choose one of these methods:
 - 10GB free storage space
 - Intel Core i5/AMD Ryzen 5 or better
 
-[image: system-requirements.png]
-*Detailed system requirements and recommendations*
