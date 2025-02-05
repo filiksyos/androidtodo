@@ -1,45 +1,88 @@
 package com.example.presentation.adapter
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.CheckBox
-import android.widget.TextView
+import android.widget.PopupMenu
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.data.TodoItem
 import com.example.presentation.R
+import com.example.presentation.databinding.ItemTodoBinding
 
 class TodoAdapter(
-    private val onToggleClick: (TodoItem) -> Unit,
-    private val onItemClick: (TodoItem) -> Unit
+    private val onTodoClick: (TodoItem) -> Unit,
+    private val onTodoToggle: (TodoItem) -> Unit,
+    private val onTodoEdit: (TodoItem) -> Unit,
+    private val onTodoDelete: (TodoItem) -> Unit
 ) : ListAdapter<TodoItem, TodoAdapter.TodoViewHolder>(TodoDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TodoViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_todo, parent, false)
-        return TodoViewHolder(view)
+        val binding = ItemTodoBinding.inflate(
+            LayoutInflater.from(parent.context),
+            parent,
+            false
+        )
+        return TodoViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: TodoViewHolder, position: Int) {
         holder.bind(getItem(position))
     }
 
-    inner class TodoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val titleTextView: TextView = itemView.findViewById(R.id.titleTextView)
-        private val completedCheckBox: CheckBox = itemView.findViewById(R.id.completedCheckBox)
+    inner class TodoViewHolder(
+        private val binding: ItemTodoBinding
+    ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(todo: TodoItem) {
-            titleTextView.text = todo.title
-            completedCheckBox.isChecked = todo.completed
-
-            completedCheckBox.setOnClickListener {
-                onToggleClick(todo)
+        init {
+            binding.root.setOnClickListener {
+                val position = bindingAdapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    onTodoClick(getItem(position))
+                }
             }
 
-            itemView.setOnClickListener {
-                onItemClick(todo)
+            binding.todoCheckbox.setOnClickListener {
+                val position = bindingAdapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    onTodoToggle(getItem(position))
+                }
+            }
+
+            binding.menuButton.setOnClickListener { view ->
+                val position = bindingAdapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    showPopupMenu(view, getItem(position))
+                }
+            }
+        }
+
+        private fun showPopupMenu(view: android.view.View, todo: TodoItem) {
+            PopupMenu(view.context, view).apply {
+                menuInflater.inflate(R.menu.todo_item_menu, menu)
+                setOnMenuItemClickListener { menuItem ->
+                    when (menuItem.itemId) {
+                        R.id.action_edit -> {
+                            onTodoEdit(todo)
+                            true
+                        }
+                        R.id.action_delete -> {
+                            onTodoDelete(todo)
+                            true
+                        }
+                        else -> false
+                    }
+                }
+                show()
+            }
+        }
+
+        fun bind(todo: TodoItem) {
+            binding.apply {
+                todoTitle.text = todo.title
+                todoDescription.text = todo.description
+                todoDueDate.text = todo.dueDate
+                todoCheckbox.isChecked = todo.completed
             }
         }
     }

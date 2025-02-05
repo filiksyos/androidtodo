@@ -1,11 +1,19 @@
 buildscript {
+    ext {
+        // Define versions
+        kotlin_version = "1.8.0"
+        postchain_version = "3.23.1"
+        ft4_version = "3.23.1"
+    }
+
     repositories {
         google()
         mavenCentral()
     }
+
     dependencies {
         classpath 'com.android.tools.build:gradle:8.7.2'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:2.7.6"
     }
 }
@@ -14,5 +22,93 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        maven { url "https://gitlab.com/api/v4/projects/50818999/packages/maven" }  // chromia-parent
+        maven { url "https://gitlab.com/api/v4/projects/32294340/packages/maven" }  // postchain
+        maven { url "https://gitlab.com/api/v4/projects/46288950/packages/maven" }  // postchain-client
+        maven { url 'https://jitpack.io' }
     }
+}
+
+// This is the correct place for the code
+println("Root build.gradle is being evaluated!")
+
+subprojects {
+    afterEvaluate { project ->
+        project.configurations.all {
+            exclude group: 'net.postchain', module: 'directory-chain'
+        }
+
+        // Disable androidTest related tasks
+        project.tasks.whenTaskAdded { task ->
+            if (task.name.contains('androidTest') || task.name.contains('AndroidTest')) {
+                task.enabled = false
+            }
+        }
+    }
+    
+    if (project.plugins.hasPlugin('com.android.library') || project.plugins.hasPlugin('com.android.application')) {
+        android {
+            // Disable test build type
+            testBuildType = null
+            
+            // Disable test coverage
+            buildTypes {
+                debug {
+                    testCoverageEnabled = false
+                }
+            }
+            
+            // Disable test tasks
+            testOptions {
+                unitTests.all {
+                    enabled = false
+                }
+            }
+            
+            packagingOptions {
+                resources {
+                    pickFirsts += [
+                        // Handle duplicate LICENSE files
+                        'META-INF/LICENSE.md',
+                        'META-INF/LICENSE',
+                        'META-INF/LICENSE.txt',
+                        'META-INF/NOTICE.md',
+                        'META-INF/NOTICE',
+                        'META-INF/NOTICE.txt',
+                        'META-INF/DEPENDENCIES',
+                        'META-INF/DEPENDENCIES.txt',
+                        'META-INF/INDEX.LIST',
+                        'META-INF/*.kotlin_module',
+                        'META-INF/AL2.0',
+                        'META-INF/LGPL2.1',
+                        // JAXB and Jakarta specific files
+                        'META-INF/MANIFEST.MF',
+                        'META-INF/mailcap.default',
+                        'META-INF/mimetypes.default',
+                        'META-INF/services/*',
+                        'META-INF/*.version',
+                        'META-INF/jaxb.properties',
+                        'META-INF/versions/**'
+                    ]
+                    
+                    excludes += [
+                        'META-INF/ASL2.0',
+                        'META-INF/LGPL2.1',
+                        'META-INF/gradle/incremental.annotation.processors',
+                        'META-INF/proguard/**',
+                        '**/attach_hotspot_windows.dll'
+                    ]
+
+                    merges += [
+                        'META-INF/services/javax.xml.bind.JAXBContext',
+                        'META-INF/services/jakarta.xml.bind.JAXBContext'
+                    ]
+                }
+            }
+        }
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
 }

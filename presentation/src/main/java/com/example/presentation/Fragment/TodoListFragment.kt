@@ -5,63 +5,134 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.example.presentation.R
+import androidx.lifecycle.lifecycleScope
+import com.example.data.TodoItem
 import com.example.presentation.adapter.TodoAdapter
+import com.example.presentation.databinding.FragmentTodoListBinding
+import com.example.presentation.dialog.TodoDialogFragment
 import com.example.presentation.viewModel.TodoViewModel
-import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import java.util.UUID
 
 class TodoListFragment : Fragment() {
-
+    private var _binding: FragmentTodoListBinding? = null
+    private val binding get() = _binding!!
     private val viewModel: TodoViewModel by viewModel()
-    private lateinit var adapter: TodoAdapter
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var addButton: FloatingActionButton
+    private lateinit var todoAdapter: TodoAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_todo_list, container, false)
+    ): View {
+        _binding = FragmentTodoListBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        recyclerView = view.findViewById(R.id.todoRecyclerView)
-        addButton = view.findViewById(R.id.addTodoButton)
-
         setupRecyclerView()
         setupClickListeners()
-
-        viewModel.todos.observe(viewLifecycleOwner) { todos ->
-            adapter.submitList(todos)
-        }
+        observeViewModel()
         viewModel.loadTodos()
     }
 
     private fun setupRecyclerView() {
-        adapter = TodoAdapter(
-            onToggleClick = { todo ->
-                viewModel.updateTodo(todo.copy(completed = !todo.completed))
+        todoAdapter = TodoAdapter(
+            onTodoClick = { /* Show details if needed */ },
+            onTodoToggle = { todo ->
+                viewModel.toggleTodo(todo.id)
             },
-            onItemClick = { todo ->
-                // TODO: Show edit dialog
+            onTodoEdit = { todo ->
+                showEditTodoDialog(todo)
+            },
+            onTodoDelete = { todo ->
+                showDeleteConfirmationDialog(todo)
             }
         )
-
-        recyclerView.apply {
-            layoutManager = LinearLayoutManager(context)
-            adapter = this@TodoListFragment.adapter
-        }
+        
+        binding.todoList.adapter = todoAdapter
     }
 
     private fun setupClickListeners() {
-        addButton.setOnClickListener {
-            // TODO: Show add todo dialog
+        binding.addTaskButton.setOnClickListener {
+            showCreateTodoDialog()
         }
+    }
+
+    private fun observeViewModel() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.todos.observe(viewLifecycleOwner) { todos ->
+                todos?.let {
+                    todoAdapter.submitList(it)
+                    updateEmptyState(it.isEmpty())
+                }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.error.collectLatest { error ->
+                error?.let {
+                    showError(it)
+                }
+            }
+        }
+    }
+
+    private fun updateEmptyState(isEmpty: Boolean) {
+        binding.emptyStateText.visibility = if (isEmpty) View.VISIBLE else View.GONE
+        binding.todoList.visibility = if (isEmpty) View.GONE else View.VISIBLE
+    }
+
+    private fun showCreateTodoDialog() {
+        TodoDialogFragment.newInstance()
+            .show(childFragmentManager, "create_todo")
+    }
+
+    private fun showEditTodoDialog(todo: TodoItem) {
+        TodoDialogFragment.newInstance(todo)
+            .show(childFragmentManager, "edit_todo")
+    }
+
+    private fun showDeleteConfirmationDialog(todo: TodoItem) {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Delete Todo")
+            .setMessage("Are you sure you want to delete this todo?")
+            .setPositiveButton("Delete") { _, _ ->
+                viewModel.deleteTodo(todo.id)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun showError(message: String) {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Error")
+            .setMessage(formatErrorMessage(message))
+            .setPositiveButton("OK", null)
+            .setNegativeButton("Try Again") { _, _ ->
+                viewModel.loadTodos()
+            }
+            .show()
+    }
+
+    private fun formatErrorMessage(originalError: String): String {
+        return when {
+            originalError.contains("readAllBytes") || originalError.contains("NoSuchMethodError") -> {
+                "Oops! We encountered a compatibility issue with the Chromia Postchain client.\n\n" +
+                "The current version of the Kotlin Postchain client doesn't fully support some Android API levels. " +
+                "We're working with the Chromia team to update the client.\n\n" +
+                "You can try again, or if the problem persists, please check for client updates in our documentation."
+            }
+            else -> originalError
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 } 

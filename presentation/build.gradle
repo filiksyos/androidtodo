@@ -1,72 +1,119 @@
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
+    id 'androidx.navigation.safeargs.kotlin'
 }
 
 android {
     namespace 'com.example.presentation'
-    compileSdk 35// Update with the correct package
+    compileSdk 34
 
     defaultConfig {
-        minSdk 21
+        minSdk 24
         targetSdk 34
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
     }
 
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    
+    buildFeatures {
+        viewBinding true
+    }
+    
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
-
+    
     kotlinOptions {
-        jvmTarget = '11'
+        jvmTarget = '17'
     }
 
-    viewBinding {
-        enabled = true
+    packagingOptions {
+        resources {
+            excludes += [
+                'META-INF/DEPENDENCIES',
+                'META-INF/LICENSE',
+                'META-INF/LICENSE.txt',
+                'META-INF/license.txt',
+                'META-INF/NOTICE',
+                'META-INF/NOTICE.txt',
+                'META-INF/notice.txt',
+                'META-INF/ASL2.0',
+                'META-INF/*.kotlin_module'
+            ]
+        }
     }
-    dataBinding {
-        enabled = true
+}
+
+configurations.all {
+    resolutionStrategy {
+        // Force all BouncyCastle dependencies to use the same version
+        force 'org.bouncycastle:bcprov-jdk18on:1.78.1'
+        // Exclude older version
+        exclude group: 'org.bouncycastle', module: 'bcprov-jdk15on'
     }
 }
 
 dependencies {
-    implementation project(":domain") // Dependency on the domain layer
-    implementation project(":data")//Dependency on the data layer
-    implementation "androidx.core:core-ktx:1.12.0"
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2"
-    implementation "androidx.paging:paging-runtime:3.2.1"
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.7.6'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.7.6'
-
-
-    implementation("androidx.databinding:databinding-runtime:8.1.0")
+    implementation project(':data')
+    implementation project(':domain')
+    
+    // AndroidX Core
+    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    
+    // Material Design
+    implementation 'com.google.android.material:material:1.11.0'
+    
+    // Navigation
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.7.7'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.7.7'
+    
+    // Lifecycle
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.7.0'
+    
+    // Koin
+    implementation 'io.insert-koin:koin-android:3.5.3'
+    implementation 'io.insert-koin:koin-androidx-navigation:3.5.0'
+    
+    // Image Loading
     implementation 'com.github.bumptech.glide:glide:4.15.1'
-
-    //glide
-    implementation("com.github.bumptech.glide:glide:4.15.1")
-    implementation 'androidx.recyclerview:recyclerview:1.1.0'
-    testImplementation 'androidx.test.ext:junit:1.2.1'
-    annotationProcessor("com.github.bumptech.glide:compiler:4.15.1")
-
-
-    // Koin for DI
-    implementation 'io.insert-koin:koin-android:3.5.0'
-
-    //splash screen
-    implementation("androidx.core:core-splashscreen:1.0.1")
-
-
-
-    // Testing dependencies
-    testImplementation("junit:junit:4.13.2")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1")
-    testImplementation("io.insert-koin:koin-test:3.5.0")
-    testImplementation("io.mockk:mockk:1.13.8")
-    testImplementation("androidx.arch.core:core-testing:2.2.0")
-
-    // AndroidX Test dependencies (if needed for instrumented tests)
-    androidTestImplementation("androidx.test.ext:junit:1.2.1")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
-    androidTestImplementation("io.insert-koin:koin-test-junit4:3.5.0")
-
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.15.1'
+    
+    // UI Components
+    implementation 'androidx.paging:paging-runtime:3.2.1'
+    implementation 'androidx.core:core-splashscreen:1.0.1'
+    
+    // Coroutines
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4'
+    
+    // Logging
+    implementation 'com.jakewharton.timber:timber:5.0.1'
+    
+    // Testing
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1'
+    testImplementation 'io.insert-koin:koin-test:3.5.0'
+    testImplementation 'io.mockk:mockk:1.13.8'
+    testImplementation 'androidx.arch.core:core-testing:2.2.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    
+    // Chromia dependencies
+    implementation('net.postchain.client:postchain-client:3.23.1') {
+        exclude group: 'org.bouncycastle', module: 'bcprov-jdk15on'
+    }
+    implementation('net.postchain.client:chromia-client:3.23.1') {
+        exclude group: 'org.bouncycastle', module: 'bcprov-jdk15on'
+    }
 }
