@@ -80,19 +80,19 @@ This application demonstrates the implementation of a blockchain-based todo list
 ### Blockchain Integration
 
 ```mermaid
-graph LR
-    subgraph App Assets
-        Config[chromia_config.properties]
+flowchart LR
+    subgraph Assets[App Assets]
+        Config[config.properties]
     end
 
-    subgraph Configuration
+    subgraph Config[Configuration]
         BRID[Blockchain RID]
         URL[Node URL]
     end
 
-    subgraph Environment
-        Dev[Development: localhost:7740]
-        Prod[Production: remote node]
+    subgraph Env[Environment]
+        Dev[Development]
+        Prod[Production]
     end
 
     Config --> BRID
@@ -549,21 +549,15 @@ graph TD
 
 #### Library Best Practices Violations
 
-The Postchain client library violates several critical library development best practices:
-
 ```mermaid
-graph TD
-    subgraph "Dependency Management Violations"
-        A[Incorrect Shading] -->|Violates| B[Transparent Dependencies]
-        C[Silent Failures] -->|Violates| D[Proper Error Handling]
-        E[Method Stripping] -->|Violates| F[API Stability]
-    end
-
-    subgraph "Impact"
-        B --> G[Dependency Hell]
-        D --> H[Debug Difficulty]
-        F --> I[Integration Issues]
-    end
+flowchart TD
+    A[Incorrect Shading] -->|Violates| B[Transparent Dependencies]
+    C[Silent Failures] -->|Violates| D[Proper Error Handling]
+    E[Method Stripping] -->|Violates| F[API Stability]
+    
+    B --> G[Dependency Hell]
+    D --> H[Debug Difficulty]
+    F --> I[Integration Issues]
 
     style A fill:#ff9999
     style C fill:#ff9999
@@ -571,22 +565,22 @@ graph TD
 ```
 
 1. **Dependency Handling**
-   - ❌ Improper dependency shading without relocating packages
-   - ❌ No documentation about shaded dependencies
-   - ❌ No way to exclude or replace shaded dependencies
-   - ✓ Should use proper dependency management with clear documentation
+- ❌ Improper dependency shading without relocating packages
+- ❌ No documentation about shaded dependencies
+- ❌ No way to exclude or replace shaded dependencies
+- ✓ Should use proper dependency management with clear documentation
 
 2. **API Design**
-   - ❌ Silent failures instead of proper error propagation
-   - ❌ Undocumented internal dependency modifications
-   - ❌ Breaking changes in internal dependencies
-   - ✓ Should maintain backward compatibility and proper error handling
+- ❌ Silent failures instead of proper error propagation
+- ❌ Undocumented internal dependency modifications
+- ❌ Breaking changes in internal dependencies
+- ✓ Should maintain backward compatibility and proper error handling
 
 3. **Library Packaging**
-   - ❌ Strips essential methods from dependencies
-   - ❌ No proper versioning of shaded dependencies
-   - ❌ Lacks proper manifest entries for repackaged libraries
-   - ✓ Should preserve full functionality of repackaged dependencies
+- ❌ Strips essential methods from dependencies
+- ❌ No proper versioning of shaded dependencies
+- ❌ Lacks proper manifest entries for repackaged libraries
+- ✓ Should preserve full functionality of repackaged dependencies
 
 ### Current Workarounds
 
@@ -625,18 +619,18 @@ We've extensively investigated and attempted multiple solutions:
 #### Why Solutions Failed
 
 ```mermaid
-graph TD
-    subgraph "Root Cause Analysis"
-        A[Postchain's Internal Shading] -->|Prevents| B[External Access]
-        A -->|Strips| C[Method Signatures]
-        A -->|Modifies| D[Class Loading]
-    end
+flowchart TD
+    A[Postchain Internal Shading] -->|Prevents| B[External Access]
+    A -->|Strips| C[Method Signatures]
+    A -->|Modifies| D[Class Loading]
+    
+    B -->|Blocks| E[Wrapper Solution]
+    C -->|Prevents| F[ProGuard Fix]
+    D -->|Invalidates| G[Dependency Management]
 
-    subgraph "Solution Blockers"
-        B -->|Blocks| E[Wrapper Solution]
-        C -->|Prevents| F[ProGuard Fix]
-        D -->|Invalidates| G[Dependency Management]
-    end
+    style A fill:#ff6666
+    style B fill:#ff9999
+    style C fill:#ff9999
 ```
 
 This issue is fundamentally unsolvable without modifications to the Kotlin Postchain client itself. The root cause lies in their dependency shading implementation, which:
