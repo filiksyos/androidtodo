@@ -2,8 +2,10 @@
 
 A blockchain-based todo list application that allows users to manage their tasks securely through Chromia blockchain technology.
 
-[video: app-demo.mp4](screenshots/app-demo.mp4)
+![App Demo](app-demo.gif)
 *Complete demonstration of the Todo App features and usage*
+
+[View full video demo](app-demo.mp4)
 
 ## Features Overview
 
