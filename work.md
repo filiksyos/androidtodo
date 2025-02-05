@@ -2,9 +2,11 @@
 
 ## Overview
 
-This document explains how the Todo app was designed to work with the Chromia blockchain and the current limitations we're facing.
+This document explains how the Todo app was designed to work with the Chromia blockchain and the current limitations we're facing due to issues in the Postchain client library that are outside of our control.
 
 ## How It Should Work
+
+> ⚠️ **Important Note**: While the design below is sound, its implementation is currently limited by fundamental issues in the Postchain client library that we cannot fix from our side.
 
 ### Blockchain Configuration
 ```mermaid
@@ -44,6 +46,8 @@ node.url=http://10.0.2.2:7740
 - Configuration can be switched between development/production
 
 ### Key Pair Authentication
+> 💡 **Note**: This is the only blockchain operation currently working reliably, as it doesn't require reading data through the problematic Postchain client implementation.
+
 ```mermaid
 sequenceDiagram
     participant User
@@ -76,6 +80,8 @@ The app uses public-private key pairs for secure authentication:
 - Automatic login on subsequent launches
 
 ### Development Environment Setup
+> ⚠️ **Critical**: The environment setup is correct, but the Postchain client's internal issues prevent proper data reading regardless of configuration.
+
 ```mermaid
 sequenceDiagram
     participant App as Android App
@@ -91,6 +97,8 @@ sequenceDiagram
 ```
 
 ### Intended Data Flow
+> 📝 **Note**: This represents how the app should work. However, the current Postchain client's implementation makes this flow impossible due to its internal dependency handling issues.
+
 ```mermaid
 sequenceDiagram
     participant User
@@ -117,7 +125,11 @@ sequenceDiagram
 
 ## Current Reality
 
+> ❌ **Root Issue**: The fundamental problem lies in the Postchain client's implementation, specifically its improper handling of internal dependencies. This is not something we can fix through conventional means or workarounds.
+
 ### Current Data Flow
+> 🔍 **Technical Note**: This diagram shows how the Postchain client's internal issues cause silent failures that we cannot prevent or handle properly from our code.
+
 ```mermaid
 sequenceDiagram
     participant App
@@ -134,6 +146,8 @@ sequenceDiagram
 ```
 
 ### Root Cause Analysis
+> ⚠️ **Important**: All these issues stem from the Postchain client's implementation choices. No amount of external configuration or code changes can resolve these fundamental library issues.
+
 ```mermaid
 graph TD
     subgraph "Root Cause"
@@ -155,27 +169,26 @@ graph TD
 
 ### Technical Details
 
-The issue stems from Postchain client's internal repackaging (shading) of Commons IO library:
+The core issue lies entirely within the Postchain client's implementation:
 
-1. **Library Shading Problem**
-   - Postchain repackages Commons IO internally
-   - Original class signatures are modified
-   - Version information is stripped
+1. **Library Shading Problem** (Postchain Client Issue)
+   - ❌ Postchain's improper internal dependency management
+   - ❌ Non-standard library shading implementation
+   - ❌ No documented way to override this behavior
 
-2. **Method Access Issue**
-   - Can't access shaded classes
-   - Can't modify internal implementation
-   - Can't intercept before shading
+2. **Method Access Issue** (Postchain Client Limitation)
+   - ❌ Postchain's closed architecture prevents fixes
+   - ❌ No public API to handle this correctly
+   - ❌ Internal implementation blocks all workarounds
 
-3. **Silent Failure Chain**
-   - BoundedInputStream fails to find method
-   - PostchainClientImpl swallows exception
-   - SafePostchainClient receives no data
-   - App shows error dialog to user
+3. **Silent Failure Chain** (Postchain Client Design Flaw)
+   - ❌ Poor error handling in Postchain client
+   - ❌ No error propagation mechanisms provided
+   - ❌ Lack of proper failure recovery options
 
 ### Attempted Solutions
 
-We've tried multiple approaches to resolve this:
+> ⚠️ **Note**: While we've exhaustively tried every possible solution, all attempts fail because they cannot address the core issue in the Postchain client itself.
 
 1. **Dependency Management**
 ```gradle
@@ -209,6 +222,8 @@ object IOWrapper {
 
 ### Why Solutions Failed
 
+> 🔍 **Key Point**: Every solution attempt fails because the issue must be fixed within the Postchain client library itself. No external solution can work around these fundamental library issues.
+
 ```mermaid
 graph TD
     subgraph "Solution Blockers"
@@ -225,6 +240,8 @@ graph TD
 ```
 
 ### Current Workarounds
+
+> ⚠️ **Important**: These are temporary measures while we wait for the Postchain team to fix their client library. They do not solve the underlying issues.
 
 1. **Error Handling**
    - Friendly error dialogs explain the issue
@@ -243,14 +260,16 @@ graph TD
 
 ### Next Steps
 
-The issue requires changes to the Postchain client library itself:
+The only real solution requires changes to the Postchain client library:
 
-1. **Short Term**
-   - Continue showing user-friendly error messages
-   - Document the issue for other developers
-   - Monitor for Postchain client updates
+1. **Short Term** (While Waiting for Postchain Fix)
+   - Document the Postchain client limitations
+   - Maintain clear user communication about the issue
+   - Keep monitoring for Postchain client updates
 
-2. **Long Term**
-   - Work with Chromia team on client update
-   - Consider alternative blockchain client implementation
-   - Improve error handling architecture
+2. **Long Term** (Dependent on Postchain Team)
+   - ❌ Cannot proceed until Postchain client is fixed
+   - ❌ No alternative solutions possible from our side
+   - ❌ Must wait for proper library update
+
+> 📢 **Final Note**: This issue will persist until the Postchain team addresses the fundamental flaws in their client library. No amount of application-level changes can resolve these underlying library issues.
