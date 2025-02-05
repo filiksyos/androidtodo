@@ -81,38 +81,32 @@ This application demonstrates the implementation of a blockchain-based todo list
 
 ```mermaid
 flowchart LR
-    subgraph Assets[App Assets]
-        Config[config.properties]
+    subgraph Android[Android App]
+        Config[chromia_config.properties]
     end
 
-    subgraph Config[Configuration]
+    subgraph Connection[Blockchain Connection]
         BRID[Blockchain RID]
-        URL[Node URL]
+        URL[Node URL: 10.0.2.2:7740]
     end
 
-    subgraph Env[Environment]
-        Dev[Development]
-        Prod[Production]
+    subgraph Node[Local Node]
+        PG[PostgreSQL]
+        BC[Blockchain]
     end
 
     Config --> BRID
     Config --> URL
-    URL --> Dev
-    URL --> Prod
+    URL --> PG
+    PG --> BC
 ```
 
 The app uses a configuration file (`chromia_config.properties`) to manage blockchain connectivity:
 ```properties
-# Development setup
+# Local development setup
 blockchain.rid=YOUR_BRID_HERE
 node.url=http://10.0.2.2:7740
 ```
-
-#### Configuration Details
-- BRID (Blockchain RID) uniquely identifies the blockchain
-- Node URL points to blockchain node:
-  - Development: `10.0.2.2:7740` (localhost from emulator)
-  - Production: Would use actual Chromia node
 
 ### Security Model
 
@@ -318,199 +312,59 @@ Choose the installation method that works best for you:
 
 ### Configuration
 
-1. **Development Environment Setup**
-   - Ensure all Android Studio SDK components are installed
-   - Configure your preferred IDE settings
-   - Set up version control integration if needed
+1. **Android Studio Setup**
+   - Install required SDK components
+   - Configure IDE settings
+   - Set up version control
 
-2. **Blockchain Configuration**
-   - Verify Docker is running
-   - Ensure PostgreSQL container is active
-   - Check Chromia node status
-   - Verify BRID configuration
-
-3. **Troubleshooting Common Issues**
-   - If encountering build failures:
-     - Click "File > Invalidate Caches / Restart"
-     - Try "Build > Clean Project" then rebuild
-   - For performance issues:
-     - Increase RAM for Android Studio in settings
-     - Close unnecessary applications
-     - Enable hardware acceleration in BIOS
-   - For blockchain issues:
-     - Check Docker container status
-     - Verify PostgreSQL port availability
-     - Review Chromia node logs
-
-> ⚠️ **Note**: Your browser or phone might warn you about downloading APKs from unknown sources. This is normal for apps not from Play Store.
+2. **Blockchain Setup**
+   - Ensure Docker is running
+   - Start PostgreSQL container
+   - Configure BRID and node URL
 
 ## Usage Guide
 
-### First Launch
-1. **Launch the App**
-   - Locate "Todo App" in your device's app drawer
-   - Tap to open
-
-2. **Initial Setup**
-   - The app will automatically generate a secure key pair
-   - Your account will be created automatically
-   - A toast notification will confirm when your account is ready
-   - The "Todo List" button will appear once your account is ready
-
-### Account Management
-1. **Generate Key Pair**
-   - Tap the "Generate Key Pair" button
-   - Wait for the key generation process
-   - A success toast will appear when ready
-
-2. **Account Information**
-   - Your account ID will be displayed in the list
-   - The button will update to "Generate New Key Pair"
-   - The "Todo List" button appears for account access
+### First Launch & Account Setup
+- Open app and wait for key pair generation
+- Account is created automatically
+- Success notification appears when ready
 
 ### Task Management
-1. **View Tasks**
-   - Clean list layout with consistent spacing
-   - Each task shows title and description
-   - Visual feedback for completion status
-
-2. **Add New Task**
-   - Tap the "Add New Task" button
-   - Fill in the task details:
-     - Required task title
-     - Optional description
-   - Choose "Add Task" or "Cancel"
-
-3. **Update Tasks**
-   - Tap a task to edit
-   - Modify details in the styled form
-   - Save or cancel changes
-
-4. **Delete Tasks**
-   - Tap delete icon on task
-   - Confirm in styled alert dialog
+- **View**: Tasks displayed in clean list view
+- **Add**: Tap "+" button, fill details, save
+- **Edit**: Tap task to modify
+- **Delete**: Use delete icon
+- **Complete**: Toggle checkbox
 
 ### UI Features
-1. **Color Scheme**
-   - Primary blue (#2E7BEF) for main actions
-   - Surface colors for clean backgrounds
-   - Consistent text colors for hierarchy
-   - Ripple effects for interaction feedback
-
-2. **Components**
-   - Rounded corners on all buttons (12dp)
-   - Outlined text fields with rounded corners
-   - Consistent 56dp height for buttons
-   - Proper spacing and padding throughout
-
-3. **Notifications**
-   - Toast messages for non-intrusive feedback
-   - Dialog alerts for important information
-   - Clear error states in forms
-
-4. **Error Handling**
-   - Friendly error dialogs explain any issues
-   - Clear explanation of limitations
-   - Option to retry operations
-
-> ⚠️ **Known Issue**: The current version of the Kotlin Postchain client has compatibility issues with some Android API levels. When performing blockchain operations, you might encounter an error dialog explaining the limitation. This is a temporary issue as we work with the Chromia team to update the client.
-
-<img src="screenshots/postchain-error.png" width="300" height="auto" alt="Postchain Client Error Dialog"/>
-
-*Error dialog showing Postchain client compatibility issue*
+- Material Design 3 components
+- Dark mode support
+- Error handling with retry options
+- Loading indicators and notifications
 
 ## Technical Documentation
 
 ### Project Structure
-
-The project follows a clean architecture pattern with modular design:
-
 ```
 android/
-├── app/                    # Application module
-├── data/                   # Data layer implementation
-├── domain/                 # Business logic and entities
-├── presentation/          # UI layer and ViewModels
-├── rell/                  # Blockchain smart contracts
-├── libs/                  # Local libraries
-├── screenshots/           # App screenshots and demos
-└── gradle/                # Gradle configuration
+├── app/              # Application entry point
+├── data/            # Data layer & blockchain integration
+├── domain/          # Business logic & entities
+├── presentation/    # UI layer & ViewModels
+└── rell/            # Smart contracts
 ```
 
-#### Module Details
-
-1. **App Module** (`app/`)
-   - Application entry point
-   - Dependency injection setup
-   - Module coordination
-   - Main activity and application class
-
-2. **Data Layer** (`data/`)
-   - Repository implementations
-   - Data sources (local and remote)
-   - API services and models
-   - Blockchain client integration
-   - Data mapping utilities
-
-3. **Domain Layer** (`domain/`)
-   - Business logic
-   - Use cases
-   - Repository interfaces
-   - Domain models
-   - Business rules
-
-4. **Presentation Layer** (`presentation/`)
-   - Activities and Fragments
-   - ViewModels
-   - UI models and mappers
-   - Custom views
-   - Adapters and view holders
-
-5. **Blockchain Layer** (`rell/`)
-   - Smart contract definitions
-   - Blockchain operations
-   - Data structures
-   - Access control
-
 ### Core Technologies
+1. **Android**: Material Design, AndroidX, Kotlin
+2. **Architecture**: MVVM, Clean Architecture
+3. **Blockchain**: Chromia Postchain client
+4. **Security**: Android Keystore, Key pair management
 
-1. **Android Framework**
-   - Modern Android development practices
-   - Material Design components
-   - AndroidX libraries
-   - Kotlin programming language
-
-2. **Architecture Components**
-   - ViewModel for UI state management
-   - LiveData for reactive updates
-   - Navigation for screen transitions
-   - Room for local data persistence
-
-3. **Blockchain Integration**
-   - Chromia Postchain client
-   - Secure key pair management
-   - Blockchain data synchronization
-   - Smart contract interaction
-
-4. **Security Features**
-   - Android Keystore integration
-   - Secure key storage
-   - Encrypted communications
-   - Safe blockchain operations
-
-### Development Environment
-
-1. **Required Tools**
-   - Android Studio
-   - Docker for blockchain node
-   - PostgreSQL database
-   - Chromia development tools
-
-2. **Testing Environment**
-   - Local blockchain node
-   - Android emulator
-   - Physical device testing
-   - Development configurations
+### Best Practices
+1. **Dependencies**: Use explicit versions, document requirements
+2. **Security**: Secure key storage, safe blockchain operations
+3. **Error Handling**: User-friendly messages, proper recovery
+4. **Testing**: Unit tests, mocked blockchain client
 
 ## Known Issues
 
