@@ -1,6 +1,6 @@
 # Todo App - Android Blockchain Task Manager
 
-> 📱 **Additional Project Note**: This Android application is an additional implementation of the [Chromia Todo List Assignment](https://github.com/filiksyos/todo_app), which I have already completed and submitted as a web application. I created this Android version to demonstrate my ability to work with Chromia blockchain technology across different environments and platforms. This project showcases how Chromia can be integrated into mobile applications, highlighting both the opportunities and technical challenges of blockchain integration in Android development.
+> 📱 **Additional Project Note**: This Android application is an additional implementation of the [Chromia Todo List Assignment](https://github.com/filiksyos/todo_app), which I have already completed and submitted as a web application. I created this Android version to demonstrate my ability to work with Chromia blockchain technology across different environments and platforms.
 
 <img src="screenshots/app-demo.gif" width="200" height="auto" alt="App Demo"/>
 
