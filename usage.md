@@ -25,6 +25,16 @@ A blockchain-based todo list application that allows users to manage their tasks
 - Task updates
 - Task deletion
 
+> ⚠️ **Known Issue**: The current version of the Kotlin Postchain client has compatibility issues with some Android API levels. When performing blockchain operations, you might encounter an error like this:
+> ```
+> java.lang.NoSuchMethodError: No static method readAllBytes()
+> ```
+> This is a temporary limitation as we work with the Chromia team to update the client. When this occurs, you'll see this error dialog:
+
+<img src="screenshots/postchain-error.png" width="300" height="auto" alt="App Demo"/>
+
+*Error dialog showing Postchain client compatibility issue*
+
 ## Using the App
 
 ### 1. First Launch

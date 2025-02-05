@@ -1,20 +1,17 @@
 # Project Setup Guide
 
-![Project overview](screenshots/project-overview.gif)
+<img src="screenshots/app-demo.gif" width="200" height="auto" alt="App Demo"/>
+
 *Overview of the project setup process*
 
 ## 1. Chromia Node Setup
 
 ### Prerequisites
 1. **Docker**
-   ![Docker setup](screenshots/docker-setup.gif)
-   *Installing and configuring Docker Desktop*
    - Install [Docker Desktop](https://www.docker.com/products/docker-desktop)
    - Ensure Docker daemon is running
 
 2. **Node.js**
-   ![Node.js setup](screenshots/nodejs-setup.gif)
-   *Installing Node.js and verifying installation*
    - Install [Node.js](https://nodejs.org/) (v14 or higher)
    - Verify installation:
      ```bash
@@ -23,8 +20,6 @@
      ```
 
 ### Install Chromia Development Tools
-![Chromia CLI installation](screenshots/chr-cli-install.gif)
-*Installing and verifying Chromia CLI*
 ```bash
 # Install Chromia CLI globally
 npm install -g chr-cli
@@ -33,207 +28,126 @@ npm install -g chr-cli
 chr --version
 ```
 
-### Initialize Chromia Node
-![Chromia node initialization](screenshots/chr-node-init.gif)
-*Initializing and starting Chromia node*
+### Blockchain Setup
+
+> **Important Database Setup Notes:**
+> - The Chromia node requires PostgreSQL to store blockchain data
+> - We use Docker to ensure a consistent PostgreSQL environment
+> - Port 5432 must be available for the PostgreSQL container
+> - Any local PostgreSQL service must be stopped to avoid port conflicts
+
+1. Ensure Docker is running on your system
+
+2. Stop your local PostgreSQL service if it's running (to avoid port conflicts):
+   - Windows:
+      1. Press `Windows + R`, type `services.msc` and press Enter
+      2. Find "PostgreSQL Server" in the list
+      3. Right-click and select "Stop" as shown below
+      ![Stopping PostgreSQL in Windows Services](screenshots/windows-postgresql-service.png)
+   - Linux: `sudo service postgresql stop`
+   - macOS: `brew services stop postgresql`
+
+3. Start Docker Desktop
+
+4. Start the PostgreSQL container:
 ```bash
-# Create a new directory for the node
-mkdir chromia-node
-cd chromia-node
+docker-compose up -d
+```
 
-# Initialize a new node
-chr node init
+5. Install Chromia dependencies:
+```bash
+chr install
+```
 
-# Start the node
+6. Start the local node:
+```bash
 chr node start
-
-# Verify node is running
-chr node status
 ```
 
-## 2. Project Setup
+7. Copy your BRID from the startup logs (you'll need this in the next step)
+   - Look for the BRID in the node startup logs
+   - Copy the BRID value
+   ![Finding BRID in logs](screenshots/brid-location.png)
 
-### Clone Repository
-![Repository cloning](screenshots/repo-clone.gif)
-*Cloning and initializing the repository*
-```bash
-# Clone the project
-git clone <repository-url>
-cd todo_projet
+8. Configure the Chromia properties:
+Open `android/app/src/main/assets/chromia_config.properties` and update it with your BRID:
+```properties
+# Local development configuration
+blockchain.rid=YOUR_BRID_HERE
+node.url=http://10.0.2.2:7740
 
-# Initialize and update submodules (if any)
-git submodule update --init --recursive
 ```
 
-### Build Rell Code
-![Rell build process](screenshots/rell-build.gif)
-*Building and deploying Rell code*
-```bash
-# Navigate to Rell directory
-cd android/rell
+Note: We use `10.0.2.2` instead of `localhost` because it's the special alias Android emulator uses to access the host machine's localhost.
 
-# Build Rell code
-chr build
+## 2. Android Studio Setup
 
-# Deploy to local node
-chr deploy --node-api http://localhost:7740
-```
+### 1. Install Android Studio
+1. Download Android Studio from [https://developer.android.com/studio](https://developer.android.com/studio)
+2. Run the installer and follow the setup wizard
+3. Let Android Studio download the necessary SDK components during first launch
 
-### Configure Project
-1. **Environment Setup**
-   ![Environment configuration](screenshots/env-setup.gif)
-   *Setting up environment variables*
+[image: android-studio-install.png]
+*Android Studio installation wizard*
+
+[video: sdk-download.mp4]
+*SDK components downloading during first launch*
+
+### 2. Project Setup
+1. **Clone Repository**
    ```bash
-   # Create environment file
-   cp .env.example .env
-
-   # Edit .env file with your configuration
-   # Set the following variables:
-   # - BLOCKCHAIN_RID=<your_blockchain_rid>
-   # - NODE_URL=http://localhost:7740
+   git clone <repository-url>
+   cd todo_projet
    ```
 
-2. **Blockchain Configuration**
-   ![Blockchain verification](screenshots/blockchain-verify.gif)
-   *Verifying blockchain connection*
-   ```bash
-   # Verify blockchain connection
-   chr query get_info --node-api http://localhost:7740
-   ```
+2. **Open Project in Android Studio**
+   - Click "File > Open"
+   - Navigate to the cloned repository
+   - Select the "android" folder
+   - Click "OK"
+   - Wait for Gradle sync to complete
 
-## 3. Development Workflow
 
-### Start Development Environment
-1. **Start Chromia Node**
-   ![Starting node](screenshots/start-node.gif)
-   *Starting and monitoring Chromia node*
-   ```bash
-   # Start the node if not running
-   chr node start
-   ```
+3. **Configure Gradle**
+   - Open `android/build.gradle`
+   - Ensure all dependencies are properly synced
+   - Click "Sync Now" if prompted
 
-2. **Monitor Node**
-   ![Node monitoring](screenshots/monitor-node.gif)
-   *Monitoring node status and logs*
-   ```bash
-   # View node logs
-   chr node logs
 
-   # Check node status
-   chr node status
-   ```
+### 3. Run the App
+1. **Create Virtual Device**
+   - Go to Tools > Device Manager
+   - Click "Create Device"
+   - Select any Phone (e.g., Pixel 2)
+   - Download and select the latest system image
+   - Click "Finish"
 
-3. **Deploy Changes**
-   ![Deploying changes](screenshots/deploy-changes.gif)
-   *Building and deploying code changes*
-   ```bash
-   # After making changes to Rell code
-   chr build
-   chr deploy --node-api http://localhost:7740
-   ```
+2. **Build and Run**
+   - Click the "Run" button (green play button) or press Shift + F10
+   - Select your virtual device
+   - Wait for the app to build and launch
 
-### Testing
-![Testing workflow](screenshots/testing-workflow.gif)
-*Running tests and viewing coverage*
-```bash
-# Run Rell tests
-chr test
+   ![Building and running the app](screenshots/build-and-run.png)
 
-# View test coverage
-chr test --coverage
-```
+## Development Troubleshooting
 
-## 4. Common Operations
+### Common Issues
+1. **Build Failures**
+   - Click "File > Invalidate Caches / Restart"
+   - Try "Build > Clean Project" then rebuild
 
-### Node Management
-![Node management](screenshots/node-management.gif)
-*Common node management operations*
-```bash
-# Stop node
-chr node stop
 
-# Reset node (clear all data)
-chr node reset
+2. **Performance Issues**
+   - Increase RAM for Android Studio in settings
+   - Close unnecessary applications
+   - Enable hardware acceleration in BIOS
 
-# Update node
-chr node update
-```
+   [image: performance-settings.png]
+   *Android Studio performance settings*
 
-### Blockchain Operations
-![Blockchain operations](screenshots/blockchain-ops.gif)
-*Common blockchain operations*
-```bash
-# Query blockchain
-chr query <query_name> --node-api http://localhost:7740
+### System Requirements
+- Windows 10/11, macOS 10.14+, or Linux
+- 8GB RAM minimum (16GB recommended)
+- 10GB free storage space
+- Intel Core i5/AMD Ryzen 5 or better
 
-# View transaction history
-chr history --node-api http://localhost:7740
-
-# Check node sync status
-chr sync-status --node-api http://localhost:7740
-```
-
-## 5. Troubleshooting
-
-### Node Issues
-![Node troubleshooting](screenshots/node-troubleshooting.gif)
-*Common node issues and solutions*
-
-1. **Node Won't Start**
-   ```bash
-   # Check Docker status
-   docker ps
-   docker logs chromia-node
-
-   # Reset node if necessary
-   chr node reset
-   chr node start
-   ```
-
-2. **Deployment Failures**
-   ![Deployment troubleshooting](screenshots/deployment-troubleshooting.gif)
-   *Resolving deployment issues*
-   ```bash
-   # Clean build artifacts
-   chr clean
-
-   # Rebuild and deploy
-   chr build
-   chr deploy --node-api http://localhost:7740
-   ```
-
-### Common Errors
-![Common errors](screenshots/common-errors.gif)
-*Common errors and their solutions*
-
-1. **Port Conflicts**
-   - Check if ports 7740, 7741 are available
-   - Change ports in node configuration if needed
-
-2. **Docker Issues**
-   - Ensure Docker daemon is running
-   - Check Docker logs for errors
-   - Restart Docker if necessary
-
-3. **Build Failures**
-   - Verify Rell syntax
-   - Check for missing dependencies
-   - Ensure correct Chromia CLI version
-
-## 6. Additional Resources
-![Resources overview](screenshots/resources-overview.png)
-*Overview of additional resources*
-
-- [Chromia Documentation](https://docs.chromia.com/)
-- [Rell Language Guide](https://rell.chromia.com/)
-- [Docker Documentation](https://docs.docker.com/)
-- [Node.js Documentation](https://nodejs.org/docs/)
-
-## 7. Version Information
-![Version compatibility](screenshots/version-compatibility.png)
-*Version compatibility matrix*
-
-- Chromia CLI: Latest version
-- Docker: 20.10.x or higher
-- Node.js: v14.x or higher
-- Rell: Latest version compatible with Chromia node
