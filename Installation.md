@@ -1,22 +1,32 @@
 # Android Setup Guide
 
-This guide provides instructions for setting up the Todo App development environment on your system. Choose the appropriate path based on whether you already have Android Studio installed.
+This guide provides instructions for setting up the Todo App development environment on your system. Choose the path that works best for you.
 
-![Overview of setup paths](screenshots/setup-paths-overview.gif)
-*Overview of the two setup paths*
+[video: setup-options.mp4]
+*Overview of different setup options*
 
-## Path 1: For Users with Android Studio Installed
+## Path 1: Using Android Studio (Recommended for Developers)
 
-If you already have Android Studio installed, follow these steps:
+### 1. Install Android Studio
+1. Download Android Studio from [https://developer.android.com/studio](https://developer.android.com/studio)
+2. Run the installer and follow the setup wizard
+3. Let Android Studio download the necessary SDK components during first launch
 
-### 1. Project Setup
+[image: android-studio-install.png]
+*Android Studio installation wizard*
+
+[video: sdk-download.mp4]
+*SDK components downloading during first launch*
+
+### 2. Project Setup
 1. **Clone the Repository**
    ```bash
    git clone <repository-url>
    cd todo_projet
    ```
-   ![Cloning repository](screenshots/clone-repo.gif)
-   *Cloning the repository using Git*
+
+   [video: clone-repository.mp4]
+   *How to clone the repository*
 
 2. **Open Project in Android Studio**
    - Click "File > Open"
@@ -25,169 +35,116 @@ If you already have Android Studio installed, follow these steps:
    - Click "OK"
    - Wait for Gradle sync to complete
 
-   ![Opening project](screenshots/open-project.gif)
+   [image: open-project.png]
    *Opening the project in Android Studio*
+
+   [video: gradle-sync.mp4]
+   *Gradle sync process*
 
 3. **Configure Gradle**
    - Open `android/build.gradle`
    - Ensure all dependencies are properly synced
    - Click "Sync Now" if prompted
 
-   ![Gradle sync](screenshots/gradle-sync.gif)
-   *Syncing Gradle configuration*
+   [image: gradle-config.png]
+   *Gradle configuration screen*
 
-### 2. Run the App
-1. **Start AVD**
+### 3. Run the App
+1. **Create Virtual Device**
    - Go to Tools > Device Manager
-   - Click the play button (▶️) next to your existing virtual device
-   - Wait for the emulator to boot up
+   - Click "Create Device"
+   - Select any Phone (e.g., Pixel 2)
+   - Download and select the latest system image
+   - Click "Finish"
 
-   ![Starting AVD](screenshots/start-avd.gif)
-   *Starting the Android Virtual Device*
+   [video: create-avd.mp4]
+   *Creating an Android Virtual Device*
 
 2. **Build and Run**
    - Click the "Run" button (green play button) or press Shift + F10
+   - Select your virtual device
+   - Wait for the app to build and launch
 
-   ![Building and running](screenshots/build-run.gif)
+   [video: build-and-run.mp4]
    *Building and running the app*
 
-## Path 2: For Users Without Android Studio
+## Path 2: Using Bluestacks (For Users)
 
-If you don't have Android Studio installed, you can run the app directly using our pre-built APK:
+If you just want to run the app without development setup, you can use Bluestacks:
 
-### 1. Install Command Line Tools
-1. **Download Android Command Line Tools**
-   - Visit [Android Studio Downloads](https://developer.android.com/studio#command-tools)
-   - Download "Command line tools only"
-   - Extract the downloaded zip file
+### 1. Install Bluestacks
+1. Download Bluestacks from [https://www.bluestacks.com](https://www.bluestacks.com)
+2. Run the installer and follow the setup wizard
+3. Wait for initial setup to complete
 
-   ![Command line tools download](screenshots/cmdline-tools-download.png)
-   *Downloading Android Command Line Tools*
+[video: bluestacks-install.mp4]
+*Installing Bluestacks emulator*
 
-2. **Set Up Environment Variables**
-   ```bash
-   # Add these to your system environment variables
-   ANDROID_HOME=<path-to-android-sdk>
-   PATH=%ANDROID_HOME%\cmdline-tools\latest\bin;%PATH%
-   ```
+### 2. Run the App
+1. **Download the APK**
+   - Download our pre-built APK from the releases section
+   - Or use this direct link: [todo-app.apk]
 
-   ![Environment variables setup](screenshots/env-vars-setup.gif)
-   *Setting up environment variables*
+2. **Install on Bluestacks**
+   - Double-click the APK file
+   - Bluestacks will open automatically
+   - Click "Install" when prompted
+   - Wait for installation to complete
 
-### 2. Install Required Components
-```bash
-# Install platform-tools for adb
-sdkmanager "platform-tools"
-
-# Install system images for emulator
-sdkmanager "system-images;android-30;google_apis;x86_64"
-
-# Install emulator package
-sdkmanager "emulator"
-```
-
-![Installing components](screenshots/install-components.gif)
-*Installing required Android components*
-
-### 3. Create and Start AVD
-```bash
-# Create AVD
-avdmanager create avd -n TodoApp -k "system-images;android-30;google_apis;x86_64"
-
-# Start emulator
-emulator -avd TodoApp
-```
-
-![Creating and starting AVD](screenshots/create-start-avd.gif)
-*Creating and starting the Android Virtual Device*
-
-### 4. Install Pre-built APK
-1. **Locate the APK**
-   ```bash
-   # The APK is located in the repository
-   cd todo_projet/android/app/release/
-   ```
-
-2. **Install APK using ADB**
-   ```bash
-   # Make sure your emulator is running
-   adb install app-release.apk
-   ```
-
-   ![Installing APK](screenshots/install-apk.gif)
-   *Installing the pre-built APK on the emulator*
+   [video: bluestacks-install-apk.mp4]
+   *Installing the app on Bluestacks*
 
 3. **Launch the App**
-   - The app will appear in your emulator's app drawer
-   - Tap the icon to launch
+   - Find "Todo App" in Bluestacks
+   - Click to launch
+   - You're ready to go!
 
-   ![Launching app](screenshots/launch-app.gif)
-   *Launching the installed app*
+   [image: app-in-bluestacks.png]
+   *Todo App running in Bluestacks*
 
-## Expected Behavior
+### Bluestacks System Requirements
+- Windows 7 or higher
+- 4GB RAM minimum
+- 5GB free storage space
+- Intel/AMD processor
 
-> ⚠️ **Note**: Due to known issues with the Postchain client integration, the app will have limited functionality.
+[image: bluestacks-requirements.png]
+*Bluestacks system requirements*
 
-### Working Features
-![Working features demo](screenshots/working-features.gif)
-*Demonstration of working features*
+### Troubleshooting Bluestacks
+1. **Performance Issues**
+   - Enable virtualization in BIOS
+   - Allocate more RAM in Bluestacks settings
+   - Update graphics drivers
 
-- App will launch successfully
-- Key pair generation will work
-- Account creation will succeed
-- Basic UI will render
-
-### Non-Working Features
-![Non-working features](screenshots/non-working-features.gif)
-*Demonstration of non-working features*
-
-- Todo list retrieval will fail silently
-- Adding/updating/deleting todos will not work
-- Blockchain interactions will fail
+2. **Installation Problems**
+   - Run installer as administrator
+   - Disable antivirus temporarily
+   - Clear temporary files
 
 ## Troubleshooting
 
 ### Common Issues
-1. **AVD Won't Start**
-   ![AVD troubleshooting](screenshots/avd-troubleshooting.gif)
-   *Common AVD issues and solutions*
-   - Ensure virtualization is enabled in BIOS
-   - Check if Hyper-V is disabled (Windows)
-   - Verify system has enough RAM (4GB minimum)
+1. **Build Failures**
+   - Click "File > Invalidate Caches / Restart"
+   - Try "Build > Clean Project" then rebuild
 
-2. **Build Failures**
-   ![Build troubleshooting](screenshots/build-troubleshooting.gif)
-   *Common build issues and solutions*
-   ```bash
-   # Clean and rebuild
-   ./gradlew clean
-   ./gradlew build
-   ```
+   [image: build-errors.png]
+   *Common build error messages and solutions*
 
-3. **Performance Issues**
-   ![Performance optimization](screenshots/performance-optimization.gif)
-   *Performance optimization tips*
-   - Increase AVD memory in emulator settings
-   - Close unnecessary background applications
-   - Use hardware acceleration when possible
+2. **Performance Issues**
+   - Increase RAM for Android Studio in settings
+   - Close unnecessary applications
+   - Enable hardware acceleration in BIOS
+
+   [image: performance-settings.png]
+   *Android Studio performance settings*
 
 ### System Requirements
+- Windows 10/11, macOS 10.14+, or Linux
+- 8GB RAM minimum (16GB recommended)
+- 10GB free storage space
+- Intel Core i5/AMD Ryzen 5 or better
 
-![System requirements](screenshots/system-requirements.png)
-*Minimum and recommended system requirements*
-
-- **Operating System**: Windows 10/11, macOS 10.14+, or Linux
-- **RAM**: Minimum 8GB (16GB recommended)
-- **Storage**: At least 10GB free space
-- **Processor**: Intel Core i5/AMD Ryzen 5 or better
-- **Graphics**: OpenGL 2.0 capable system
-
-## Additional Resources
-
-![Additional resources](screenshots/additional-resources.png)
-*Quick links to additional documentation*
-
-- [Android Command Line Tools Guide](https://developer.android.com/studio/command-line)
-- [AVD Command Line Guide](https://developer.android.com/studio/run/managing-avds-cmdline)
-- [Gradle Build Tool](https://gradle.org/)
-- [Android SDK Platform Tools](https://developer.android.com/studio/releases/platform-tools)
+[image: system-requirements.png]
+*Detailed system requirements and recommendations*

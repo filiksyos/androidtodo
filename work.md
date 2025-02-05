@@ -2,170 +2,126 @@
 
 ## Overview
 
-This document explains how the Todo app is designed to work and its current state, particularly focusing on the Postchain client integration issues.
+This document explains how the Todo app was designed to work with the Chromia blockchain and the current limitations we're facing.
 
-## System Architecture
+## How It Should Work
 
-### Components
-
-```mermaid
-graph TB
-    subgraph Presentation Layer
-        UI[TodoListFragment]
-        VM[TodoViewModel]
-        App[TodoApplication]
-    end
-
-    subgraph Domain Layer
-        Rep[ChromiaRepository]
-        PC[PostchainClient]
-    end
-
-    subgraph Data Layer
-        SPC[SafePostchainClient]
-        KS[SecureKeyStorage]
-        IO[IOWrapper]
-    end
-
-    subgraph Blockchain
-        BC[Postchain Blockchain]
-    end
-
-    UI --> VM
-    VM --> Rep
-    App --> Rep
-    Rep --> SPC
-    Rep --> KS
-    SPC --> PC
-    PC --> BC
-    SPC --> IO
-```
-
-## Current App Flow
-
-### Initialization Process
-
+### Development Environment Setup
 ```mermaid
 sequenceDiagram
-    participant App as TodoApplication
-    participant Rep as ChromiaRepository
-    participant KS as SecureKeyStorage
-    participant SPC as SafePostchainClient
-    participant BC as Blockchain
-
-    App->>Rep: initialize()
-    Rep->>KS: retrieveKeyPair()
-    KS-->>Rep: return stored keypair
-    Rep->>SPC: initialize with keypair
-    SPC->>BC: attempt connection
-    Note over SPC,BC: Connection established successfully
-
-    Rep->>Rep: store account
-    Note over Rep: account_1738710405265
-    Rep-->>App: initialization complete
+    participant App as Android App
+    participant Emu as Android Emulator
+    participant Node as Local Blockchain Node
+    
+    Note over App,Node: Development Environment
+    App->>Emu: Run in emulator
+    Emu->>Node: Connect to 10.0.2.2:7480
+    Note over Emu,Node: 10.0.2.2 is localhost from emulator
+    Node-->>Emu: Connection established
+    Emu-->>App: Ready for operations
 ```
 
-### Data Query Process (Expected vs Actual)
-
+### Intended Data Flow
 ```mermaid
 sequenceDiagram
-    participant App
-    participant Rep as ChromiaRepository
-    participant SPC as SafePostchainClient
-    participant PC as PostchainClient
-    participant BC as Blockchain
+    participant User
+    participant App as Android App
+    participant Node as Blockchain Node
+    participant Chain as Blockchain
 
-    %% Expected Flow
-    rect rgb(200, 255, 200)
-        Note over App,BC: Expected Flow
-        App->>Rep: getTodos()
-        Rep->>SPC: query("get_todos")
-        SPC->>PC: delegate query
-        PC->>BC: send query
-        BC-->>PC: return response
-        PC-->>SPC: process response
-        SPC-->>Rep: return todos
-        Rep-->>App: display todos
-    end
+    Note over App,Chain: How it should work
+    
+    User->>App: Create todo
+    App->>Node: Send to blockchain (localhost:7480)
+    Node->>Chain: Store in blockchain
+    Chain-->>Node: Confirm storage
+    Node-->>App: Success response
+    App-->>User: Show updated todo list
 
-    %% Actual Flow with Error
-    rect rgb(255, 200, 200)
-        Note over App,BC: Actual Flow (With Error)
-        App->>Rep: getTodos()
-        Rep->>SPC: query("get_todos")
-        SPC->>PC: delegate query
-        PC->>BC: send query
-        BC-->>PC: return response
-        Note over PC: BoundedInputStream.readAllBytes missing
-        PC--xSPC: Silent failure
-        SPC--xRep: Query fails
-        Rep--xApp: No data returned
-    end
+    User->>App: Request todos
+    App->>Node: Query blockchain
+    Node->>Chain: Fetch data
+    Chain-->>Node: Return todos
+    Node-->>App: Send todos
+    App-->>User: Display todos
 ```
 
-## Current Issues
+## Current Reality
 
-### 1. Postchain Client Integration Problem
-
+### Current Data Flow
 ```mermaid
-graph TD
-    subgraph "Root Cause Analysis"
-        A[Postchain Client Library] -->|Uses| B[Shaded Commons IO]
-        B -->|Missing| C[readAllBytes method]
-        C -->|Causes| D[Silent Failures]
-    end
+sequenceDiagram
+    participant User
+    participant App as Android App
+    participant Node as Blockchain Node
+    participant Chain as Blockchain
 
-    subgraph "Failed Solutions"
-        E[Custom IOWrapper] -->|Cannot Access| F[Shaded Classes]
-        G[ProGuard Rules] -->|Cannot Protect| H[Already Shaded Classes]
-    end
+    Note over App,Chain: Current Situation
+    
+    User->>App: Create todo
+    App->>Node: Send to blockchain
+    Node->>Chain: Store in blockchain
+    Chain-->>Node: Return response
+    Note over Node,App: ❌ Can't read response
+    App-->>User: Show error message
 
-    subgraph "Impact"
-        I[Query Operations] -->|Fail Silently| J[No Data Retrieved]
-        J -->|Results In| K[Empty Todo List]
-    end
+    User->>App: Request todos
+    App->>Node: Query blockchain
+    Node->>Chain: Fetch data
+    Chain-->>Node: Return todos
+    Note over Node,App: ❌ Can't read response
+    App-->>User: Show empty list
 ```
 
-### 2. Working Features
+## Key Differences
 
-The following features are currently working as expected:
+### What Should Work
+1. **Blockchain Connection**
+   - App connects to local blockchain node in development (10.0.2.2:7480)
+   - Production would use remote blockchain node
+   - Secure communication channel established
 
-1. Key Pair Generation and Storage
-2. Account Creation and Management
-3. Basic UI Rendering
-4. Repository Initialization
+2. **Data Storage**
+   - All todos stored on blockchain
+   - Each user has their own account
+   - Data is persistent and secure
 
-### 3. Non-Working Features
+3. **Operations**
+   - Create, read, update, delete todos
+   - Real-time updates
+   - Data validation on blockchain
 
-Features currently not working due to the Postchain client issue:
+### What Actually Works
+1. **Blockchain Connection**
+   - Connection established successfully
+   - Can send data to blockchain
+   - ❌ Cannot read responses from blockchain
 
-1. Todo List Retrieval
-2. Adding New Todos
-3. Updating Existing Todos
-4. Deleting Todos
+2. **Data Storage**
+   - Data might be stored (can't verify)
+   - Account creation works
+   - ❌ Cannot retrieve stored data
 
-## Log Analysis
+3. **Operations**
+   - ✅ Account creation
+   - ✅ Key pair generation
+   - ❌ Todo operations fail
+   - ❌ No data retrieval
 
-Based on the application logs, we can see:
+## Root Cause
+The issue stems from the Postchain client library:
+- Uses an outdated version of Commons IO
+- Missing critical functionality for reading data
+- Cannot be easily fixed due to library architecture
 
-1. Successful initialization:
-   - Key pair retrieval works
-   - Account creation successful
-   - Repository initialization completes
+## Impact
+- App can connect to blockchain
+- Can potentially write data (unverified)
+- Cannot read any data back
+- Results in non-functional todo operations
 
-2. Failed operations:
-   - BoundedInputStream.readAllBytes method missing
-   - Silent failures in SafePostchainClient
-   - Query operations not completing
-
-## Recommendations
-
-1. Short-term workarounds:
-   - Implement custom serialization/deserialization
-   - Use alternative IO methods
-   - Create a proxy layer for IO operations
-
-2. Long-term solutions:
-   - Work with Postchain team to fix Commons IO shading
-   - Implement custom client without shaded dependencies
-   - Use alternative blockchain client implementation
+## Current Workaround
+- Show appropriate error messages
+- Explain limitations to users
+- Focus on account management features that work
+- Await updates to Postchain client
