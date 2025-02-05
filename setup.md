@@ -61,8 +61,8 @@ chr install
 
 6. Start the local node:
 ```bash
-chr node start
-```
+   chr node start
+   ```
 
 7. Copy your BRID from the startup logs (you'll need this in the next step)
    - Look for the BRID in the node startup logs
